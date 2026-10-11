@@ -51,3 +51,13 @@ This source checkout serves files from `dist/`. The standalone ZIP puts those sa
 Tests: `npm test` (Node 22+ recommended; no dependency installation needed). The suite checks calendar boundaries, nutrition totals, partial/missing data, backup restoration, meal-plan validation, and UI workflows using a minimal DOM harness. Browser visual and installation checks were not available in the build environment.
 
 To release updated files, bump the shell cache version in `sw.js`. The service worker uses network-first requests with cached offline fallbacks and deletes only this app’s old caches.
+
+## v1.1: usual foods, copying and meal/photo imports
+
+- **Today → Your usual foods**: add, edit, or delete reusable foods. Editing a usual food never changes meals already logged. Meal forms can also save their serving as a usual food. This list is included in backups; old backups receive the original starter list once.
+- **Add meal / Edit a meal → Copy this meal to other days**: choose a week, select dates or the entire Monday–Sunday week, and choose the meal plan or the eaten-food log. The saved meal date is excluded from copies. Copies add servings, preserve check-ins, and do not overwrite other meals. Eaten-food copies make the destination food logs partial for review.
+- **Today or ChatGPT → Import meal / photo**: optionally select the original photo to read JPEG EXIF DateTimeOriginal, confirm the date/time, and add portion notes. Generate and copy the prompt, attach the photo separately in ChatGPT, and paste its JSON response back. No API key and no photo upload by this app.
+- **Timestamp limits**: the app reads original capture timestamps from JPEG EXIF only. HEIC, screenshots, and stripped images may have no readable capture time. It never uses file modification time as capture time. If unavailable, enter the date/time from your photo Details screen, or leave it unknown and fill it in during meal review. Camera wall-clock time needs confirmation when traveling across timezones.
+- **Import review**: accepts 1–100 meals in JSON with schemaVersion 1 and a meals array. Review/edit each meal’s date, time, name, portion, calories, protein, carbs and fat. Unknown date/time can be null in the response, but eaten/planned entries need confirmed values before saving. Import into the eaten-food log, meal plan, or usual foods; optionally save imported entries as usual foods too. Imports add servings rather than overwrite records. Photo macro estimates are approximate.
+
+Twenty automated checks cover the core logic and UI flows with a minimal DOM harness. Browser visual QA was unavailable in this environment.
