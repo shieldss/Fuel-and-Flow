@@ -82,3 +82,7 @@ A **Grocery list** appears below the selected week’s Meal plan. It derives foo
 ## v1.4.2: swipe meal actions
 
 On Today and Meal plan, swipe a meal **right** to reveal a blue **Edit** button and red **Delete** button with icons. Swipe left or tap the exposed meal content to close the tray. Vertical scrolling stays available. Desktop users can drag with a mouse; keyboard users can focus a meal and press Right Arrow/Enter/Space to expose actions, or Left Arrow/Escape to close them. Only one tray opens at a time. Delete always asks for confirmation; deleting a planned meal does not delete logged food. Gesture and deletion behavior are covered by automated checks; on-device visual QA was unavailable.
+
+## v1.4.3: discoverable row actions
+
+Each meal includes an arrow and **Swipe right for options** indicator. Tap the indicator to expose the same buttons without swiping. Usual-food rows now expose Edit/Delete through the same tray; weekly workouts expose purple Copy, blue Edit and red Delete. Primary actions such as Log this food remain visible. Grocery checkboxes stay visible because they are the main shopping action. Swipes preserve vertical scrolling, support mouse/keyboard interaction, and destructive actions retain confirmations.
