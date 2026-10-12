@@ -14,3 +14,5 @@
 .meal-front:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
 
 .swipe-meal .meal-front{padding-left:36px}.swipe-hint{position:absolute;left:0;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:30px;min-height:44px;padding:0;margin:0;background:transparent;color:var(--muted)}.swipe-hint svg{width:21px;height:21px;color:var(--green)}.swipe-hint:hover,.swipe-hint:focus-visible{color:var(--green);background:var(--bg)}.swipe-open .swipe-hint{visibility:hidden}.swipe-copy{background:#7661b3;border-radius:10px 0 0 10px}.meal-swipe-actions .swipe-action:not(:first-child):not(:last-child){border-radius:0}.meal-swipe-actions .swipe-action:last-child{border-radius:0 10px 10px 0}
+
+.swipe-meal .meal-front.meal-time-swipe{padding-left:0}.meal-time-swipe .meal-time{position:relative;align-self:stretch;padding-bottom:44px}.meal-time-swipe .meal-time .swipe-hint{left:50%;top:50%;transform:translate(-50%,-50%)}
