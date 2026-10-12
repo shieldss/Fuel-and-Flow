@@ -78,3 +78,7 @@ In **Weekly training schedule**, use a workout’s copy icon or open its Add/Edi
 ## v1.4: weekly groceries
 
 A **Grocery list** appears below the selected week’s Meal plan. It derives foods from planned portion descriptions, combines matching names/units and sums explicitly stated quantities. Unclear descriptions remain visible for review; mixed units are kept separate. Expand an item to see its original portions and source meals. Check items off as you shop, or use **Copy list**. Checkmarks are local, week-specific, included in backups, and no longer apply to an item if its quantity or use count changes. The list recalculates when planned meals are added, edited, removed or imported; eaten-food logs and other weeks are excluded. 36 automated checks passed.
+
+## v1.4.2: swipe meal actions
+
+On Today and Meal plan, swipe a meal **right** to reveal a blue **Edit** button and red **Delete** button with icons. Swipe left or tap the exposed meal content to close the tray. Vertical scrolling stays available. Desktop users can drag with a mouse; keyboard users can focus a meal and press Right Arrow/Enter/Space to expose actions, or Left Arrow/Escape to close them. Only one tray opens at a time. Delete always asks for confirmation; deleting a planned meal does not delete logged food. Gesture and deletion behavior are covered by automated checks; on-device visual QA was unavailable.

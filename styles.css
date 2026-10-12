@@ -8,4 +8,7 @@
 
 .grocery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.grocery-item{padding:15px;border:1px solid var(--line);border-radius:12px}.grocery-item .check{align-items:start}.grocery-amount{display:block;margin-top:5px}.grocery-item details{margin:12px 0 0 27px}.grocery-done strong{text-decoration:line-through;color:var(--muted)}@media(max-width:700px){.grocery-grid{grid-template-columns:1fr}}
 
-.meal-buttons:has([data-action="edit-planned-meal"]){flex-direction:column;gap:8px}.meal-buttons [data-action="edit-planned-meal"]{font-size:12px;padding:8px 12px}
+
+
+.swipe-meal{position:relative;overflow:hidden;border-top:1px solid var(--line)}.swipe-meal .meal-front{position:relative;z-index:1;border-top:0;margin:0;background:var(--surface);touch-action:pan-y;transition:transform .18s ease;user-select:none;min-height:96px}.swipe-open .meal-front{transform:translateX(144px)}.swipe-dragging .meal-front{transition:none}.meal-swipe-actions{position:absolute;inset:7px auto 7px 0;display:flex;gap:0;width:144px;opacity:0;pointer-events:none}.swipe-open .meal-swipe-actions,.swipe-dragging .meal-swipe-actions{opacity:1;pointer-events:auto}.swipe-action{width:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:750;color:#fff;min-height:44px}.swipe-action svg{width:23px;height:23px}.swipe-edit{background:#245cba;border-radius:10px 0 0 10px}.swipe-delete{background:#c33d48;border-radius:0 10px 10px 0}.swipe-action:focus-visible{outline-offset:-4px}@media(prefers-reduced-motion:reduce){.swipe-meal .meal-front{transition:none}}
+.meal-front:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
