@@ -66,3 +66,11 @@ Planned **Add meal** and **Edit meal** forms include **Fill from Usual foods**. 
 29 automated checks passed. Browser visual testing remained unavailable; the generated icon artwork was visually inspected.
 
 Personal profile fields, including Sex (Male/Female), are entered in Settings and saved only to device storage. Published application source uses blank profile defaults. Existing locally saved values are preserved.
+
+## v1.3: workout intensity and copying
+
+Workout intensity is selected from **Light**, **Moderate**, or **Hard**. Older free-text values migrate to the closest option (for example, Easy → Light and Moderate–hard → Hard).
+
+In **Weekly training schedule**, use a workout’s copy icon or open its Add/Edit form. Expand **Copy workout to other days**, choose weekdays or **Entire Monday–Sunday week**, and save. The source day is saved once; each other selected day receives a separate recurring session with its own ID. Copies retain the time, duration, type and intensity, add to existing sessions, and do not modify historical logs. All schedule data stays in local browser storage and backups.
+
+33 automated checks passed; browser visual QA was unavailable.
