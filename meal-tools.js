@@ -3,7 +3,7 @@ export function parseMeals(text){let raw=text.trim();const fenced=raw.match(/```
 export function applyMeals(state,entries,destination,id=()=>crypto.randomUUID()){
  if(!['actual','plan','usual'].includes(destination))throw Error('Choose a valid destination.');
  const clean=entries.map(m=>{const checked=validateMeal(m);if(destination!=='usual'&&!validDate(m.date))throw Error('Choose a valid date for every meal.');return {...checked,date:m.date};});
- for(const m of clean){const {date,...meal}=m;if(destination==='usual')state.usualFoods.push({...meal,id:id()});else if(destination==='plan'){const p=state.plans[date]??={meals:[],notes:''};p.meals.push(meal);p.meals.sort((a,b)=>a.time.localeCompare(b.time));}else{const d=state.days[date]??=freshDay(date);d.meals.push({...meal,id:id()});d.meals.sort((a,b)=>a.time.localeCompare(b.time));d.complete=false;}}
+ for(const m of clean){const {date,...meal}=m;if(destination==='usual')state.usualFoods.push({...meal,id:id()});else if(destination==='plan'){const p=state.plans[date]??={meals:[],notes:''};p.meals.push(meal);p.meals.sort((a,b)=>a.time.localeCompare(b.time));}else{const d=state.days[date]??=freshDay(date,state.weeklyTraining);d.meals.push({...meal,id:id()});d.meals.sort((a,b)=>a.time.localeCompare(b.time));d.complete=false;}}
  return clean.length;
 }
 export function copyDates(start,checked,all,source){if(!validDate(start))throw Error('Choose a valid week.');return range(start,'week').filter(k=>k!==source&&(all||checked.includes(k)));}

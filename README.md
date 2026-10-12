@@ -25,16 +25,9 @@ The downloadable `fuel-and-flow-github-v1.0.0.zip` contains the app files at its
 
 GitHub Pages serves static code; the diary remains local to your browser. The separate private ChatGPT-hosted version has its own storage. Move data between them with backup export/import. Private-host authentication may require a network connection even though the app shell supports offline use.
 
-## Defaults from the initial conversation
+## Local-only profile
 
-- Profile: Joel, male, 49; latest reported 174 lb; starting weight 185 lb. Height and goal weight left blank.
-- BJJ: Monday, Tuesday and Thursday, 6 PM, 60–90 minutes.
-- Two-week lifting trial: Monday moderate upper; Wednesday moderate lower; Friday moderate upper; Saturday light full body. Tuesday/Thursday BJJ only; Sunday rest or easy walk.
-- Energy: historical baseline 4/10; editable goal 7/10. No fake diary entries are seeded.
-- Editable reference macros: protein 165g; carbs 225g on BJJ days or 165g otherwise; fat 65g. No calorie target is preset because maintenance calories have not been established.
-- Familiar starter foods are available as estimates requiring review before logging.
-
-These are flexible tracking references from the conversation, not a medical prescription. Imported meal nutrition is estimated. The app does not diagnose fatigue or automatically lower intake.
+New installations have a blank personal profile, no recurring sessions and no prefilled usual foods. Enter your profile and targets in Settings, and add sessions and foods as needed. These values, food logs and plans live in local browser storage and your exported backup files. Existing browser data and older backups are preserved during upgrades. Blank fields mean unknown. Generated ChatGPT prompts include personal context only when you choose to generate and copy them. No personal profile or daily log is sent to GitHub.
 
 ## Backup and import behavior
 
@@ -61,3 +54,15 @@ To release updated files, bump the shell cache version in `sw.js`. The service w
 - **Import review**: accepts 1–100 meals in JSON with schemaVersion 1 and a meals array. Review/edit each meal’s date, time, name, portion, calories, protein, carbs and fat. Unknown date/time can be null in the response, but eaten/planned entries need confirmed values before saving. Import into the eaten-food log, meal plan, or usual foods; optionally save imported entries as usual foods too. Imports add servings rather than overwrite records. Photo macro estimates are approximate.
 
 Twenty automated checks cover the core logic and UI flows with a minimal DOM harness. Browser visual QA was unavailable in this environment.
+
+## v1.2: blue identity and editable training
+
+The interface uses a blue palette and a new Fuel & Flow monogram, wave and energy mark. The same logo is used for the favicon, home-screen icons and header.
+
+Open **Settings → Edit weekly schedule**, **Today → Edit schedule**, or **Meal plan → Your weekly rhythm → Edit schedule**. Add, edit or delete recurring sessions with a weekday, training type, title, optional time/duration, and intensity. Multiple sessions per day are supported. Empty days default to rest. Future unlogged days and ChatGPT prompts use the schedule. Historical recorded training types are preserved. The schedule is included in backup export/import; absent schedules start empty. Pre-BJJ snack labels follow the scheduled class time.
+
+Planned **Add meal** and **Edit meal** forms include **Fill from Usual foods**. Choosing a food fills the name, portion, usual time and nutrition for review while keeping the chosen date. **Edit planned meals → Add from Usual foods** opens the same form for a new planned serving. This does not log food as eaten or change the reusable food.
+
+29 automated checks passed. Browser visual testing remained unavailable; the generated icon artwork was visually inspected.
+
+Personal profile fields, including Sex (Male/Female), are entered in Settings and saved only to device storage. Published application source uses blank profile defaults. Existing locally saved values are preserved.
