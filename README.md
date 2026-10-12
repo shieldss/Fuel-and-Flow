@@ -74,3 +74,7 @@ Workout intensity is selected from **Light**, **Moderate**, or **Hard**. Older f
 In **Weekly training schedule**, use a workout’s copy icon or open its Add/Edit form. Expand **Copy workout to other days**, choose weekdays or **Entire Monday–Sunday week**, and save. The source day is saved once; each other selected day receives a separate recurring session with its own ID. Copies retain the time, duration, type and intensity, add to existing sessions, and do not modify historical logs. All schedule data stays in local browser storage and backups.
 
 33 automated checks passed; browser visual QA was unavailable.
+
+## v1.4: weekly groceries
+
+A **Grocery list** appears below the selected week’s Meal plan. It derives foods from planned portion descriptions, combines matching names/units and sums explicitly stated quantities. Unclear descriptions remain visible for review; mixed units are kept separate. Expand an item to see its original portions and source meals. Check items off as you shop, or use **Copy list**. Checkmarks are local, week-specific, included in backups, and no longer apply to an item if its quantity or use count changes. The list recalculates when planned meals are added, edited, removed or imported; eaten-food logs and other weeks are excluded. 36 automated checks passed.
