@@ -1,5 +1,5 @@
-import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend} from './upgrade-tools.js?v=1.6.1';
-import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=1.6.1';
+import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend} from './upgrade-tools.js?v=1.7.0';
+import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=1.7.0';
 export const SCHEMA=1;
 export const defaultTraining=[];
 export function normalizeIntensity(value){if(['Light','Moderate','Hard'].includes(value))return value;if(/hard|high|intense/i.test(value))return 'Hard';if(/light|easy|low|recovery/i.test(value))return 'Light';return 'Moderate';}
@@ -8,7 +8,7 @@ export function sessionsFor(date,entries=defaultTraining){return entries.filter(
 
 export const defaultProfile={name:'',age:'',sex:'',weight:'',startWeight:'',height:'',goalWeight:'',preferences:'',restrictions:'',bjjTime:'',bjjMinutes:'',energyBaseline:'',energyGoal:'',hydrationGoal:'',protein:'',bjjCarbs:'',otherCarbs:'',fat:'',calories:'',theme:'light'};
 export const defaultUsualFoods=[];
-export const emptyState=()=>({version:SCHEMA,featureVersion:FEATURE_VERSION,recipes:[],pantry:[],backupSettings:{lastExportAt:null,reminderDays:7},nutritionSettingsVersion:NUTRITION_SETTINGS_VERSION,nutritionGoals:migrateNutritionGoals(),profile:{...defaultProfile},days:{},plans:{},groceryChecks:{},weeklyTraining:defaultTraining.map(s=>({...s})),usualFoods:defaultUsualFoods.map((m,i)=>({...m,id:`usual-${i+1}`}))});
+export const emptyState=()=>({version:SCHEMA,featureVersion:FEATURE_VERSION,recipes:[],lookupSettings:{proxyUrl:''},pantry:[],backupSettings:{lastExportAt:null,reminderDays:7},nutritionSettingsVersion:NUTRITION_SETTINGS_VERSION,nutritionGoals:migrateNutritionGoals(),profile:{...defaultProfile},days:{},plans:{},groceryChecks:{},weeklyTraining:defaultTraining.map(s=>({...s})),usualFoods:defaultUsualFoods.map((m,i)=>({...m,id:`usual-${i+1}`}))});
 export function dateKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 export function dateObj(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12);}
 export function addDays(s,n){const d=dateObj(s);d.setDate(d.getDate()+n);return dateKey(d);}
