@@ -102,3 +102,26 @@ The existing local-storage key and overall backup schema version stay unchanged.
 ### Verification and deployment
 
 53 automated checks pass, covering classification, schedule moves/additions/deletions/copies, independent targets, complete-versus-partial reports, legacy migration, preserved logs/settings, local persistence/reopening, and service-worker precaching/offline module and navigation responses. UI checks use the existing minimal DOM harness. Live Android/desktop visual and installation testing were unavailable. The blue responsive layouts, swipe controls, GitHub Pages configuration, manifest identity and offline shell are retained. Asset URLs and the service-worker cache are versioned to v1.5.0 for installed PWA updates.
+
+## v1.6.0 — Recipes, recovery and planning tools
+
+Extends the existing blue PWA without changing its navigation or local storage key (`fuel-and-flow-v1`). GitHub Pages deployment remains unchanged. No personal profile values are bundled in the repository.
+
+- Today / Meal Plan: Recipes library (add/edit/delete), batch ingredient quantities and batch nutrition divided by yield; fill either meal editor from a recipe or usual food. Serving multiplier scales calories/macros together from a retained base. Existing Usual foods Edit/Delete swipe actions remain intact; changing the library does not rewrite logged meals.
+- Today: Optional sleep quality, soreness and stress (1–5), plus the existing sleep/energy/recovery fields. Meal and scheduled-workout timeline shows local times, nearest-session spacing and energy entries.
+- Trends: BJJ/non-BJJ weekly comparison, complete-log attainment, recovery averages, copyable ChatGPT weekly review, and a rolling seven-day weight plot alongside weigh-ins and accessible exact-value table. Missing values are excluded and sample counts displayed.
+- Meal Plan: Swipe for Swap/Edit/Delete; swap from usual foods or recipes with a servings preview and updated remaining targets. Planned-versus-eaten view links meals logged through Log eaten, retains original swapped plans, and supports explicit skip/undo. Older unlinked logs are not guessed or treated as skipped.
+- Groceries: Recipe quantities and scaled portions aggregate when names/units match; compatible kg/g, lb/oz and L/ml normalize. Structured recipe ingredients are preferred to free text. Pantry names can be maintained in bulk or marked per grocery item. Pantry items stay visible and are omitted from the copied shopping list. Skipped meals are excluded from grocery quantities and planned totals.
+- Settings: Configurable in-app backup reminders, last-export timestamp, restore content preview, a download-current-backup action before confirmed replacement, and visible version/update controls. Offline assets include the new module and version manifest. Update checks work online; reloading retains local data.
+
+### Additive data migration
+
+Backup `version:1` and nutrition settings version are retained. `featureVersion:1` adds recipes, pantry, backup settings, optional recovery fields, meal serving metadata, explicit meal-plan links and historical goal/schedule snapshots. Legacy plans receive stable per-date meal IDs; historical actual logs keep their saved nutrition and IDs. Empty/custom lists and existing goal profiles are retained. Restore validation preserves the new fields and accepts older v1 backups.
+
+Marking a food log complete captures its nutrition goals and recurring schedule. Later goal or schedule changes apply to unsaved dates; saved historical snapshots are retained even if that log is subsequently reopened for edits. Current-week Settings preview always shows current prospective settings. On first upgrade, existing complete logs without snapshots capture current settings with the explicit label “Migrated completed log; original targets unknown, current settings captured.” The app cannot reconstruct targets that were never stored.
+
+Reminders appear inside the app, not as background OS notifications. Recipe nutrition is user-entered for the whole batch; no external nutrition lookup or account sync is introduced. Grocery aggregation does not guess ingredient synonyms or ambiguous portions. The timeline describes scheduled sessions, not verified attendance.
+
+### Verification
+
+Node integration and calculation tests cover serving scaling without compounding, recipe snapshots and roundtrip backups, frozen historical targets and future dynamic schedule changes, legacy data preservation, meal swaps/links/skips, recovery validation, pantry and quantity totals, weight sample counts, backup reminder intervals, restore preview, existing Usual foods editing/deletion, all original app tabs/workflows, and offline shell assets. No browser-control capability is available in this environment, so visual/device QA remains an explicit verification limit.
