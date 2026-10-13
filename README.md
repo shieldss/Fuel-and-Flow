@@ -175,3 +175,7 @@ Photo-prompt creation and meal-response import use separate steps in the same di
 ### v2.0.2 — Compact check-in heading
 
 The energy icon is constrained to 24 pixels and sits immediately left of the Daily check-in title, preventing the SVG from expanding into a large mobile illustration. No storage or form behavior changes.
+
+### v2.0.3 — Running timeline nutrition
+
+Every timed meal and workout shows cumulative logged calories, protein, carbohydrates and fat. Meals at the same timestamp count before workouts; untimed meals are explicitly excluded from time-specific totals. Planned meals stay excluded, historical schedules stay preserved, and partial logs are labeled. No logged values or storage models change.
