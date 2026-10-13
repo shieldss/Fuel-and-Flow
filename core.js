@@ -1,6 +1,6 @@
-import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.0.0';
-import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend} from './upgrade-tools.js?v=2.0.0';
-import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.0.0';
+import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.0.1';
+import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend} from './upgrade-tools.js?v=2.0.1';
+import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.0.1';
 export const SCHEMA=1;
 export const defaultTraining=[];
 export function normalizeIntensity(value){if(['Light','Moderate','Hard'].includes(value))return value;if(/hard|high|intense/i.test(value))return 'Hard';if(/light|easy|low|recovery/i.test(value))return 'Light';return 'Moderate';}

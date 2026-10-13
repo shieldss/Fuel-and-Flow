@@ -167,3 +167,7 @@ Meal editors switch between Manual, Search/Scan, Usual foods and Recipes without
 Unsaved main forms require a choice before section/menu/date navigation. Updates do not redraw dirty forms; failed storage saves keep main forms visible. Invalid fields inside collapsed groups reveal their containing group. Existing backup validation, historical goals, source metadata, recipes, logs, energy, hydration and training calculations are unchanged. API keys remain server-side.
 
 Verification covers old workflows plus focused routing, separate settings saves, source-mode draft preservation, bounded lists, original-index filtering, unsaved-form guards, single-day workout editing, date defaults after reopening and offline caching of the new `view-tools.js` module. Generated markup from 30 screens/editors was checked for balanced tags, unique IDs and absence of nested forms/labels. Browser/device visual and camera QA remain unavailable in the managed environment.
+
+### v2.0.1 — Focused meal import
+
+Photo-prompt creation and meal-response import use separate steps in the same dialog, preserving entered text when switching. Reviewed meals expand individually, and generated prompt text stays collapsed behind copy/open actions.
