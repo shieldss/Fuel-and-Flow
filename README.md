@@ -141,3 +141,29 @@ Verification includes live Open Food Facts name-search and v3 barcode responses 
 ## v1.7.1 — Connected USDA search
 
 The deployed production proxy at `https://fuel-and-flow-api.vercel.app/api/food` is now the default for new installs and previously blank lookup settings; custom saved endpoints remain intact. Open Food Facts requests remain direct even with a USDA proxy configured, and their cache keys remain independent of that proxy. No API key is embedded in the app or repository. The proxy was verified live with a USDA search from the GitHub Pages origin, a food-details/macronutrient conversion through the client utility, and rejection of an unrelated origin. Existing storage key, profiles, logs, recipes, plans, design and hosting workflow are retained.
+
+## v2.0.0 — Focused information architecture
+
+Redesigns organization and interactions in the existing app rather than replacing the tracker. The established blue visual identity, light/dark/system themes, logo, PWA manifest and icon identity, GitHub Pages hosting, USDA proxy and local data models are retained. This release changes presentation and navigation, not diary/schema/storage keys.
+
+| Destination | Focused sections |
+| --- | --- |
+| Today | Overview, Food log, Check-in, Training / timeline |
+| Plan | Meals, Groceries, Weekly training |
+| Foods | Usual foods, Recipes |
+| Trends | Summary, Nutrition, Weight, History |
+| More (mobile) | ChatGPT and direct links to goals, profile, backups, connections, appearance/updates |
+| Settings | Overview, Profile, Goals, Connections, Data, App |
+| ChatGPT | Review results, Plan a week, Import a plan |
+
+Desktop keeps ChatGPT and Settings directly in its sidebar; mobile has five stable bottom destinations. Focused section navigation stays available while scrolling. Routes support browser Back/Forward and valid direct links without encoding personal data. Invalid routes fall back safely. Plan still initializes to the current local date/week on refresh, even when reopened on a Plan route.
+
+Today Overview contains no forms or long meal lists. Check-in is one form with expandable sleep/recovery, measurements and training/notes groups. Meal rows show name/macros first and expand portions/source details on request; swipe Edit/Delete and planned-meal Swap stay intact, including the swipe indicator within the planned time column. Groceries move to their own week-scoped view, with To buy/All/Checked filters, search and 10-item pagination; right-aligned pantry badges, quantity aggregation, pantry editing, checklist persistence and copying remain supported. Foods gets searchable, paginated lists and direct log/plan actions while retaining swipe Edit/Delete. Monthly history shows 10 dates per page, each linking to the full day's records. Nutrition still shows complete-log averages, date-specific attainment and detailed comparisons; Weight keeps current/previous seven-day averages, sample counts, changes, charts and exact-value tables.
+
+Settings now edits one category at a time. Profile and Appearance saves preserve nutrition goals; Goals preserves all other profile fields and diary records. Each goal profile is labeled in an expandable card, with live macro-calorie information and weekly preview. Backup/restore, reminders and updates are no longer mixed into the profile form.
+
+Meal editors switch between Manual, Search/Scan, Usual foods and Recipes without reconstructing the live form, retaining typed values. Optional copies and goal previews are collapsed. Barcode entry/scanning is a deliberate secondary path. Food search results are paginated six at a time and collapse when reviewing a selected food, with a back-to-results control. Recipes retain ingredient lookup and batch totals, grouped nutrition/notes. Weekly schedule editing shows one weekday at a time; all seven weekdays, multiple workouts, intensity selection, editing, deletion and copying remain available.
+
+Unsaved main forms require a choice before section/menu/date navigation. Updates do not redraw dirty forms; failed storage saves keep main forms visible. Invalid fields inside collapsed groups reveal their containing group. Existing backup validation, historical goals, source metadata, recipes, logs, energy, hydration and training calculations are unchanged. API keys remain server-side.
+
+Verification covers old workflows plus focused routing, separate settings saves, source-mode draft preservation, bounded lists, original-index filtering, unsaved-form guards, single-day workout editing, date defaults after reopening and offline caching of the new `view-tools.js` module. Generated markup from 30 screens/editors was checked for balanced tags, unique IDs and absence of nested forms/labels. Browser/device visual and camera QA remain unavailable in the managed environment.
