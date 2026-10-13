@@ -86,3 +86,19 @@ On Today and Meal plan, swipe a meal **right** to reveal a blue **Edit** button 
 ## v1.4.3: discoverable row actions
 
 Each meal includes an arrow and **Swipe right for options** indicator. Tap the indicator to expose the same buttons without swiping. Usual-food rows now expose Edit/Delete through the same tray; weekly workouts expose purple Copy, blue Edit and red Delete. Primary actions such as Log this food remain visible. Grocery checkboxes stay visible because they are the main shopping action. Swipes preserve vertical scrolling, support mouse/keyboard interaction, and destructive actions retain confirmations.
+
+## v1.5: nutrition profiles selected by scheduled BJJ
+
+Settings now contains **BJJ Training Day Goals** and **Non-BJJ Day Goals**, each with independent calories, protein, carbs and fat. Their editable starter values are 2200/165/235/67 and 2000/165/170/73 respectively. Macro-derived calories are shown using 4/4/9; a difference from the calorie target is informational and never rewrites either value. A live **Weekly Nutrition Goals** preview displays each date, its profile, totals and daily averages.
+
+`getNutritionGoalsForDate(date, state)` in `nutrition-tools.js` is the shared selector. It uses the existing local-date helpers and looks for any exact `BJJ` workout on that weekday in the recurring schedule. BJJ plus weights and multiple BJJ sessions use one BJJ profile; all other combinations use Non-BJJ. The actual training type recorded in the diary does not override this schedule rule. Changes to scheduled sessions or goal settings recalculate every relevant view immediately.
+
+Today and Meal plan show active-profile labels, calorie/macro goals, remaining amounts and attainment. Add/Edit meal forms preview the selected date’s totals after saving, excluding the original entry while editing. Meal Plan still starts on the local current day. Reports include every date’s goals and provisional/confirmed attainment. Period target totals sum the goals for individual dates. Confirmed totals compare completed food logs with targets for those same dates; partial/missing logs are not confirmed deficits. Historical food entries remain unchanged, while target comparisons reflect current goal settings and the current recurring schedule. ChatGPT planning/review prompts include both profiles and date-specific targets; deprecated single-target fields are omitted from generated prompt context.
+
+### Migration
+
+The existing local-storage key and overall backup schema version stay unchanged. `nutritionSettingsVersion: 1` versions the new `nutritionGoals` settings. On reading an old saved state or backup, absent BJJ/Non-BJJ profiles are initialized to the requested starter values; saved custom two-profile values are preserved. Legacy single-target values remain stored under the profile for compatibility but are no longer used by dashboards or new prompts. All other profile values, actual meals, planned meals, energy, hydration, weight, grocery checks, reusable foods and training sessions are preserved. The startup migration saves the validated state without clearing storage. New backups include both profiles; older backups remain readable.
+
+### Verification and deployment
+
+53 automated checks pass, covering classification, schedule moves/additions/deletions/copies, independent targets, complete-versus-partial reports, legacy migration, preserved logs/settings, local persistence/reopening, and service-worker precaching/offline module and navigation responses. UI checks use the existing minimal DOM harness. Live Android/desktop visual and installation testing were unavailable. The blue responsive layouts, swipe controls, GitHub Pages configuration, manifest identity and offline shell are retained. Asset URLs and the service-worker cache are versioned to v1.5.0 for installed PWA updates.
