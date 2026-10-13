@@ -183,3 +183,9 @@ Every timed meal and workout shows cumulative logged calories, protein, carbohyd
 ### v2.0.4 — Current local meal time
 
 New meals, foods without a time, and imported meals missing a time default to the device’s current local HH:MM for review. Existing times and supplied photo timestamps are preserved. Stored records are not migrated or rewritten.
+
+### v2.1.0 — Water and drink tracker
+
+Today → Water provides 4/8/16/24/32 oz amount presets, custom amounts/types, current local time with editing, calories and optional macros. Each serving can be edited/deleted; the list is paginated. Overview retains hydration progress and adds a direct log shortcut. Timed drinks join the training/fuel timeline and cumulative intake. Dashboard, meal preview, reports and ChatGPT reports include drink nutrition exactly once.
+
+Old daily `water` values remain unchanged as a separately editable previous amount and count alongside new servings. New optional `drinks` arrays are validated and preserved by backups; older backups remain readable. No invented times are assigned to legacy water totals. The former water-number field is removed from Check-in. All drink types count as fluids; nutrition is entered from labels and is not inferred from type. Avoid logging a drink in both Food log and Water. Adding/editing/deleting a drink reopens the complete-log status for review. Service-worker assets/cache are updated; storage key/schema stay unchanged.
