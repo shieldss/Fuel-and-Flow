@@ -30,3 +30,5 @@
 @media(max-width:380px){.app-header{flex-wrap:wrap}.date-control{margin-left:auto}.destination-grid .destination{gap:6px;padding:10px}.destination-grid .destination-icon{display:none}.daily-heading{flex-wrap:wrap}.daily-heading .actions{width:100%;justify-content:flex-start}}
 
 .import-entry summary{font-weight:700}.import-entry[open]>.fields{margin-top:14px}
+
+.checkin-title{display:flex;align-items:center;gap:10px}.checkin-title>svg{width:24px;height:24px;flex:0 0 24px;color:var(--green)}

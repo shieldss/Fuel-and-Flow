@@ -171,3 +171,7 @@ Verification covers old workflows plus focused routing, separate settings saves,
 ### v2.0.1 — Focused meal import
 
 Photo-prompt creation and meal-response import use separate steps in the same dialog, preserving entered text when switching. Reviewed meals expand individually, and generated prompt text stays collapsed behind copy/open actions.
+
+### v2.0.2 — Compact check-in heading
+
+The energy icon is constrained to 24 pixels and sits immediately left of the Daily check-in title, preventing the SVG from expanding into a large mobile illustration. No storage or form behavior changes.
