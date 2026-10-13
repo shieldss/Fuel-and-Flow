@@ -1,6 +1,6 @@
-import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.0.3';
-import {validateMeal,validDate,addDays,totals,average,sessionsFor} from './core.js?v=2.0.3';
-import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.0.3';
+import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.0.4';
+import {validateMeal,validDate,addDays,totals,average,sessionsFor} from './core.js?v=2.0.4';
+import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.0.4';
 export const FEATURE_VERSION=1;
 const round=n=>Math.round(n*100)/100;
 export function validateIngredients(items){if(!Array.isArray(items)||items.length>100)throw Error('Use up to 100 ingredients.');return items.map(x=>{if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>200||typeof x.unit!=='string'||x.unit.length>30||typeof x.amount!=='number'||!Number.isFinite(x.amount)||x.amount<=0||x.amount>100000)throw Error('Each ingredient needs a name, positive quantity and unit.');return {name:x.name.trim(),amount:x.amount,unit:x.unit.trim()};});}

@@ -179,3 +179,7 @@ The energy icon is constrained to 24 pixels and sits immediately left of the Dai
 ### v2.0.3 — Running timeline nutrition
 
 Every timed meal and workout shows cumulative logged calories, protein, carbohydrates and fat. Meals at the same timestamp count before workouts; untimed meals are explicitly excluded from time-specific totals. Planned meals stay excluded, historical schedules stay preserved, and partial logs are labeled. No logged values or storage models change.
+
+### v2.0.4 — Current local meal time
+
+New meals, foods without a time, and imported meals missing a time default to the device’s current local HH:MM for review. Existing times and supplied photo timestamps are preserved. Stored records are not migrated or rewritten.

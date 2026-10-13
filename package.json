@@ -1,1 +1,1 @@
-{"name":"fuel-and-flow","version":"2.0.3","type":"module","private":true,"scripts":{"test":"node --test tests/*.test.js"}}
+{"name":"fuel-and-flow","version":"2.0.4","type":"module","private":true,"scripts":{"test":"node --test tests/*.test.js"}}
