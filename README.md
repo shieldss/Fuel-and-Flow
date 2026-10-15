@@ -203,3 +203,9 @@ Review and planning prompts now state the exact 1–5 endpoints for sleep qualit
 ### v2.1.3 — Daily steps
 
 Daily Check-in includes an optional Steps count. Values are whole numbers from 0–1,000,000; blank means unknown. Backup validation preserves recorded steps and reads older diaries with no steps as unknown. Daily/weekly/monthly reports and review/planning prompts include per-date steps, total recorded steps, tracked-day count and tracked-day average. Missing days are not counted as zero, and steps do not imply calories burned. No existing food, drink, training or recovery values are changed.
+
+### v2.1.4 — Fast AI meal import
+
+Existing meal JSON import now has dedicated Import meals, Food prompt, and Photo prompt tabs. Food prompt accepts an optional food/portion description, date and local time, or supplies a reusable template for the next ChatGPT food question. Copy and open ChatGPT, then paste the returned JSON into Import meals for review. Explicit Paste & review uses clipboard permission only on click and falls back to manual paste.
+
+Food log, ChatGPT and Usual foods provide clearer AI import entry points. Imports can save eaten meals, planned meals or usual foods; the library shortcut selects usual foods by default. Missing dates/times get visible review defaults; portions use multiline inputs. Existing photo capture metadata, strict macro validation, batch review, manual file import and historical food logs remain supported. Failed storage saves retain the review form and prior state. No AI API or new credentials are required.
