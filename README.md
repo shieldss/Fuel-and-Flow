@@ -199,3 +199,7 @@ Copy refreshes Review/Plan prompts from current saved state and the selected per
 ### v2.1.2 — Check-in rating interpretation
 
 Review and planning prompts now state the exact 1–5 endpoints for sleep quality (poor → excellent), muscle soreness (none → very sore), and stress (low → very high). Report metadata carries the same scales for daily/weekly/monthly summaries. Check-in labels and prompt interpretation share one definition. Recovery remains categorical and sleep duration remains hours; missing ratings are unknown, not zero. No saved ratings are changed.
+
+### v2.1.3 — Daily steps
+
+Daily Check-in includes an optional Steps count. Values are whole numbers from 0–1,000,000; blank means unknown. Backup validation preserves recorded steps and reads older diaries with no steps as unknown. Daily/weekly/monthly reports and review/planning prompts include per-date steps, total recorded steps, tracked-day count and tracked-day average. Missing days are not counted as zero, and steps do not imply calories burned. No existing food, drink, training or recovery values are changed.
