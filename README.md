@@ -250,3 +250,7 @@ Centered the timeline's before/after energy values in equal-width columns with e
 - Legacy recipes default to manual batch totals and retain their saved values. Users may fill missing ingredient nutrition incrementally and switch to automatic mode. Existing logged meals and plans retain their own nutrition after recipe edits. No storage reset/schema migration.
 - Recipe saves validate explicitly instead of relying on browser constraints from temporary lookup controls. Errors stay visible in the editor; failed storage writes keep the dialog open and roll back the recipe change.
 - Added recipe calculation and editor regression tests covering repeated food search, portions, additions, editing/removal, serving totals, backup round trips, legacy data and storage failures. Cache/assets updated to 2.5.0.
+
+### v2.5.1 — 12 oz quick water entry
+
+Added 12 oz between the existing 8 oz and 16 oz quick amount buttons. Existing drink-entry and tracking behavior is unchanged. Updated PWA cache/assets.
