@@ -242,3 +242,11 @@ Each checkpoint now shows an inclusive ±10% range for calories, protein, carboh
 ### v2.4.2 — Clear timeline energy ratings
 
 Centered the timeline's before/after energy values in equal-width columns with explicit Energy before training / Energy after training labels, an Energy levels heading and a 1–10 scale explanation. Missing values display Not logged. Existing rating values, goals and timeline behavior are unchanged. Offline cache/assets updated.
+
+### v2.5.0 — Recipe ingredient builder and reliable saves
+
+- Recipes now use an ingredient list instead of required pipe-delimited entry. Search/scan foods repeatedly, choose usual foods, or manually add ingredients with nutrition for the specified amount. Review portions and missing source nutrients before adding. Edit/remove ingredients; quantity edits scale the saved ingredient macros.
+- Automatic mode derives batch calories/protein/carbs/fat from ingredient nutrition and divides by the recipe yield. Ingredient nutrition/provenance is saved alongside the existing ingredients; batch totals are recomputed on validation/restore instead of trusting stale totals. Unknown macros cannot silently become zero.
+- Legacy recipes default to manual batch totals and retain their saved values. Users may fill missing ingredient nutrition incrementally and switch to automatic mode. Existing logged meals and plans retain their own nutrition after recipe edits. No storage reset/schema migration.
+- Recipe saves validate explicitly instead of relying on browser constraints from temporary lookup controls. Errors stay visible in the editor; failed storage writes keep the dialog open and roll back the recipe change.
+- Added recipe calculation and editor regression tests covering repeated food search, portions, additions, editing/removal, serving totals, backup round trips, legacy data and storage failures. Cache/assets updated to 2.5.0.
