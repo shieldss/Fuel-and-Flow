@@ -238,3 +238,7 @@ Search result selection retrieves current product details before portion review 
 ### v2.4.1 — Checkpoint meeting ranges
 
 Each checkpoint now shows an inclusive ±10% range for calories, protein, carbohydrate and fat. Below, within and above range use shared calculation logic in the timeline, current status and AI report data. Mixed shortfalls/excesses are labeled outside range. Range bounds are rounded to two decimals and displayed to the same precision. Center targets and saved daily settings remain unchanged, including the final 10 PM targets. No storage migration or changes to logs. Offline cache/assets updated.
+
+### v2.4.2 — Clear timeline energy ratings
+
+Centered the timeline's before/after energy values in equal-width columns with explicit Energy before training / Energy after training labels, an Energy levels heading and a 1–10 scale explanation. Missing values display Not logged. Existing rating values, goals and timeline behavior are unchanged. Offline cache/assets updated.
