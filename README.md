@@ -227,3 +227,10 @@ Missing plans provide a direct link to the selected day’s Plan. Zero pre-BJJ p
 Replaces browser-direct legacy name searches (observed upstream 503) with the dedicated Search-a-licious API through the existing Vercel food backend, which supplies the app User-Agent and correct CORS. OFF search needs no USDA key and remains independent of custom USDA endpoints. Response projection is done locally because the deployed upstream fields option returned empty objects. Backend cache keys include the provider; malformed/partial/error responses are rejected instead of appearing as empty results.
 
 Search result selection retrieves current product details before portion review so serving sizes and nutrition basis are preserved. Barcode lookup stays direct, source attribution stays OFF, and saved barcode/product data remains cached. The browser timeout and function timeout allow the upstream to finish, and service errors explain alternatives. Existing logs, recipes, goals, schedules, storage keys and USDA secrets are unchanged.
+
+### v2.4.0 — Daily calorie and macro pacing
+
+- Six local-time checkpoints (10 AM, noon, 3 PM, 5 PM, 9 PM, 10 PM) use the applicable BJJ/non-BJJ More → Goals profile, independently of meal plans. The final checkpoint equals all four daily settings exactly. Completed-day snapshots remain preserved.
+- BJJ cumulative calorie fractions: 20/40/60/70/90/100%; protein: 20/40/60/65/85/100%; carbohydrate: 20/40/60/75/95/100%; fat: 25/45/60/65/90/100%. This suggested distribution assumes a 6 PM class and reserves evening recovery intake. Non-BJJ days use 20/40/60/75/90/100% for each nutrient. These are app heuristics informed by general nutrient-timing principles, not a validated optimum.
+- Actual meal/drink macros, running totals, four-nutrient checkpoint comparisons, and current catch-up alerts share one calculation. Upcoming checkpoints never issue early alerts. Missing logs remain unknown. AI reviews include the new targets and interpretation.
+- No settings migration, storage reset, or diary changes. Service-worker cache and asset versions updated to 2.4.0.
