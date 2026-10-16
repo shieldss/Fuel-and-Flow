@@ -254,3 +254,7 @@ Centered the timeline's before/after energy values in equal-width columns with e
 ### v2.5.1 — 12 oz quick water entry
 
 Added 12 oz between the existing 8 oz and 16 oz quick amount buttons. Existing drink-entry and tracking behavior is unchanged. Updated PWA cache/assets.
+
+### v2.5.2 — One-row water quick amounts
+
+Removed the 4 oz shortcut. The remaining 8, 12, 16, 24 and 32 oz controls share five equal columns in a single responsive row with compact horizontal padding and 44 px minimum height. Custom amounts and existing drink logs are unchanged. Cache/assets updated.
