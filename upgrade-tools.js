@@ -1,7 +1,7 @@
-import {dayIntake} from './hydration-tools.js?v=2.4.0';
-import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.4.0';
-import {validateMeal,validDate,addDays,totals,average,sessionsFor,dateKey} from './core.js?v=2.4.0';
-import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.4.0';
+import {dayIntake} from './hydration-tools.js?v=2.4.1';
+import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.4.1';
+import {validateMeal,validDate,addDays,totals,average,sessionsFor,dateKey} from './core.js?v=2.4.1';
+import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.4.1';
 export const FEATURE_VERSION=1;
 const round=n=>Math.round(n*100)/100;
 export function validateIngredients(items){if(!Array.isArray(items)||items.length>100)throw Error('Use up to 100 ingredients.');return items.map(x=>{if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>200||typeof x.unit!=='string'||x.unit.length>30||typeof x.amount!=='number'||!Number.isFinite(x.amount)||x.amount<=0||x.amount>100000)throw Error('Each ingredient needs a name, positive quantity and unit.');return {name:x.name.trim(),amount:x.amount,unit:x.unit.trim()};});}
@@ -23,32 +23,35 @@ export function mealFuelGaps(state,date,now=new Date()){const events=fuelEvents(
 const FUEL_TIMES=['10:00','12:00','15:00','17:00','21:00','22:00'];
 const BJJ_FRACTIONS={calories:[.2,.4,.6,.7,.9,1],protein:[.2,.4,.6,.65,.85,1],carbs:[.2,.4,.6,.75,.95,1],fat:[.25,.45,.6,.65,.9,1]};
 const NON_BJJ_FRACTIONS=Object.fromEntries(NUTRIENTS.map(k=>[k,[.2,.4,.6,.75,.9,1]]));
+export function checkpointRanges(targets){return Object.fromEntries(NUTRIENTS.map(k=>[k,{lower:round(targets[k]*.9),upper:round(targets[k]*1.1)}]));}
+export function compareCheckpoint(actual,targets){const ranges=checkpointRanges(targets);return Object.fromEntries(NUTRIENTS.map(k=>{const {lower,upper}=ranges[k],status=actual[k]<lower?'below':actual[k]>upper?'above':'met';return [k,{actual:actual[k],target:targets[k],lower,upper,remaining:Math.max(0,round(lower-actual[k])),over:Math.max(0,round(actual[k]-upper)),met:status==='met',status}];}));}
+function checkpointStatus(nutrients){return NUTRIENTS.every(k=>nutrients[k].met)?'met':NUTRIENTS.some(k=>nutrients[k].status==='below')?(NUTRIENTS.some(k=>nutrients[k].status==='above')?'outside':'below'):'above';}
 export function fuelingCheckpoints(state,date,now=new Date()){
  const goals=getNutritionGoalsForDate(date,state),bjj=goals.type==='bjj',fractions=bjj?BJJ_FRACTIONS:NON_BJJ_FRACTIONS,
  events=fuelEvents(state,date),intake=events.filter(e=>e.kind==='meal'||e.kind==='drink'),today=dateKey(now),
  clock=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
  phase=date<today?'past':date===today?'today':'future',
  at=time=>Object.fromEntries(NUTRIENTS.map(k=>[k,round(intake.filter(e=>/^([01]\d|2[0-3]):[0-5]\d$/.test(e.time)&&e.time<=time).reduce((sum,e)=>sum+(Number((e.meal||e.drink)[k])||0),0))])),
- compare=(actual,target)=>Object.fromEntries(NUTRIENTS.map(k=>[k,{actual:actual[k],target:target[k],remaining:Math.max(0,round(target[k]-actual[k])),over:Math.max(0,round(actual[k]-target[k])),met:actual[k]>=target[k]}])),
+
  labels=bjj?['Morning foundation','Midday fuel','Pre-class meal','Ready for 6 PM BJJ','Evening recovery','Daily goal finish']:['Morning foundation','Midday fuel','Afternoon fuel','Early evening','Evening nutrition','Daily goal finish'];
  const points=FUEL_TIMES.map((time,i)=>{
   const targets=Object.fromEntries(NUTRIENTS.map(k=>[k,i===5?goals[k]:round(goals[k]*fractions[k][i])])),
   previous=Object.fromEntries(NUTRIENTS.map(k=>[k,i?round(goals[k]*fractions[k][i-1]):0])),
   due=phase==='past'||phase==='today'&&time<=clock,actual=due?at(time):null,
-  nutrients=actual?compare(actual,targets):null;
-  return {kind:'checkpoint',time,label:labels[i],bjj,targets,intervalTargets:Object.fromEntries(NUTRIENTS.map(k=>[k,round(targets[k]-previous[k])])),actual,nutrients,
+  nutrients=actual?compareCheckpoint(actual,targets):null;
+  return {kind:'checkpoint',time,label:labels[i],bjj,targets,ranges:checkpointRanges(targets),intervalTargets:Object.fromEntries(NUTRIENTS.map(k=>[k,round(targets[k]-previous[k])])),actual,nutrients,
    targetCalories:targets.calories,actualCalories:actual?.calories??null,remainingAtTime:nutrients?.calories.remaining??null,
-   status:due?(NUTRIENTS.every(k=>nutrients[k].met)?'met':'below'):'upcoming'};
+   status:due?checkpointStatus(nutrients):'upcoming'};
  });
  const latestDue=phase==='today'?points.filter(p=>p.time<=clock).at(-1):null,currentActual=phase==='today'?at(clock):null,
- currentNutrients=latestDue?compare(currentActual,latestDue.targets):null;
+ currentNutrients=latestDue?compareCheckpoint(currentActual,latestDue.targets):null;
  return {phase,profileType:goals.type,profileLabel:goals.label,historical:!!goals.historical,dailyGoals:Object.fromEntries(NUTRIENTS.map(k=>[k,goals[k]])),dailyCalorieGoal:goals.calories,
   untimedFoodCount:intake.filter(e=>!e.time).length,points,
-  current:latestDue?{time:clock,checkpointTime:latestDue.time,targets:latestDue.targets,actual:currentActual,nutrients:currentNutrients,
+  current:latestDue?{time:clock,checkpointTime:latestDue.time,targets:latestDue.targets,ranges:latestDue.ranges,actual:currentActual,nutrients:currentNutrients,
    targetCalories:latestDue.targetCalories,actualCalories:currentActual.calories,remainingCalories:currentNutrients.calories.remaining,
-   status:NUTRIENTS.every(k=>currentNutrients[k].met)?'met':'below'}:null,
+   status:checkpointStatus(currentNutrients)}:null,
   currentLoggedCalories:currentActual?.calories??null,foodLogComplete:state.days[date]?.complete===true,
-  basis:'Cumulative calorie/protein/carbohydrate/fat checkpoints at 10:00, 12:00, 15:00, 17:00, 21:00 and 22:00 local time, scaled independently from the applicable More > Goals profile (saved goal snapshots retained for completed dates). The 22:00 targets equal the daily settings exactly. BJJ fractions assume a 18:00 class, favor carbohydrate before class and reserve evening protein/carbohydrate for recovery; non-BJJ fractions spread intake through the day. Fractions are an app planning heuristic, not evidence of optimal energy or a validated prescription. Meal plans never determine targets. Compare only timed logged meals/drinks once. Upcoming checkpoints do not trigger alerts; current status uses intake through now. Missing logs do not confirm a deficit. No exercise-calorie subtraction.'};
+  basis:'Cumulative calorie/protein/carbohydrate/fat checkpoints at 10:00, 12:00, 15:00, 17:00, 21:00 and 22:00 local time, scaled independently from the applicable More > Goals profile (saved goal snapshots retained for completed dates). The 22:00 center targets equal the daily settings exactly. For every nutrient at each checkpoint, 90% through 110% of its target (inclusive, bounds rounded to 0.01) counts as met. Below and above range are distinct; mixed results are outside range. Remaining/over values measure distance to the nearest range boundary, not the center target. BJJ fractions assume a 18:00 class, favor carbohydrate before class and reserve evening protein/carbohydrate for recovery; non-BJJ fractions spread intake through the day. Fractions are an app planning heuristic, not evidence of optimal energy or a validated prescription. Meal plans never determine targets. Compare only timed logged meals/drinks once. Upcoming checkpoints do not trigger alerts; current status uses intake through now. Missing logs do not confirm a deficit. No exercise-calorie subtraction.'};
 }
 
 export function trainingComparison(state,dates){return ['bjj','nonBjj'].map(type=>{const keys=dates.filter(k=>getNutritionGoalsForDate(k,state).type===type),days=keys.map(k=>state.days[k]).filter(Boolean),complete=keys.filter(k=>state.days[k]?.complete),intake=totals(complete.flatMap(k=>dayIntake(state.days[k]))),targets=totals(complete.map(k=>getNutritionGoalsForDate(k,state)));return {type,label:type==='bjj'?'BJJ Training Day':'Non-BJJ Day',dates:keys,completeDays:complete.length,intake,targets,attainment:complete.length?nutritionProgress(intake,targets):null,energyBefore:average(days.map(x=>x.energyBefore)),energyAfter:average(days.map(x=>x.energyAfter)),sleep:average(days.map(x=>x.sleep)),sleepQuality:average(days.map(x=>x.sleepQuality)),soreness:average(days.map(x=>x.soreness)),stress:average(days.map(x=>x.stress))};});}

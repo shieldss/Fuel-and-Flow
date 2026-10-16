@@ -234,3 +234,7 @@ Search result selection retrieves current product details before portion review 
 - BJJ cumulative calorie fractions: 20/40/60/70/90/100%; protein: 20/40/60/65/85/100%; carbohydrate: 20/40/60/75/95/100%; fat: 25/45/60/65/90/100%. This suggested distribution assumes a 6 PM class and reserves evening recovery intake. Non-BJJ days use 20/40/60/75/90/100% for each nutrient. These are app heuristics informed by general nutrient-timing principles, not a validated optimum.
 - Actual meal/drink macros, running totals, four-nutrient checkpoint comparisons, and current catch-up alerts share one calculation. Upcoming checkpoints never issue early alerts. Missing logs remain unknown. AI reviews include the new targets and interpretation.
 - No settings migration, storage reset, or diary changes. Service-worker cache and asset versions updated to 2.4.0.
+
+### v2.4.1 — Checkpoint meeting ranges
+
+Each checkpoint now shows an inclusive ±10% range for calories, protein, carbohydrate and fat. Below, within and above range use shared calculation logic in the timeline, current status and AI report data. Mixed shortfalls/excesses are labeled outside range. Range bounds are rounded to two decimals and displayed to the same precision. Center targets and saved daily settings remain unchanged, including the final 10 PM targets. No storage migration or changes to logs. Offline cache/assets updated.
