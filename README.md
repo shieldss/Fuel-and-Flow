@@ -262,3 +262,7 @@ Removed the 4 oz shortcut. The remaining 8, 12, 16, 24 and 32 oz controls share 
 ### v2.5.3 — Copyable food JSON responses
 
 Food and photo prompts request one fenced JSON code block with a Copy button instead of unformatted JSON. Removed conflicting no-markdown instructions. The meal importer already accepts both plain JSON and fenced JSON; its schema and saved data are unchanged. Cache/assets updated.
+
+### v2.5.4 — Planned meal logging status
+
+Planned meals show a green checkmarked Logged button when a food entry on that date references their plan meal ID. Removing the final linked food entry restores Log eaten. The existing ability to log another serving remains available with an explicit confirmation. Today’s Training tab is renamed Training Timeline; Plan’s Training tab and routes are unchanged. Updated cache/assets.
