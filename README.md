@@ -266,3 +266,7 @@ Food and photo prompts request one fenced JSON code block with a Copy button ins
 ### v2.5.4 — Planned meal logging status
 
 Planned meals show a green checkmarked Logged button when a food entry on that date references their plan meal ID. Removing the final linked food entry restores Log eaten. The existing ability to log another serving remains available with an explicit confirmation. Today’s Training tab is renamed Training Timeline; Plan’s Training tab and routes are unchanged. Updated cache/assets.
+
+### v2.5.5 — Shorter Timeline tab
+
+Shortened Today’s Training Timeline tab label to Timeline for mobile layouts. Existing routes and timeline features are unchanged. Updated cache/assets.
