@@ -1,8 +1,8 @@
-import {groceryList} from './grocery-tools.js?v=2.5.5';
-import {validateDrink,dayIntake,fluidTotal} from './hydration-tools.js?v=2.5.5';
-import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.5.5';
-import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend,fuelEvents,mealComparison,mealFuelGaps,fuelingCheckpoints} from './upgrade-tools.js?v=2.5.5';
-import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.5.5';
+import {groceryList} from './grocery-tools.js?v=2.6.0';
+import {validateDrink,dayIntake,fluidTotal} from './hydration-tools.js?v=2.6.0';
+import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.6.0';
+import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend,fuelEvents,mealComparison,mealFuelGaps,fuelingCheckpoints} from './upgrade-tools.js?v=2.6.0';
+import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.6.0';
 export const CHECKIN_RATING_SCALES={sleepQuality:{label:'Sleep quality',min:1,max:5,minLabel:'poor',maxLabel:'excellent',higherMeans:'better sleep quality'},soreness:{label:'Muscle soreness',min:1,max:5,minLabel:'none',maxLabel:'very sore',higherMeans:'more soreness'},stress:{label:'Stress',min:1,max:5,minLabel:'low',maxLabel:'very high',higherMeans:'more stress'}};
 function checkinRatingGuide(){return Object.entries(CHECKIN_RATING_SCALES).map(([key,scale])=>`${scale.label} (${key}): ${scale.min}–${scale.max}; ${scale.min} = ${scale.minLabel}, ${scale.max} = ${scale.maxLabel}; higher means ${scale.higherMeans}.`).join('\n')+'\nInterpret every recorded rating and average against its own scale. For example, muscle soreness 2 is 2 out of 5, near the low-soreness end, not 2 out of 10. Intermediate numbers have no additional defined labels. Recovery is categorical: Poor, Okay or Good. Sleep duration is hours, not a rating. Blank/null ratings are unknown, never zero.';}
 export const SCHEMA=1;

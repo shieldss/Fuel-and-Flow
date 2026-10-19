@@ -270,3 +270,9 @@ Planned meals show a green checkmarked Logged button when a food entry on that d
 ### v2.5.5 — Shorter Timeline tab
 
 Shortened Today’s Training Timeline tab label to Timeline for mobile layouts. Existing routes and timeline features are unchanged. Updated cache/assets.
+
+### v2.6.0 — Usual food categories and sorting
+
+Usual foods may be assigned Breakfast, Lunch, Dinner or Snack in Add/Edit usual food. Older foods remain Uncategorized; no automatic guesses or data reset. Categories are optional validated metadata and survive backups, imports and reuse.
+
+The food library combines search with a meal-type filter and ascending/descending sorts for name, calories, protein, carbs and fat. Nutrition comparisons use each saved serving. Sorting creates a view with original record indices rather than reordering saved food data, retaining correct Edit/Delete/Log/Add-to-plan actions. Recipe browsing remains unchanged. Updated offline cache/assets.
