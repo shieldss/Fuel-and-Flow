@@ -276,3 +276,9 @@ Shortened Today’s Training Timeline tab label to Timeline for mobile layouts. 
 Usual foods may be assigned Breakfast, Lunch, Dinner or Snack in Add/Edit usual food. Older foods remain Uncategorized; no automatic guesses or data reset. Categories are optional validated metadata and survive backups, imports and reuse.
 
 The food library combines search with a meal-type filter and ascending/descending sorts for name, calories, protein, carbs and fat. Nutrition comparisons use each saved serving. Sorting creates a view with original record indices rather than reordering saved food data, retaining correct Edit/Delete/Log/Add-to-plan actions. Recipe browsing remains unchanged. Updated offline cache/assets.
+
+### v2.7.0 — Copy current day stats from Overview
+
+Today → Overview has a Copy button beside Add meal. It generates a fresh selected-day snapshot and a concise ChatGPT request for feedback and practical ways to finish the day. Includes saved profile/preferences, daily goals and remaining/over values, meals/drinks, hydration goal/progress, check-in scales, energy, steps, sleep/recovery, training minutes/notes, scheduled workouts, timeline checkpoints/gaps, unlogged plan options and usual foods.
+
+The snapshot matches Overview intake, while a separate timed-through-now total excludes future and untimed entries for today. Planned food and scheduled exercise are not treated as consumed/completed. Historical selections are labeled as such. Clipboard failures display a selectable text fallback; no diary or goal changes. Updated offline cache/assets.
