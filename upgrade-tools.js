@@ -1,8 +1,8 @@
-import {validateFoodCategory} from './view-tools.js?v=2.7.0';
-import {dayIntake} from './hydration-tools.js?v=2.7.0';
-import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.7.0';
-import {validateMeal,validDate,addDays,totals,average,sessionsFor,dateKey} from './core.js?v=2.7.0';
-import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.7.0';
+import {validateFoodCategory} from './view-tools.js?v=2.8.0';
+import {dayIntake} from './hydration-tools.js?v=2.8.0';
+import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.8.0';
+import {validateMeal,validDate,addDays,totals,average,sessionsFor,dateKey} from './core.js?v=2.8.0';
+import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.8.0';
 export const FEATURE_VERSION=1;
 const round=n=>Math.round(n*100)/100;
 export function validateIngredients(items){if(!Array.isArray(items)||items.length>100)throw Error('Use up to 100 ingredients.');return items.map(x=>{if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>200||typeof x.unit!=='string'||x.unit.length>30||typeof x.amount!=='number'||!Number.isFinite(x.amount)||x.amount<=0||x.amount>100000)throw Error('Each ingredient needs a name, positive quantity and unit.');return {name:x.name.trim(),amount:x.amount,unit:x.unit.trim()};});}
@@ -68,6 +68,9 @@ export function fuelingCheckpoints(state,date,now=new Date()){
   currentLoggedCalories:currentActual?.calories??null,foodLogComplete:state.days[date]?.complete===true,
   basis:'Cumulative calorie/protein/carbohydrate/fat checkpoints at 10:00, 12:00, 15:00, 17:00, 21:00 and 22:00 local time, scaled independently from the applicable More > Goals profile (saved goal snapshots retained for completed dates). The 22:00 center targets equal the daily settings exactly. For every nutrient at each checkpoint, 90% through 110% of its target (inclusive, bounds rounded to 0.01) counts as met. Below and above range are distinct; mixed results are outside range. Remaining/over values measure distance to the nearest range boundary, not the center target. BJJ fractions assume a 18:00 class, favor carbohydrate before class and reserve evening protein/carbohydrate for recovery; non-BJJ fractions spread intake through the day. Fractions are an app planning heuristic, not evidence of optimal energy or a validated prescription. Meal plans never determine targets. Compare only timed logged meals/drinks once. Upcoming checkpoints do not trigger alerts; current status uses intake through now. Missing logs do not confirm a deficit. No exercise-calorie subtraction.'};
 }
+
+// Planning compares the saved plan with the same goals used by the actual-intake timeline.
+export function plannedFuelCheckpoints(state,date){const progress=fuelingCheckpoints(state,date),meals=(state.plans[date]?.meals||[]).filter(m=>!m.skipped),timed=meals.filter(m=>/^([01]\d|2[0-3]):[0-5]\d$/.test(m.time));return {profileLabel:progress.profileLabel,profileType:progress.profileType,untimedCount:meals.length-timed.length,points:progress.points.map(point=>{const included=timed.filter(m=>m.time<=point.time),planned=totals(included),nutrients=compareCheckpoint(planned,point.targets);return {time:point.time,label:point.label,targets:point.targets,ranges:point.ranges,planned,nutrients,metCount:NUTRIENTS.filter(k=>nutrients[k].met).length,mealCount:included.length};})};}
 
 export function trainingComparison(state,dates){return ['bjj','nonBjj'].map(type=>{const keys=dates.filter(k=>getNutritionGoalsForDate(k,state).type===type),days=keys.map(k=>state.days[k]).filter(Boolean),complete=keys.filter(k=>state.days[k]?.complete),intake=totals(complete.flatMap(k=>dayIntake(state.days[k]))),targets=totals(complete.map(k=>getNutritionGoalsForDate(k,state)));return {type,label:type==='bjj'?'BJJ Training Day':'Non-BJJ Day',dates:keys,completeDays:complete.length,intake,targets,attainment:complete.length?nutritionProgress(intake,targets):null,energyBefore:average(days.map(x=>x.energyBefore)),energyAfter:average(days.map(x=>x.energyAfter)),sleep:average(days.map(x=>x.sleep)),sleepQuality:average(days.map(x=>x.sleepQuality)),soreness:average(days.map(x=>x.soreness)),stress:average(days.map(x=>x.stress))};});}
 export function backupDue(state,now=new Date()){const b=state.backupSettings||{reminderDays:7,lastExportAt:null};return b.reminderDays>0&&(!b.lastExportAt||now-new Date(b.lastExportAt)>=b.reminderDays*864e5);}

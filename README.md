@@ -282,3 +282,9 @@ The food library combines search with a meal-type filter and ascending/descendin
 Today → Overview has a Copy button beside Add meal. It generates a fresh selected-day snapshot and a concise ChatGPT request for feedback and practical ways to finish the day. Includes saved profile/preferences, daily goals and remaining/over values, meals/drinks, hydration goal/progress, check-in scales, energy, steps, sleep/recovery, training minutes/notes, scheduled workouts, timeline checkpoints/gaps, unlogged plan options and usual foods.
 
 The snapshot matches Overview intake, while a separate timed-through-now total excludes future and untimed entries for today. Planned food and scheduled exercise are not treated as consumed/completed. Historical selections are labeled as such. Clipboard failures display a selectable text fallback; no diary or goal changes. Updated offline cache/assets.
+
+### v2.8.0 — Compact Plan fuel checkpoints
+
+Plan → Meals now has six compact time buttons (10 AM, noon, 3 PM, 5 PM, 9 PM and 10 PM) and a single selected-checkpoint comparison for calories, protein, carbs and fat. Colored progress bars show cumulative planned food against daily-profile goals and the existing ±10% meeting ranges. Tiny time-button meters indicate how many of the four targets are in range.
+
+Comparisons include non-skipped timed planned meals at or before each checkpoint, excluding actual food/drink logs. Changes to meal timing, amounts, skipped status, goals or schedules recalculate immediately on render. Goals share the Today timeline selector; they never come from meal-plan totals. Untimed planned meals are counted separately. Daily plan totals remain available in a compact expandable summary so the food list stays prominent. Existing meal editing, logging and swipe actions are preserved. No stored-data changes or migration. Updated offline cache/assets.
