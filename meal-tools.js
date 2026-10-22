@@ -1,4 +1,4 @@
-import {validateMeal,validDate,freshDay,range,dateKey} from './core.js?v=2.11.0';
+import {validateMeal,validDate,freshDay,range,dateKey} from './core.js?v=2.11.1';
 export function parseMeals(text){let raw=text.trim();const fenced=raw.match(/```(?:json)?\s*([\s\S]*?)```/i);if(fenced)raw=fenced[1];let p;try{p=JSON.parse(raw);}catch{throw Error('Paste valid JSON returned by ChatGPT.');}if(!p||p.schemaVersion!==1||!Array.isArray(p.meals)||!p.meals.length||p.meals.length>100)throw Error('Expected schemaVersion 1 and 1–100 meals.');return p.meals.map((m,i)=>{if(!m||typeof m!=='object')throw Error('Invalid meal.');if(m.date!=null&&!validDate(m.date))throw Error(`Meal ${i+1}: date must be YYYY-MM-DD or null.`);const checked=validateMeal({...m,time:m.time??'00:00'},`Meal ${i+1}`);return {...checked,date:m.date??null,time:m.time??null};});}
 export function applyMeals(state,entries,destination,id=()=>crypto.randomUUID()){
  if(!['actual','plan','usual'].includes(destination))throw Error('Choose a valid destination.');

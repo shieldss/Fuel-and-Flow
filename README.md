@@ -304,3 +304,6 @@ Backups preserve the optional `days[date].trainingTimingOverrides` array; older 
 
 ### v2.11.0 — Swipe to edit every timeline row
 Meals, drinks, workouts, nutrition checkpoints and fueling-gap reminders use the existing swipe-right interaction to reveal a blue Edit action. Tap the swipe icon or use Right Arrow/Enter/Space and Escape for accessible alternatives. Meals/drinks reuse their existing editors, workouts keep date-only timing editing, and gaps open the bordering meals or Add meal. Checkpoint editing changes the active daily profile in More → Goals, or only the saved goals for a completed date; fixed checkpoint times/pacing remain unchanged. Calculated tallies and gaps always follow their source records. Periodic timeline refresh pauses while a swipe tray is open or being dragged. No storage migration or reset is required.
+
+### v2.11.1 — Read-only nutrition checkpoints
+Nutrition checkpoints display calculated targets, ranges and progress without a swipe indicator or Edit action. Daily goals remain configurable in More → Goals. Meals, drinks, workouts and fueling-gap source editors retain swipe-to-edit. Existing saved profiles and historical snapshots remain unchanged; no data migration.
