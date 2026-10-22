@@ -62,4 +62,7 @@
 
 .energy-checkin-fields .field{justify-content:space-between}
 
-.timeline-workout-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.timeline-workout-heading h3{min-width:0;overflow-wrap:anywhere}.timeline-workout-heading .btn{flex-shrink:0;padding:8px 10px;min-height:44px;font-size:.85rem}.timeline-workout-heading .btn svg{width:17px;height:17px}
+
+.timeline-swipe{border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-width:0}.timeline-swipe .fuel-event-card.meal-front{padding:14px 14px 14px 38px;border:0;border-radius:0;box-shadow:none;display:block}.timeline-swipe .meal-swipe-actions{inset:0 auto 0 0}.timeline-swipe .swipe-action{border-radius:0!important}.timeline-swipe .swipe-hint{width:30px;left:2px}.fuel-event.gap .timeline-swipe{border:1px dashed var(--fuel-amber-line);border-left:4px solid var(--fuel-amber-line)}.fuel-event.gap .timeline-swipe .fuel-event-card{border:0}.gap-edit-meal{width:100%;justify-content:flex-start;margin:8px 0;text-align:left;white-space:normal}.timeline-swipe .meal-front:focus-visible{outline-offset:-3px}@media(max-width:700px){.timeline-swipe{border-radius:11px}.timeline-swipe .fuel-event-card.meal-front{padding:12px 12px 12px 34px}.timeline-swipe .swipe-hint{left:0;width:28px}}
+
+.fuel-event.checkpoint .timeline-swipe{border-left:3px solid var(--green)}.fuel-event.checkpoint.bjj-checkpoint .timeline-swipe{border-left-color:var(--fuel-purple)}.fuel-event.checkpoint .timeline-swipe .fuel-event-card{border:0}
