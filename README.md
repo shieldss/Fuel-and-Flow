@@ -296,3 +296,8 @@ Daily check-ins now collect three independent 1–10 ratings: energyMorning, ene
 Updated the Overview energy card, Timeline, history, weekly comparisons, daily energy chart, daily/weekly/monthly reports and all ChatGPT context/quick-copy summaries. Per-period averages exclude blanks. Overall energy averages available day parts within each day, then averages those days equally; legacy workout ratings stay separate.
 
 Backup validation additively initializes missing new fields to null and validates 1–10 bounds. Schema stays readable, with no storage reset or changes to meals, hydration, training or profiles. New regression coverage checks old-data migration, saves/reopening, invalid values, reporting and prompt interpretation. Updated offline cache/assets.
+
+### v2.10.0 — Date-specific workout timing
+Today → Timeline workouts have an Edit control for start time and duration (0–600 whole minutes, or blank when unknown). Timing overrides apply only to the selected local date, can be reset, and overlay recurring or historical saved sessions by ID. They update chronological order, cumulative nutrition at workouts, relative meal timing, and AI exports. Weekly training, completed-day nutrition goal snapshots, actual check-in totals and food logs remain unchanged. Fixed nutrition checkpoints retain their existing 6 PM BJJ pacing assumption.
+
+Backups preserve the optional `days[date].trainingTimingOverrides` array; older data needs no reset. Unknown/missing session IDs remain stored but do not create new workouts. Service worker and module assets are versioned v2.10.0.
