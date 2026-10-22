@@ -288,3 +288,11 @@ The snapshot matches Overview intake, while a separate timed-through-now total e
 Plan → Meals now has six compact time buttons (10 AM, noon, 3 PM, 5 PM, 9 PM and 10 PM) and a single selected-checkpoint comparison for calories, protein, carbs and fat. Colored progress bars show cumulative planned food against daily-profile goals and the existing ±10% meeting ranges. Tiny time-button meters indicate how many of the four targets are in range.
 
 Comparisons include non-skipped timed planned meals at or before each checkpoint, excluding actual food/drink logs. Changes to meal timing, amounts, skipped status, goals or schedules recalculate immediately on render. Goals share the Today timeline selector; they never come from meal-plan totals. Untimed planned meals are counted separately. Daily plan totals remain available in a compact expandable summary so the food list stays prominent. Existing meal editing, logging and swipe actions are preserved. No stored-data changes or migration. Updated offline cache/assets.
+
+### v2.9.0 — Morning, afternoon and evening energy
+
+Daily check-ins now collect three independent 1–10 ratings: energyMorning, energyAfternoon and energyEvening. Blank values remain unknown. Existing energyBefore/energyAfter values are preserved as legacy workout ratings; their time of day is unknown, so they are never copied into new fields. Legacy values remain readable in labeled disclosures and exports.
+
+Updated the Overview energy card, Timeline, history, weekly comparisons, daily energy chart, daily/weekly/monthly reports and all ChatGPT context/quick-copy summaries. Per-period averages exclude blanks. Overall energy averages available day parts within each day, then averages those days equally; legacy workout ratings stay separate.
+
+Backup validation additively initializes missing new fields to null and validates 1–10 bounds. Schema stays readable, with no storage reset or changes to meals, hydration, training or profiles. New regression coverage checks old-data migration, saves/reopening, invalid values, reporting and prompt interpretation. Updated offline cache/assets.
