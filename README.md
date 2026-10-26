@@ -307,3 +307,6 @@ Meals, drinks, workouts, nutrition checkpoints and fueling-gap reminders use the
 
 ### v2.11.1 — Read-only nutrition checkpoints
 Nutrition checkpoints display calculated targets, ranges and progress without a swipe indicator or Edit action. Daily goals remain configurable in More → Goals. Meals, drinks, workouts and fueling-gap source editors retain swipe-to-edit. Existing saved profiles and historical snapshots remain unchanged; no data migration.
+
+### v2.11.2 — Always-visible daily plan macros
+The Plan page displays its Daily plan calories, protein, carbohydrates and fat with goals, progress bars and remaining amounts in a permanently expanded section above the checkpoint guide and meal list. Removed the collapse control and redundant compact totals. No stored-data changes.

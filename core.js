@@ -1,8 +1,8 @@
-import {groceryList} from './grocery-tools.js?v=2.11.1';
-import {validateDrink,dayIntake,fluidTotal} from './hydration-tools.js?v=2.11.1';
-import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.11.1';
-import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend,fuelEvents,mealComparison,mealFuelGaps,fuelingCheckpoints} from './upgrade-tools.js?v=2.11.1';
-import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.11.1';
+import {groceryList} from './grocery-tools.js?v=2.11.2';
+import {validateDrink,dayIntake,fluidTotal} from './hydration-tools.js?v=2.11.2';
+import {DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.11.2';
+import {preserveMealExtras,validateUpgradeData,FEATURE_VERSION,trainingComparison,weightTrend,fuelEvents,mealComparison,mealFuelGaps,fuelingCheckpoints} from './upgrade-tools.js?v=2.11.2';
+import {migrateNutritionGoals,NUTRITION_SETTINGS_VERSION,getNutritionGoalsForDate,nutritionProgress,nutritionGoalSummary,sumNutrition,profileForNutritionPrompt} from './nutrition-tools.js?v=2.11.2';
 export const ENERGY_PERIODS=[['energyMorning','Morning'],['energyAfternoon','Afternoon'],['energyEvening','Evening']];
 export function dailyEnergyAverage(day){return average(ENERGY_PERIODS.map(([key])=>day?.[key]));}
 export const CHECKIN_RATING_SCALES={sleepQuality:{label:'Sleep quality',min:1,max:5,minLabel:'poor',maxLabel:'excellent',higherMeans:'better sleep quality'},soreness:{label:'Muscle soreness',min:1,max:5,minLabel:'none',maxLabel:'very sore',higherMeans:'more soreness'},stress:{label:'Stress',min:1,max:5,minLabel:'low',maxLabel:'very high',higherMeans:'more stress'}};
