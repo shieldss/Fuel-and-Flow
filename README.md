@@ -310,3 +310,6 @@ Nutrition checkpoints display calculated targets, ranges and progress without a 
 
 ### v2.11.2 — Always-visible daily plan macros
 The Plan page displays its Daily plan calories, protein, carbohydrates and fat with goals, progress bars and remaining amounts in a permanently expanded section above the checkpoint guide and meal list. Removed the collapse control and redundant compact totals. No stored-data changes.
+
+### v2.12.0 — Walking minutes in daily check-in
+Training minutes & notes includes optional Walking minutes (0–1440 whole minutes). Saved and restored alongside BJJ/lifting minutes, included in daily/weekly/monthly report records and ChatGPT summaries. Older check-ins initialize this field to null (unknown), not zero. Steps and scheduled workout durations remain independent. No reset or storage-version change.
