@@ -313,3 +313,6 @@ The Plan page displays its Daily plan calories, protein, carbohydrates and fat w
 
 ### v2.12.0 — Walking minutes in daily check-in
 Training minutes & notes includes optional Walking minutes (0–1440 whole minutes). Saved and restored alongside BJJ/lifting minutes, included in daily/weekly/monthly report records and ChatGPT summaries. Older check-ins initialize this field to null (unknown), not zero. Steps and scheduled workout durations remain independent. No reset or storage-version change.
+
+### v2.12.1 — Fluid total in consumption log
+Today → Water shows the selected day’s current total ounces in the Consumption log header, with the serving count below the title. Uses the existing fluid total (drinks plus any previously tracked amount) and updates after logging, editing or deleting a drink. No storage changes.

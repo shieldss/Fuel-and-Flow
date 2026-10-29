@@ -1,4 +1,4 @@
-import {dateObj,validDate} from './core.js?v=2.12.0';
+import {dateObj,validDate} from './core.js?v=2.12.1';
 export const NUTRITION_SETTINGS_VERSION=1;
 export const NUTRIENTS=['calories','protein','carbs','fat'];
 export const DEFAULT_NUTRITION_GOALS={bjj:{calories:2200,protein:165,carbs:235,fat:67},nonBjj:{calories:2000,protein:165,carbs:170,fat:73}};
