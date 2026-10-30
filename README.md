@@ -316,3 +316,6 @@ Training minutes & notes includes optional Walking minutes (0–1440 whole minut
 
 ### v2.12.1 — Fluid total in consumption log
 Today → Water shows the selected day’s current total ounces in the Consumption log header, with the serving count below the title. Uses the existing fluid total (drinks plus any previously tracked amount) and updates after logging, editing or deleting a drink. No storage changes.
+
+### v2.12.2 — Explicit training minutes in AI summaries
+Daily Copy and daily/weekly/monthly review prompts include a labeled trainingMinutesSummary for BJJ, lifting and walking: recorded total minutes and number of days recorded. Actual totals use check-in entries only, including explicit zero values; unknowns remain unknown. Individual dates retain actual minutes and workout timeline start times/durations, including date-specific edits, without adding scheduled duration to actual exercise. No data migration.
