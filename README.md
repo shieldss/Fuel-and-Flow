@@ -324,3 +324,8 @@ Daily Copy and daily/weekly/monthly review prompts include a labeled trainingMin
 ### v2.13.0 — Check-in workout times on the Timeline
 
 Daily check-in now lets you record start times for BJJ, lifting and walking beside the activity minutes. The Timeline uses the same actual minutes and the entered local start time for each activity, so its workout rows match the check-in. An actual check-in row replaces scheduled rows of that same activity for that date; other scheduled workouts remain visible. If a start time is unknown, the actual workout stays untimed and is excluded from time-based cumulative intake. AI daily and period summaries preserve actual activity sessions separately from scheduled workouts. Existing check-ins and logs remain intact; older data initializes the new optional times as unknown. Updated offline cache and asset versions.
+
+
+### v2.13.1 — Check-in defaults from the Timeline
+
+When a date has scheduled BJJ, lifting or walking sessions and no actual check-in values yet, the Check-In training fields default to that date’s Timeline times and durations. Existing actual check-in values remain authoritative; saving edited values makes the Timeline reflect those same values for that date. Date-specific schedule edits are included, and unscheduled activities remain blank. No data reset or migration is needed.
