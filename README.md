@@ -319,3 +319,8 @@ Today → Water shows the selected day’s current total ounces in the Consumpti
 
 ### v2.12.2 — Explicit training minutes in AI summaries
 Daily Copy and daily/weekly/monthly review prompts include a labeled trainingMinutesSummary for BJJ, lifting and walking: recorded total minutes and number of days recorded. Actual totals use check-in entries only, including explicit zero values; unknowns remain unknown. Individual dates retain actual minutes and workout timeline start times/durations, including date-specific edits, without adding scheduled duration to actual exercise. No data migration.
+
+
+### v2.13.0 — Check-in workout times on the Timeline
+
+Daily check-in now lets you record start times for BJJ, lifting and walking beside the activity minutes. The Timeline uses the same actual minutes and the entered local start time for each activity, so its workout rows match the check-in. An actual check-in row replaces scheduled rows of that same activity for that date; other scheduled workouts remain visible. If a start time is unknown, the actual workout stays untimed and is excluded from time-based cumulative intake. AI daily and period summaries preserve actual activity sessions separately from scheduled workouts. Existing check-ins and logs remain intact; older data initializes the new optional times as unknown. Updated offline cache and asset versions.
