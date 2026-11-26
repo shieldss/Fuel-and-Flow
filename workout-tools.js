@@ -1,4 +1,4 @@
-import {validateTraining,validateWorkoutTiming,workoutsForDate,freshDay,validDate} from './core.js?v=2.15.0';
+import {validateTraining,validateExercise,validateWorkoutTiming,workoutsForDate,freshDay,validDate} from './core.js?v=2.16.0';
 export function saveWorkout(state,workout,copyDays=[],originalId=null,id=()=>crypto.randomUUID()){
  if(!Array.isArray(copyDays)||copyDays.some(day=>!Number.isInteger(day)||day<0||day>6))throw Error('Choose valid weekdays for workout copies.');
  if(originalId&&!state.weeklyTraining.some(s=>s.id===originalId))throw Error('This workout no longer exists. Reopen the schedule.');
@@ -18,4 +18,17 @@ export function saveDateWorkoutTiming(state,date,id,timing){
 }
 export function resetDateWorkoutTiming(state,date,id){
  const day=state.days[date];if(day?.trainingTimingOverrides)day.trainingTimingOverrides=day.trainingTimingOverrides.filter(x=>x.id!==id);
+}
+
+
+export function saveExercise(state,date,input,editId=null,id=()=>crypto.randomUUID()){
+ if(!validDate(date))throw Error('Choose a valid workout date.');
+ const day=state.days[date]??freshDay(date,state.weeklyTraining),entries=day.exercises||[],original=editId?entries.find(x=>x.id===editId):null;
+ if(editId&&!original)throw Error('This exercise is no longer in your log.');
+ const clean=validateExercise({...input,id:original?.id??id()});
+ if(entries.some(x=>x.id!==editId&&(x.id===clean.id||clean.scheduleId&&x.scheduleId===clean.scheduleId||clean.preset&&x.preset===clean.preset)))return null;
+ if(!original&&entries.length>=100)throw Error('This day already has 100 logged exercises.');
+ day.exercises=original?entries.map(x=>x.id===editId?clean:x):[...entries,clean];
+ state.days[date]=day;
+ return clean;
 }
