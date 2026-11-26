@@ -330,7 +330,9 @@ body[data-theme="cards"] .app-header .eyebrow {color:var(--muted)}
 body[data-theme="cards"] .date-control .iconbtn {border-radius:50%;background:var(--surface);justify-content:center}
 body[data-theme="cards"] .date-control input {background:var(--surface)}
 body[data-theme="cards"] .section-nav {
- gap:5px;margin:0 0 18px;padding:5px;border:0;border-radius:20px;
+ --cards-nav-inset:12px;
+ gap:5px;margin:0 0 18px;padding:5px var(--cards-nav-inset);border:0;border-radius:20px;
+ scroll-padding-inline:var(--cards-nav-inset);
  background:var(--bg)
 }
 body[data-theme="cards"] .section-nav button {
