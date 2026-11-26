@@ -330,7 +330,7 @@ body[data-theme="cards"] .app-header .eyebrow {color:var(--muted)}
 body[data-theme="cards"] .date-control .iconbtn {border-radius:50%;background:var(--surface);justify-content:center}
 body[data-theme="cards"] .date-control input {background:var(--surface)}
 body[data-theme="cards"] .section-nav {
- gap:5px;margin:0 0 15px;padding:5px 0 2px;border:0;border-radius:20px;
+ gap:5px;margin:0 0 18px;padding:5px;border:0;border-radius:20px;
  background:var(--bg)
 }
 body[data-theme="cards"] .section-nav button {
@@ -436,6 +436,8 @@ body[data-theme="cards"] main {
  --page-folder:#e4f4f2;
  --page-insert:#f8fcfb;
  --page-tabs:#d6efeb;
+ --cards-row-gap:10px;
+ --cards-row-padding:14px;
 }
 body[data-theme="cards"] main[data-view="today"][data-panel="food"],
 body[data-theme="cards"] main[data-view="plan"] {
@@ -515,6 +517,61 @@ body[data-theme="cards"] .week-strip .daybtn.active :is(.small,.mini,strong) {co
  body[data-theme="cards"] main {--page-folder:Canvas;--page-insert:Canvas;--page-tabs:Canvas}
 }
 body[data-theme="cards"] main:not([data-panel="overview"]) .card .save-bar {background:var(--page-folder)}
+
+/* Each inset is a separate card, not a divider row. Clip the swipe tray to
+   the same radius, without letting it cut into titles or controls. */
+body[data-theme="cards"] main:is([data-view="plan"][data-panel="meals"],[data-view="foods"]) .card > :is(.swipe-meal,.saved-food-row) {
+ margin-block-start:var(--cards-row-gap);border:0;border-radius:var(--theme-field-radius)
+}
+body[data-theme="cards"] main:is([data-view="plan"][data-panel="meals"],[data-view="foods"]) .card > .swipe-meal .meal-front {
+ padding:var(--cards-row-padding);padding-inline-start:var(--cards-swipe-start,var(--cards-row-padding))
+}
+body[data-theme="cards"] main[data-view="foods"] {--cards-swipe-start:44px}
+body[data-theme="cards"] main[data-view="foods"] .card > .swipe-meal .swipe-hint {left:4px}
+body[data-theme="cards"] main[data-view="foods"] .card > .saved-food-row {
+ background:var(--page-insert);padding:var(--cards-row-padding)
+}
+body[data-theme="cards"] main:is([data-view="plan"][data-panel="meals"],[data-view="foods"]) :is(.meal-body,.saved-food-row) h3 {
+ line-height:1.3;overflow-wrap:anywhere
+}
+body[data-theme="cards"] main[data-view="foods"] .card > :is(.swipe-meal,.saved-food-row) .actions {
+ margin-block-start:8px;gap:4px 10px
+}
+body[data-theme="cards"] main[data-view="foods"] .card > :is(.swipe-meal,.saved-food-row) .actions button {
+ min-height:44px
+}
+body[data-theme="cards"] main[data-view="foods"] .usual-category {margin-block:2px 3px}
+body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .card > .swipe-meal .meal-time-swipe {
+ display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 10px
+}
+body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-time-swipe .meal-time {
+ align-self:start;padding-block-end:0;min-width:44px
+}
+body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-time-swipe .meal-time .swipe-hint {
+ position:static;transform:none;margin-inline:auto
+}
+body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-buttons .btn {
+ min-height:44px;white-space:nowrap
+}
+body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-buttons .meal-logged {--theme-on-primary:#19653c}
+
+/* No floating strip over the font and color options: the save button sits
+   in a full-width footer, aligned with the inner cards. */
+body[data-theme="cards"] .settings-app-grid .card #settings .save-bar {
+ position:static;margin-block-start:16px;padding-block:12px 0
+}
+body[data-theme="cards"] .settings-app-grid .card #settings .save-bar .btn {min-height:44px}
+body[data-theme="cards"] .settings-app-grid .card #settings .appearance-colors {margin-block-end:0}
+@media(max-width:700px) {
+ body[data-theme="cards"] main {--cards-row-padding:12px}
+ body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .card > .swipe-meal .meal-time-swipe {
+  grid-template-columns:auto minmax(0,1fr)
+ }
+ body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-time-swipe .meal-time {grid-row:1/span 2}
+ body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-time-swipe .meal-buttons {
+  grid-column:2;justify-self:end
+ }
+}
 
 /* Keep the two Plan actions together when the heading wraps on a narrow screen. */
 .quick-plan .quick-plan-actions {gap:6px;flex-wrap:nowrap}
