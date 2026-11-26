@@ -352,3 +352,7 @@ Today → Overview → Exercise shows planned workouts for the selected date and
 ### v2.18.0 — Exercise Trends
 
 Trends → Exercise compares scheduled and logged sessions by day, week or month. See planned and actual minutes by activity, extra sessions, and total, average and peak steps. Expand a date to see individual sessions and jump to its Exercise log. Unknown durations and blank step days are not counted as zero. Only explicitly linked logs count against the plan; older totals or removed schedule links are reported separately rather than counted as extras. Daily Copy and ChatGPT review/plan reports use the same exercise analytics.
+
+### v2.20.0 — Appearance themes
+
+More → Settings → Appearance offers three additional themes. **Glass** uses dark frosted panels and saturated cool accents. **iOS** uses large system titles, grouped surfaces, and a floating tab bar on phones. **Material You** uses Material 3 Expressive–inspired tonal surfaces, rounded controls, and active navigation indicators. iOS and Material You follow the device’s light/dark setting; Material You uses a built-in color palette. The original Light, Dark, and System themes remain available. Themes work offline and do not change logs or plans.

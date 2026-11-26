@@ -318,3 +318,17 @@ test('Overview planned exercise edit renames, retypes and deletes only the selec
  assert.match(element('#app').innerHTML,/Edit Long walk, 35 min/);
  await click({action:'open-day',date:'2026-12-01'});await click({action:'nav',view:'today',panel:'overview'});assert.match(element('#app').innerHTML,/Log Upper body, 45 min/);
 });
+
+test('appearance offers three optional themes and keeps all saved content intact',async()=>{
+ const before=storage();
+ await click({action:'nav',view:'settings',panel:'app'});
+ assert.match(element('#app').innerHTML,/<option value="glass"[^>]*>Glass<\/option>/);
+ assert.match(element('#app').innerHTML,/<option value="ios"[^>]*>iOS<\/option>/);
+ assert.match(element('#app').innerHTML,/<option value="material-you"[^>]*>Material You<\/option>/);
+ const save=theme=>element('#settings').onsubmit({preventDefault(){},target:{values:{theme}}});
+ for(const theme of ['glass','ios','material-you','system','dark','light']){
+  save(theme);
+  assert.deepEqual(storage(),{...before,profile:{...before.profile,theme}});
+ }
+ save('unknown');assert.equal(storage().profile.theme,'light');
+});

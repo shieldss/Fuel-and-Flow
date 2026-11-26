@@ -8,3 +8,10 @@ test('all versioned module imports are precached at their exact offline URLs',()
   assert.ok(assets.includes(dependency),asset+' depends on uncached '+dependency);
  }
 });
+
+test('optional themes stylesheet is loaded and precached at the same version',()=>{
+ const root=resolve(import.meta.dirname,'..'),index=readFileSync(resolve(root,'index.html'),'utf8'),sw=readFileSync(resolve(root,'sw.js'),'utf8');
+ const css=index.match(/href="(\.\/themes\.css\?v=[^"]+)"/)?.[1];
+ assert.ok(css);assert.ok(sw.includes("'" + css + "'"));
+ assert.ok(existsSync(resolve(root,css.split('?')[0])));
+});

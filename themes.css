@@ -1,0 +1,132 @@
+/* Optional themes. Base Light, Dark and System continue to use styles.css. */
+body[data-theme="glass"] {
+  --bg:#0a1020; --surface:#142139; --ink:#f1f6ff; --muted:#b1c1d9;
+  --line:#354864; --green:#67eacd; --lime:#163a43;
+  --coral:#ff9473; --violet:#ae8fff; --blue:#639fff;
+  --theme-on-primary:#071d1a; --theme-danger:#ff9c8e; --theme-danger-bg:#451f28;
+  --theme-chrome:#111c32; --theme-glass:#111d33e8; --theme-card:#172840d6;
+  --shadow:0 12px 34px #03061045; --theme-card-radius:22px; --theme-control-radius:12px;
+  background:
+    radial-gradient(ellipse at 83% 0%, #193e77 0%, transparent 48%),
+    radial-gradient(ellipse at 0% 42%, #10434d 0%, transparent 50%),
+    var(--bg);
+  background-attachment:fixed;
+}
+body[data-theme="ios"] {
+  --bg:#f2f2f7; --surface:#fff; --ink:#19191d; --muted:#5b5c66;
+  --line:#d3d3df; --green:#075fcb; --lime:#e0edff;
+  --coral:#ad3928; --violet:#6550a4; --blue:#3c77d1;
+  --theme-on-primary:#fff; --theme-danger:#a82a26; --theme-danger-bg:#fcebea;
+  --theme-chrome:#f8f8fc; --theme-glass:#fcfcfedb;
+  --shadow:0 1px 2px #1717300c; --theme-card-radius:19px; --theme-control-radius:13px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
+}
+body[data-theme="ios"].dark {
+  --bg:#121214; --surface:#202024; --ink:#f7f7fa; --muted:#b3b3bd;
+  --line:#414148; --green:#8abaff; --lime:#273b57;
+  --coral:#ff9c8b; --violet:#bc9bfa; --blue:#8abaff;
+  --theme-on-primary:#081a32; --theme-danger:#ff9e99; --theme-danger-bg:#472627;
+  --theme-chrome:#242429; --theme-glass:#242429e8; --shadow:none;
+}
+body[data-theme="material-you"] {
+  --bg:#f3f7ef; --surface:#fcfdf8; --ink:#18241c; --muted:#46554a;
+  --line:#ccd7c9; --green:#245738; --lime:#d5ebd5;
+  --coral:#9a431e; --violet:#655498; --blue:#366878;
+  --theme-on-primary:#fff; --theme-danger:#9f2d2d; --theme-danger-bg:#fce9e5;
+  --theme-chrome:#e5eee0; --theme-field:#edf3e9;
+  --shadow:none; --theme-card-radius:27px; --theme-control-radius:28px;
+  font-family:Roboto,'Noto Sans',system-ui,sans-serif;
+}
+body[data-theme="material-you"].dark {
+  --bg:#131c16; --surface:#1d2920; --ink:#edf6e9; --muted:#bacbbd;
+  --line:#49594d; --green:#ace2b3; --lime:#304f38;
+  --coral:#ffb691; --violet:#cfbaff; --blue:#98c9db;
+  --theme-on-primary:#0d2a16; --theme-danger:#ffb4aa; --theme-danger-bg:#4d2927;
+  --theme-chrome:#26362a; --theme-field:#233327;
+}
+
+/* Themed controls and surfaces retain the existing layout, state colors and hit targets. */
+body[data-theme] :is(.card,.overview-macros,dialog) {border-radius:var(--theme-card-radius)}
+body[data-theme] :is(.btn:not(.exercise-tile),.section-nav button,.filter-row button,.week-strip button) {
+  border-radius:var(--theme-control-radius)
+}
+body[data-theme] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done),.plan-fuel-time.active) {color:var(--theme-on-primary)}
+body[data-theme] .btn.danger {color:var(--theme-danger);background:var(--theme-danger-bg)}
+body[data-theme] :is(.bjj-profile,.stat-icon.blue) {color:var(--green);background:var(--lime)}
+body[data-theme] :is(.swipe-edit,.swipe-swap,.swipe-copy) {background:var(--green);color:var(--theme-on-primary)}
+body[data-theme] .swipe-delete {background:#a62c3b;color:#fff}
+body[data-theme] :is(.section-nav,.nav) button:focus-visible {outline-offset:-3px}
+body[data-theme] :is(.btn,.section-nav button,.nav button) {transition:background-color .15s ease,color .15s ease}
+
+/* Glass: dark frosted panels, cool spectral lighting, and vivid accents. */
+body[data-theme="glass"] :is(.card,.overview-macros) {
+  background:linear-gradient(142deg,#ffffff09,transparent 53%),var(--surface);
+  box-shadow:inset 0 1px #ffffff0c,var(--shadow)
+}
+body[data-theme="glass"] :is(.sidebar,.nav,.section-nav) {background:var(--theme-chrome)}
+body[data-theme="glass"] :is(.nav button.active,.section-nav button.active) {color:var(--green);box-shadow:inset 0 0 0 1px #467b75}
+body[data-theme="glass"] .app-header h1 {font-size:clamp(33px,5vw,47px);letter-spacing:-.057em}
+body[data-theme="glass"] :is(.overview-macros,.quick-exercises,.quick-plan,.quick-water,.today-checkin-highlights,.quick-today-details) {
+  --section-accent:var(--glass-accent,var(--green))
+}
+body[data-theme="glass"] .overview-macros {--glass-accent:#72adff}
+body[data-theme="glass"] .quick-exercises {--glass-accent:#ac84ff}
+body[data-theme="glass"] .quick-water {--glass-accent:#70d7fa}
+body[data-theme="glass"] .today-checkin-highlights {--glass-accent:#ff9d73}
+body[data-theme="glass"] .quick-today-details {--glass-accent:#a9bbd4}
+@supports (backdrop-filter:blur(12px)) or (-webkit-backdrop-filter:blur(12px)) {
+  body[data-theme="glass"] :is(.card,.overview-macros) {
+    background:linear-gradient(142deg,#ffffff09,transparent 53%),var(--theme-card);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)
+  }
+  body:is([data-theme="glass"],[data-theme="ios"]) :is(.nav,.section-nav) {
+    background:var(--theme-glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)
+  }
+}
+
+/* iOS: large system titles, inset groups, hairlines, and a floating navigation layer. */
+body[data-theme="ios"] .app-header h1 {font-size:clamp(34px,5vw,48px);font-weight:760;letter-spacing:-.056em}
+body[data-theme="ios"] :is(.app-header,.section-nav) .eyebrow {text-transform:none;letter-spacing:.01em;font-size:12px}
+body[data-theme="ios"] :is(.sidebar,.nav) {background-color:var(--theme-chrome)}
+body[data-theme="ios"] .section-nav {gap:3px;border-bottom:0}
+body[data-theme="ios"] .section-nav button.active {background:var(--surface);box-shadow:0 1px 4px #15152221}
+body[data-theme="ios"] :is(.card,.overview-macros) {border-block-width:1px}
+body[data-theme="ios"] .nav button.active {color:var(--green);border-radius:24px}
+
+/* Material 3 Expressive: tonal containers, differentiated shapes, and an icon-pilled nav. */
+body[data-theme="material-you"] .app-header h1 {font-size:clamp(35px,6vw,53px);font-weight:690;letter-spacing:-.045em}
+body[data-theme="material-you"] .app-header .eyebrow {letter-spacing:.08em}
+body[data-theme="material-you"] :is(.sidebar,.nav) {background:var(--theme-chrome)}
+body[data-theme="material-you"] .nav button.active {background:var(--lime);color:var(--green);border-radius:24px}
+body[data-theme="material-you"] .section-nav {gap:5px;border-bottom:0}
+body[data-theme="material-you"] .section-nav button:not(.active) {background:var(--theme-field)}
+body[data-theme="material-you"] :is(input:not([type="checkbox"]):not([type="range"]),select,textarea) {
+  background:var(--theme-field);border-radius:12px 12px 5px 5px
+}
+body[data-theme="material-you"] .btn.secondary {border-color:var(--muted)}
+body[data-theme="material-you"] :is(.checkin-highlight,.exercise-tile,.macro,.mini-metric) {border-radius:16px}
+body[data-theme="material-you"] :is(.week-strip button,.filter-row button).active {background:var(--lime);color:var(--green)}
+
+@media(max-width:700px) {
+  body[data-theme="ios"] .nav {
+    inset:auto 10px max(8px,env(safe-area-inset-bottom)) 10px;
+    min-height:60px;padding:4px;border:1px solid var(--line);border-radius:30px;
+    box-shadow:0 8px 24px #09092229
+  }
+  body[data-theme="ios"] .nav button {min-height:50px;padding-inline:2px;font-weight:650}
+  body[data-theme="ios"] main {padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  body[data-theme="ios"] #toast {bottom:calc(81px + env(safe-area-inset-bottom))}
+  body[data-theme="glass"] .nav {border-top-color:#466180}
+  body[data-theme="material-you"] .nav button {gap:3px;color:var(--ink)}
+  body[data-theme="material-you"] .nav button.active {background:transparent}
+  body[data-theme="material-you"] .nav button svg {display:block;width:48px;height:27px;padding:3px 13px;border-radius:20px}
+  body[data-theme="material-you"] .nav button.active svg {background:var(--lime);color:var(--green)}
+}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+  body[data-theme] {background:var(--bg)}
+  body[data-theme] :is(.card,.overview-macros,dialog) {background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}
+  body[data-theme] :is(.nav,.section-nav,.sidebar) {background:var(--theme-chrome);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media(prefers-reduced-motion:reduce) {
+  body[data-theme] :is(.btn,.section-nav button,.nav button) {transition:none}
+}
