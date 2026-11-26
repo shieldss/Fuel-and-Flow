@@ -277,3 +277,39 @@ body {--preview-default-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMa
 body[data-theme="ios"] {--preview-default-font:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
 body[data-theme="material-you"] {--preview-default-font:Roboto,'Noto Sans',system-ui,sans-serif}
 .font-preview:not([data-app-font]) {font-family:var(--preview-default-font)}
+
+/* Overview uses semantic icons and distinct, theme-aware nutrition rings. */
+.overview-section-title {display:inline-flex;align-items:center;gap:7px;vertical-align:middle}
+:is(h2,h3).overview-section-title {display:flex}
+.overview-section-icon {display:inline-flex;align-items:center;flex:0 0 auto}
+.overview-section-icon svg {width:20px;height:20px}
+.quick-today-heading .overview-section-icon {color:var(--green)}
+.overview-macros .overview-section-title {font-size:17px;margin:0}
+.overview-macros-subtitle {margin:4px 0 10px}
+.overview-macro[data-overview-nutrient="calories"] {--macro-tone:#245ebc}
+.overview-macro[data-overview-nutrient="protein"] {--macro-tone:#7241ab}
+.overview-macro[data-overview-nutrient="carbs"] {--macro-tone:#07786c}
+.overview-macro[data-overview-nutrient="fat"] {--macro-tone:#ad4137}
+.dark .overview-macro[data-overview-nutrient="calories"] {--macro-tone:#8bb8ff}
+.dark .overview-macro[data-overview-nutrient="protein"] {--macro-tone:#d0a9ff}
+.dark .overview-macro[data-overview-nutrient="carbs"] {--macro-tone:#61ddc9}
+.dark .overview-macro[data-overview-nutrient="fat"] {--macro-tone:#ffad9c}
+.overview-macro {text-align:center}
+.overview-macro dt {font-weight:750;color:var(--macro-tone)}
+.overview-macro dd {display:flex;flex-direction:column;align-items:center}
+.macro-ring {
+ position:relative;display:grid;place-items:center;order:-1;width:min(100%,76px);aspect-ratio:1;
+ margin:4px auto 6px;color:var(--macro-tone);font-variant-numeric:tabular-nums;font-size:clamp(10px,3vw,16px);font-weight:800
+}
+.macro-ring svg {position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:6}
+.macro-ring-track {stroke-opacity:.19}
+.macro-ring-progress {stroke-linecap:round}
+.macro-over-label {margin-top:5px;color:var(--macro-tone);font-size:10px;font-weight:750}
+@media(max-width:380px) {
+ .overview-macro small {font-size:10px}
+ .macro-ring span {font-size:10px}
+}
+@media(forced-colors:active) {
+ .macro-ring {color:CanvasText}
+ .macro-ring-track {stroke-opacity:.4}
+}
