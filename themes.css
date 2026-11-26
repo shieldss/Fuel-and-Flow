@@ -261,10 +261,6 @@ body[data-custom-accent]:not([data-theme="material-you"]) .daybtn.active {color:
 @font-face {font-family:'Fuel Atkinson';src:url('./fonts/atkinsonhyperlegiblenext.woff2') format('woff2');font-weight:400 800;font-display:swap}
 @font-face {font-family:'Fuel Manrope';src:url('./fonts/manrope.woff2') format('woff2');font-weight:400 800;font-display:swap}
 @font-face {font-family:'Fuel Source Serif';src:url('./fonts/sourceserif4.woff2') format('woff2');font-weight:400 800;font-display:swap}
-body[data-app-font="atkinson"],.font-preview[data-app-font="atkinson"] {font-family:'Fuel Atkinson',system-ui,sans-serif}
-body[data-app-font="manrope"],.font-preview[data-app-font="manrope"] {font-family:'Fuel Manrope',system-ui,sans-serif}
-body[data-app-font="source-serif"],.font-preview[data-app-font="source-serif"] {font-family:'Fuel Source Serif',Georgia,serif}
-body[data-app-font="system-sans"],.font-preview[data-app-font="system-sans"] {font-family:system-ui,sans-serif}
 .appearance-fonts {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-field-radius)}
 .appearance-fonts legend {padding-inline:5px;font-weight:750}
 .font-picker-controls {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center}
@@ -313,3 +309,108 @@ body[data-theme="material-you"] {--preview-default-font:Roboto,'Noto Sans',syste
  .macro-ring {color:CanvasText}
  .macro-ring-track {stroke-opacity:.4}
 }
+
+/* Cards: a cool wash behind tactile folder cards and round navigation. */
+body[data-theme="cards"] {
+ --bg:#dff1f3; --surface:#f7fcfc; --ink:#122121; --muted:#425a5c;
+ --line:#a8c4c5; --green:#162224; --lime:#d8efe6;
+ --coral:#a23e3a; --violet:#754aa1; --blue:#246e86;
+ --theme-on-primary:#fff; --theme-danger:#913832; --theme-danger-bg:#ffe6df;
+ --theme-card-radius:25px; --theme-control-radius:24px; --theme-field-radius:15px;
+ --theme-chrome:#effafa; --theme-field:#e5f1f0;
+ --preview-default-font:'Fuel Manrope',system-ui,sans-serif;
+ --shadow:0 8px 20px #294f6510;
+ font-family:var(--preview-default-font);
+ background:linear-gradient(112deg,#a0eadf 0%,#d4f3ee 38%,#e5eff6 67%,#d8e0f3 100%);
+ background-attachment:fixed
+}
+body[data-theme="cards"] :is(.sidebar,.section-nav) {background:var(--theme-chrome)}
+body[data-theme="cards"] .sidebar {border-color:var(--line)}
+body[data-theme="cards"] .app-header h1 {font-size:clamp(33px,6vw,48px);font-weight:760;letter-spacing:-.055em}
+body[data-theme="cards"] .app-header .eyebrow {color:var(--muted)}
+body[data-theme="cards"] .date-control .iconbtn {border-radius:50%;background:var(--surface);justify-content:center}
+body[data-theme="cards"] .date-control input {background:var(--surface)}
+body[data-theme="cards"] .section-nav {
+ gap:5px;margin:0 0 15px;padding:5px 0 2px;border:0;border-radius:20px;
+ background:var(--bg)
+}
+body[data-theme="cards"] .section-nav button {
+ border-radius:999px;background:var(--theme-field);color:var(--ink)
+}
+body[data-theme="cards"] .section-nav button.active {
+ background:var(--surface);color:var(--green);box-shadow:inset 0 0 0 1px var(--line)
+}
+body[data-theme="cards"] :is(.nav button.active,.secondary-nav button.active) {border-radius:999px}
+body[data-theme="cards"] :is(.card,.overview-macros) {border-color:#ffffffab}
+body[data-theme="cards"] .overview-macros {background:var(--surface);padding:14px}
+body[data-theme="cards"] .overview-macros .overview-section-title {color:var(--ink)}
+body[data-theme="cards"] .overview-macro {border-color:#14232328;border-radius:17px}
+body[data-theme="cards"] .overview-macro[data-overview-nutrient="calories"] {background:#dceeff}
+body[data-theme="cards"] .overview-macro[data-overview-nutrient="protein"] {background:#ebdcfb}
+body[data-theme="cards"] .overview-macro[data-overview-nutrient="carbs"] {background:#e9f6cf}
+body[data-theme="cards"] .overview-macro[data-overview-nutrient="fat"] {background:#ffe3d5}
+
+/* The raised tab is decorative; the whole card is one accessible section. */
+body[data-theme="cards"] :is(.quick-exercises,.quick-plan,.quick-water,.today-checkin-highlights) {
+ position:relative;margin-block:29px 0;border:0;
+ border-start-start-radius:0;background:var(--folder-fill);
+ --section-accent:var(--ink)
+}
+body[data-theme="cards"] :is(.quick-exercises,.quick-plan,.quick-water,.today-checkin-highlights)::before {
+ content:"";position:absolute;inset-block-start:-13px;inset-inline-start:0;
+ width:63px;height:14px;background:var(--folder-fill);pointer-events:none;
+ clip-path:path("M0 14 C0 6 6 0 15 0 H35 C48 0 45 14 63 14 Z")
+}
+body[data-theme="cards"] .quick-exercises {--folder-fill:#e6d6f6}
+body[data-theme="cards"] .quick-plan {--folder-fill:#fff59c}
+body[data-theme="cards"] .quick-water {--folder-fill:#c6f5e8}
+body[data-theme="cards"] .today-checkin-highlights {--folder-fill:#ffdfd1;margin-bottom:14px}
+body[data-theme="cards"] .overview-section-icon {
+ width:29px;height:29px;justify-content:center;border:1px solid #14232337;border-radius:50%
+}
+body[data-theme="cards"] .overview-section-icon svg {width:16px;height:16px}
+body[data-theme="cards"] .quick-today-heading .overview-section-icon {background:var(--surface);color:var(--ink)}
+body[data-theme="cards"] :is(.quick-exercises,.quick-plan,.quick-water,.today-checkin-highlights) .text-button {color:var(--ink)}
+body[data-theme="cards"] :is(.quick-exercises,.quick-water) .btn.soft:not(.exercise-done) {background:#ffffffa6}
+body[data-theme="cards"] .quick-plan .swipe-meal .meal-front {background:#fffbd8}
+body[data-theme="cards"] .quick-plan .btn.soft {background:#fff;color:#132222}
+body[data-theme="cards"] .checkin-highlight:not(.checkin-unlogged) {background:#fff7f2}
+body[data-theme="cards"] .quick-today-details {--section-accent:var(--ink)}
+body[data-custom-base][data-theme="cards"] {
+ background:linear-gradient(115deg,var(--base-glow),var(--bg) 62%,var(--theme-chrome));
+ background-attachment:fixed
+}
+@media(max-width:700px) {
+ body[data-theme="cards"] .nav {
+  inset:auto 6px 0 6px;border:1px solid #ffffffc9;border-radius:26px 26px 0 0;
+  background:var(--theme-chrome);box-shadow:0 -5px 22px #1b49501a
+ }
+ body[data-theme="cards"] .nav button {color:var(--muted);gap:3px;padding:4px 2px}
+ body[data-theme="cards"] .nav button.active {background:none;color:var(--green)}
+ body[data-theme="cards"] .nav button svg {width:34px;height:34px;padding:7px;border-radius:50%;background:var(--theme-field)}
+ body[data-theme="cards"] .nav button.active svg {background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+ body[data-theme="cards"] .section-nav button {padding-inline:8px}
+ body[data-theme="cards"] .date-control .iconbtn {min-height:34px;min-width:34px}
+ body[data-theme="cards"] .overview-macros {padding:10px}
+}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+ body[data-theme="cards"],body[data-theme="cards"][data-custom-base] {background:var(--bg)}
+}
+
+body[data-app-font="atkinson"],.font-preview[data-app-font="atkinson"] {font-family:'Fuel Atkinson',system-ui,sans-serif}
+body[data-app-font="manrope"],.font-preview[data-app-font="manrope"] {font-family:'Fuel Manrope',system-ui,sans-serif}
+body[data-app-font="source-serif"],.font-preview[data-app-font="source-serif"] {font-family:'Fuel Source Serif',Georgia,serif}
+body[data-app-font="system-sans"],.font-preview[data-app-font="system-sans"] {font-family:system-ui,sans-serif}
+
+/* Platform-inspired base swatches, separate from the native custom picker. */
+.base-presets {display:grid;gap:9px;margin:4px 0 16px}
+.base-presets h3 {margin:0}
+.base-preset-group {display:grid;gap:5px}
+.base-preset-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.base-preset {
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+ min-height:54px;padding:5px 2px;border:1px solid var(--line);
+ border-radius:var(--theme-field-radius);background:var(--surface);color:var(--ink);
+ overflow-wrap:anywhere;font-size:clamp(10px,2.6vw,12px);line-height:1.15
+}
+.base-preset[aria-pressed="true"] {box-shadow:inset 0 0 0 2px var(--green)}

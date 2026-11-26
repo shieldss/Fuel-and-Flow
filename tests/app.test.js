@@ -326,7 +326,7 @@ test('appearance offers explicit theme variants and keeps all saved content inta
  assert.match(element('#app').innerHTML,/<option value="ios"[^>]*>iOS System<\/option>/);
  assert.match(element('#app').innerHTML,/<option value="material-you"[^>]*>Material You System<\/option>/);
  const save=theme=>element('#settings').onsubmit({preventDefault(){},target:{values:{theme}}});
- for(const theme of ['glass','glass-light','ios','ios-light','ios-dark','material-you','material-you-light','material-you-dark','system','dark','light']){
+ for(const theme of ['glass','glass-light','cards','ios','ios-light','ios-dark','material-you','material-you-light','material-you-dark','system','dark','light']){
   save(theme);
   assert.deepEqual(storage(),{...before,profile:{...before.profile,theme}});
  }
@@ -357,4 +357,13 @@ test('Overview macro rings distinguish partial, empty, over-goal and unset targe
  assert.match(html,/data-overview-nutrient="carbs" data-over-goal[\s\S]*?aria-label="150% of daily goal, over goal"[\s\S]*?stroke-dasharray="100 100"/);
  assert.match(html,/data-overview-nutrient="fat"[\s\S]*?aria-label="No daily goal set"/);
  assert.ok((html.match(/class="overview-section-icon"/g)||[]).length>=7);
+});
+
+test('Appearance includes platform-inspired base swatches alongside the custom picker',async()=>{
+ await click({action:'nav',view:'settings',panel:'app'});
+ const html=element('#app').innerHTML;
+ assert.match(html,/aria-label="iOS base colors"/);
+ assert.match(html,/aria-label="Material You base colors"/);
+ assert.equal((html.match(/data-base-preset="#[0-9a-f]{6}"/g)||[]).length,8);
+ assert.match(html,/type="color" name="themeBase"/);
 });
