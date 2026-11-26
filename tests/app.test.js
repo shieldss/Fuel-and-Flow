@@ -163,6 +163,30 @@ test('recorded check-in tiles reopen prefilled, validate changes and keep other 
  assert.equal(storage().days[date].sleep,8.1);assert.equal(storage().days[date].steps,0);
 });
 
+test('Overview uses the Check-in rating options, preserves stored types, and leaves numeric editors alone',async()=>{
+ const date='2026-07-04';await click({action:'open-day',date});
+ await click({action:'nav',view:'today',panel:'checkin'});
+ const page=element('#app').innerHTML,form=element('#overview-checkin-entry');
+ const submit=value=>{form.values={value};form.onsubmit({preventDefault(){}});};
+ const tile=key=>element(`[data-checkin-stat="${key}"]`);
+ const options=html=>[...html.matchAll(/<option value="([^"]+)"(?: selected)?>[^<]*<\/option>/g)].map(m=>m[1]);
+ await click({action:'nav',view:'today',panel:'overview'});
+ for(const [key,value,expected] of [['sleepQuality','4',4],['soreness','2',2],['stress','3',3],['recovery','Good','Good']]){
+  await click({action:'edit-overview-checkin',key});
+  const field=page.split(`<select name="${key}">`)[1].split('</select>')[0];
+  const inline=tile(key).innerHTML.match(/<select[^>]*>[\s\S]*?<\/select>/)[0];
+  assert.deepEqual(options(inline),options(field));
+  const before=storage();submit('invalid');assert.deepEqual(storage(),before);
+  submit(value);assert.equal(storage().days[date][key],expected);
+  await click({action:'edit-overview-checkin',key});
+  assert.ok(tile(key).innerHTML.includes(`<option value="${value}" selected>`));
+  await click({action:'cancel-overview-checkin'});
+ }
+ await click({action:'edit-overview-checkin',key:'sleep'});
+ assert.match(tile('sleep').innerHTML,/<input[^>]*type="number"/);
+ await click({action:'cancel-overview-checkin'});
+});
+
 test('Today shows all logged macros, not planned food, and updates on Eat and Undo',async()=>{
  const date=dateKey(),seed=storage();
  const food=(id,calories,protein,carbs,fat)=>({id,name:id,portion:'1 serving',time:'12:00',calories,protein,carbs,fat});
