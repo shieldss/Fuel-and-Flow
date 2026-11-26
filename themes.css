@@ -429,3 +429,89 @@ body[data-app-font="system-sans"],.font-preview[data-app-font="system-sans"] {fo
 #theme-color-hex {min-height:42px;font-size:16px}
 .color-dialog-fine {margin-bottom:8px;color:var(--muted)}
 #theme-color-native {min-height:42px;max-width:100px}
+
+/* Carry the Cards look across the app, without repainting status indicators.
+   The page color backs the main folders; rows and controls sit on lighter inserts. */
+body[data-theme="cards"] main {
+ --page-folder:#e4f4f2;
+ --page-insert:#f8fcfb;
+ --page-tabs:#d6efeb;
+}
+body[data-theme="cards"] main[data-view="today"][data-panel="food"],
+body[data-theme="cards"] main[data-view="plan"] {
+ --page-folder:#fff2aa;--page-insert:#fffce8;--page-tabs:#f4e9b5
+}
+body[data-theme="cards"] main[data-view="today"][data-panel="hydration"] {
+ --page-folder:#c6f5e8;--page-insert:#effcf7;--page-tabs:#d3eee7
+}
+body[data-theme="cards"] main[data-view="today"][data-panel="checkin"],
+body[data-theme="cards"] main[data-view="foods"] {
+ --page-folder:#ffdfd1;--page-insert:#fff7f2;--page-tabs:#f3e0d9
+}
+body[data-theme="cards"] main[data-view="today"][data-panel="training"],
+body[data-theme="cards"] main[data-view="insights"] {
+ --page-folder:#e6d6f6;--page-insert:#f9f2ff;--page-tabs:#e7dcf2
+}
+body[data-theme="cards"] main[data-view="coach"] {
+ --page-folder:#dceeff;--page-insert:#f4faff;--page-tabs:#d9eaf4
+}
+body[data-theme="cards"] main:not([data-panel="overview"]) .section-nav button:not(.active) {
+ background:var(--page-tabs)
+}
+body[data-theme="cards"] :is(
+ main:not([data-panel="overview"]) #view-content>.card,
+ .settings-app-grid>.card:not(details),
+ .trends-summary-stack>.card:not(details),
+ .exercise-trends>.card,
+ #fuel-timeline-region>.card
+) {
+ position:relative;margin-block-start:16px;border:0;border-start-start-radius:0;
+ background:var(--page-folder)
+}
+body[data-theme="cards"] :is(
+ main:not([data-panel="overview"]) #view-content>.card,
+ .settings-app-grid>.card:not(details),
+ .trends-summary-stack>.card:not(details),
+ .exercise-trends>.card,
+ #fuel-timeline-region>.card
+)::before {
+ content:"";position:absolute;inset-block-start:-11px;inset-inline-start:0;
+ width:72px;height:12px;background:var(--page-folder);pointer-events:none;
+ clip-path:path("M0 12 C0 5 6 0 15 0 H43 C56 0 50 12 72 12 Z")
+}
+/* Keep the Trends shortcut grid and the next card aligned with the summary gaps. */
+body[data-theme="cards"] .trends-summary-stack {padding-top:2px}
+body[data-theme="cards"] .trends-summary-stack>.card:not(details) {margin-block-start:11px}
+body[data-theme="cards"] #view-content>.card+.card {margin-block-start:24px}
+body[data-theme="cards"] #view-content>.card.compact-disclosure {margin-block-start:21px}
+body[data-theme="cards"] main:not([data-panel="overview"]) :is(
+ .form-group,.review-group,.mini-metric,.grocery-item,.schedule-row,
+ .plan-fuel-guide,.exercise-trend-category,.exercise-trend-day,.history-row,.food-result,
+ .appearance-colors,.appearance-fonts
+) {background:var(--page-insert);border-color:#16222430}
+body[data-theme="cards"] main:not([data-panel="overview"]) .card :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea) {
+ background:var(--surface)
+}
+body[data-theme="cards"] main:not([data-panel="overview"]) .swipe-meal .meal-front {
+ background:var(--page-insert);border-radius:var(--theme-field-radius)
+}
+body[data-theme="cards"] :is(.settings-grid,.destination-grid) .destination {
+ border-radius:19px;border-color:#16222424;background:var(--tile-fill,var(--surface))
+}
+body[data-theme="cards"] :is(.settings-grid,.destination-grid) .destination:nth-child(4n+1) {--tile-fill:#dceeff}
+body[data-theme="cards"] :is(.settings-grid,.destination-grid) .destination:nth-child(4n+2) {--tile-fill:#e6d6f6}
+body[data-theme="cards"] :is(.settings-grid,.destination-grid) .destination:nth-child(4n+3) {--tile-fill:#fff2aa}
+body[data-theme="cards"] :is(.settings-grid,.destination-grid) .destination:nth-child(4n+4) {--tile-fill:#c6f5e8}
+body[data-theme="cards"] .destination-icon {
+ background:#ffffffba;border-radius:50%;border:1px solid #16222427
+}
+body[data-theme="cards"] #modal {
+ border:1px solid #ffffffc9;border-radius:26px;background:var(--surface)
+}
+body[data-theme="cards"] #modal .modal-actions {background:var(--surface)}
+body[data-theme="cards"] .week-strip .daybtn.active {background:var(--green);color:var(--theme-on-primary)}
+body[data-theme="cards"] .week-strip .daybtn.active :is(.small,.mini,strong) {color:inherit}
+@media(forced-colors:active) {
+ body[data-theme="cards"] main {--page-folder:Canvas;--page-insert:Canvas;--page-tabs:Canvas}
+}
+body[data-theme="cards"] main:not([data-panel="overview"]) .card .save-bar {background:var(--page-folder)}
