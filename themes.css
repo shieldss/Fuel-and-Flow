@@ -196,3 +196,29 @@ body[data-custom-base][data-theme="glass"] {background:radial-gradient(ellipse a
 @media(prefers-reduced-transparency:reduce),(forced-colors:active) {
  body[data-custom-base][data-theme="glass"] {background:var(--bg)}
 }
+
+/* One Glass panel for a page title and its section tabs. The title can scroll
+   out of view while the lower row stays available. */
+body[data-theme="glass"] .glass-page-card {
+ position:sticky;top:calc(-1 * var(--glass-title-height,0px));z-index:8;
+ min-width:0;margin:0 0 15px;border:1px solid var(--line);
+ border-radius:var(--theme-card-radius);background:var(--theme-chrome);
+ box-shadow:inset 0 1px #ffffff14,var(--shadow)
+}
+body[data-theme="glass"]:not(.dark) .glass-page-card {border-color:#ffffffc9}
+body[data-theme="glass"] .glass-page-card .app-header {
+ margin:0;padding:10px 14px;border:0;border-radius:0;background:none;box-shadow:none
+}
+body[data-theme="glass"] .glass-page-card .section-nav {
+ position:static;margin:0 6px;padding:5px 0 6px;
+ border:0;border-top:1px solid var(--line);border-radius:0;background:none;box-shadow:none;
+ -webkit-backdrop-filter:none;backdrop-filter:none
+}
+@supports (backdrop-filter:blur(12px)) or (-webkit-backdrop-filter:blur(12px)) {
+ body[data-theme="glass"] .glass-page-card {
+  background:var(--theme-glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)
+ }
+}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+ body[data-theme="glass"] .glass-page-card {background:var(--theme-chrome);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
