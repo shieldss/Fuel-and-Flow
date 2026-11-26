@@ -329,3 +329,11 @@ Daily check-in now lets you record start times for BJJ, lifting and walking besi
 ### v2.13.1 — Check-in defaults from the Timeline
 
 When a date has scheduled BJJ, lifting or walking sessions and no actual check-in values yet, the Check-In training fields default to that date’s Timeline times and durations. Existing actual check-in values remain authoritative; saving edited values makes the Timeline reflect those same values for that date. Date-specific schedule edits are included, and unscheduled activities remain blank. No data reset or migration is needed.
+
+## Today quick logging
+
+- **Planned meals:** log one serving from Today, change the portion before logging, or explicitly add an extra serving. The flag reflects an actual entry linked to the planned meal. Undo removes the new actual entry without deleting the plan.
+- **Water:** the two quick buttons log plain water immediately. Choose the amount of each under **Water sizes**. Other drinks still use the full drink form.
+- **Add food:** newest distinct logged meals and up to four pinned usual foods come first. The full manual editor, recipes, search/scan, and AI import remain available.
+- **Finish BJJ:** confirms actual minutes and start time without changing the recurring schedule. Optional snack-trial ratings display only when an A/B trial snack is present and are saved with that day's notes.
+- **Plan → Import weekly plan** opens the same review and validation flow as before.
