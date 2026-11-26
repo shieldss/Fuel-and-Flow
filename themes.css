@@ -515,3 +515,9 @@ body[data-theme="cards"] .week-strip .daybtn.active :is(.small,.mini,strong) {co
  body[data-theme="cards"] main {--page-folder:Canvas;--page-insert:Canvas;--page-tabs:Canvas}
 }
 body[data-theme="cards"] main:not([data-panel="overview"]) .card .save-bar {background:var(--page-folder)}
+
+/* Keep the two Plan actions together when the heading wraps on a narrow screen. */
+.quick-plan .quick-plan-actions {gap:6px;flex-wrap:nowrap}
+.quick-plan-actions .btn {min-height:44px;white-space:nowrap}
+.quick-plan-actions .btn svg {width:16px;height:16px}
+@media(max-width:420px) {.quick-plan-actions .btn {padding-inline:9px}}
