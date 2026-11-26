@@ -105,3 +105,13 @@
 .today-logged-badge{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .today-logged-badge svg{width:14px;height:14px;stroke-width:2.5}
 .today-destination-grid .destination small{font-size:clamp(14px,2.4vw,16px);font-weight:650;line-height:1.35;color:var(--ink);font-variant-numeric:tabular-nums}
+
+.today-checkin-highlights{margin:12px 0;padding:16px 18px}
+.today-checkin-highlights .card-head{margin-bottom:10px}
+.today-checkin-highlights h2{margin:0}
+.checkin-highlight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr));gap:8px;margin:0}
+.checkin-highlight{min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--lime)}
+.checkin-highlight dt{font-size:12px;font-weight:700;line-height:1.25;color:var(--ink)}
+.checkin-highlight dd{margin:3px 0 0;font-size:21px;font-weight:800;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.checkin-highlight dd span{font-size:12px;font-weight:650}
+@media (max-width:720px){.today-checkin-highlights{padding:12px}.checkin-highlight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
