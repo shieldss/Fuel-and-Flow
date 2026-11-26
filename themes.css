@@ -43,20 +43,20 @@ body[data-theme="ios"].dark {
   --theme-chrome:#242429; --theme-glass:#242429e8; --shadow:none;
 }
 body[data-theme="material-you"] {
-  --bg:#f3f7ef; --surface:#fcfdf8; --ink:#18241c; --muted:#46554a;
-  --line:#ccd7c9; --green:#245738; --lime:#d5ebd5;
-  --coral:#9a431e; --violet:#655498; --blue:#366878;
+  --bg:#edf3fc; --surface:#f9fbff; --ink:#18263c; --muted:#425471;
+  --line:#c6d4e8; --green:#1d55a5; --lime:#d7e7ff;
+  --coral:#9a431e; --violet:#655498; --blue:#385e9b;
   --theme-on-primary:#fff; --theme-danger:#9f2d2d; --theme-danger-bg:#fce9e5;
-  --theme-chrome:#e5eee0; --theme-field:#edf3e9;
+  --theme-chrome:#e1ebfa; --theme-field:#e9f0fb;
   --shadow:none; --theme-card-radius:27px; --theme-control-radius:28px;
   font-family:Roboto,'Noto Sans',system-ui,sans-serif;
 }
 body[data-theme="material-you"].dark {
-  --bg:#131c16; --surface:#1d2920; --ink:#edf6e9; --muted:#bacbbd;
-  --line:#49594d; --green:#ace2b3; --lime:#304f38;
-  --coral:#ffb691; --violet:#cfbaff; --blue:#98c9db;
-  --theme-on-primary:#0d2a16; --theme-danger:#ffb4aa; --theme-danger-bg:#4d2927;
-  --theme-chrome:#26362a; --theme-field:#233327;
+  --bg:#101a2b; --surface:#1a2941; --ink:#edf4ff; --muted:#bbcce7;
+  --line:#4a5d7c; --green:#adc9ff; --lime:#284773;
+  --coral:#ffb691; --violet:#cfbaff; --blue:#97bfff;
+  --theme-on-primary:#11274d; --theme-danger:#ffb4aa; --theme-danger-bg:#4d2927;
+  --theme-chrome:#213552; --theme-field:#223651;
 }
 
 /* Themed controls and surfaces retain the existing layout, state colors and hit targets. */
