@@ -21,3 +21,16 @@ test('Saved foods deduplicate by looked-up serving, survive backup, and stay sep
  assert.deepEqual(validateBackup(state).savedFoods,state.savedFoods);
  delete state.savedFoods;assert.deepEqual(validateBackup(state).savedFoods,[]);
 });
+
+test('older waist fields are ignored on restore and not exported or included in app prompts',async()=>{
+ const {dailyFeedbackPrompt}=await import('../core.js'),state=emptyState();
+ state.days[start]={...freshDay(start),waist:34,weight:174,sleep:7};
+ const next=addDays(start,1);
+ state.days[next]={...freshDay(next),waist:'obsolete value',weight:175};
+ const restored=validateBackup(JSON.parse(JSON.stringify(state)));
+ assert.equal(restored.days[start].weight,174);assert.equal(restored.days[start].sleep,7);
+ assert.equal(restored.days[next].weight,175);
+ assert.ok(Object.hasOwn(state.days[start],'waist'));
+ for(const d of [start,next])assert.ok(!Object.hasOwn(restored.days[d],'waist'));
+ for(const output of [JSON.stringify(restored),JSON.stringify(report(restored,start,'week')),dailyFeedbackPrompt(restored,start),reviewPrompt(restored,start,'week'),planPrompt(restored,start)])assert.doesNotMatch(output,/waist/i);
+});

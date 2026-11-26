@@ -1,8 +1,8 @@
 import {validateFoodCategory} from './view-tools.js?v=2.15.0';
 import {dayIntake} from './hydration-tools.js?v=2.15.0';
 import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.15.0';
-import {validateMeal,validDate,addDays,totals,average,dailyEnergyAverage,sessionsFor,workoutsForDate,actualExercises,dateKey} from './core.js?v=2.17.0';
-import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.17.0';
+import {validateMeal,validDate,addDays,totals,average,dailyEnergyAverage,sessionsFor,workoutsForDate,actualExercises,dateKey} from './core.js?v=2.17.2';
+import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.17.2';
 export const FEATURE_VERSION=1;
 const round=n=>Math.round(n*100)/100;
 export function validateIngredients(items){if(!Array.isArray(items)||items.length>100)throw Error('Use up to 100 ingredients.');return items.map(x=>{if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>200||typeof x.unit!=='string'||x.unit.length>30||typeof x.amount!=='number'||!Number.isFinite(x.amount)||x.amount<=0||x.amount>100000)throw Error('Each ingredient needs a name, positive quantity and unit.');return {name:x.name.trim(),amount:x.amount,unit:x.unit.trim()};});}
@@ -49,6 +49,9 @@ export function ongoingMealGap(day,date,now=new Date()){
  if(!from)return null;
  const minutes=mealMinute(to)-mealMinute(from);
  return minutes>MEAL_GAP_MINUTES?{from,to,minutes}:null;
+}
+export function overviewMealGapWarning(day,date,now=new Date()){
+ return day?.complete?null:ongoingMealGap(day,date,now);
 }
 export function mealFuelGaps(state,date,now=new Date()){
  const events=fuelEvents(state,date),through=date===dateKey(now)?mealClock(now.getHours()*60+now.getMinutes()):'23:59',meals=events.filter(x=>x.kind==='meal'&&timedMeal(x)&&x.time<=through),gaps=[];
