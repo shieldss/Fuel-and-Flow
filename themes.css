@@ -1,11 +1,12 @@
 /* Optional themes. Base Light, Dark and System continue to use styles.css. */
+:root {--theme-field-radius:12px}
 body[data-theme="glass"] {
   --bg:#0a1020; --surface:#142139; --ink:#f1f6ff; --muted:#b1c1d9;
   --line:#354864; --green:#67eacd; --lime:#163a43;
   --coral:#ff9473; --violet:#ae8fff; --blue:#639fff;
   --theme-on-primary:#071d1a; --theme-danger:#ff9c8e; --theme-danger-bg:#451f28;
   --theme-chrome:#111c32; --theme-glass:#111d33e8; --theme-card:#172840d6;
-  --shadow:0 12px 34px #03061045; --theme-card-radius:22px; --theme-control-radius:12px;
+  --shadow:0 12px 34px #03061045; --theme-card-radius:22px; --theme-control-radius:12px; --theme-field-radius:12px;
   background:
     radial-gradient(ellipse at 83% 0%, #193e77 0%, transparent 48%),
     radial-gradient(ellipse at 0% 42%, #10434d 0%, transparent 50%),
@@ -32,7 +33,7 @@ body[data-theme="ios"] {
   --coral:#ad3928; --violet:#6550a4; --blue:#3c77d1;
   --theme-on-primary:#fff; --theme-danger:#a82a26; --theme-danger-bg:#fcebea;
   --theme-chrome:#f8f8fc; --theme-glass:#fcfcfedb;
-  --shadow:0 1px 2px #1717300c; --theme-card-radius:19px; --theme-control-radius:13px;
+  --shadow:0 1px 2px #1717300c; --theme-card-radius:19px; --theme-control-radius:13px; --theme-field-radius:13px;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
 }
 body[data-theme="ios"].dark {
@@ -48,7 +49,7 @@ body[data-theme="material-you"] {
   --coral:#9a431e; --violet:#655498; --blue:#385e9b;
   --theme-on-primary:#fff; --theme-danger:#9f2d2d; --theme-danger-bg:#fce9e5;
   --theme-chrome:#e1ebfa; --theme-field:#e9f0fb;
-  --shadow:none; --theme-card-radius:27px; --theme-control-radius:28px;
+  --shadow:none; --theme-card-radius:27px; --theme-control-radius:28px; --theme-field-radius:12px;
   font-family:Roboto,'Noto Sans',system-ui,sans-serif;
 }
 body[data-theme="material-you"].dark {
@@ -63,6 +64,10 @@ body[data-theme="material-you"].dark {
 body[data-theme] :is(.card,.overview-macros,dialog) {border-radius:var(--theme-card-radius)}
 body[data-theme] :is(.btn:not(.exercise-tile),.section-nav button,.filter-row button,.week-strip button) {
   border-radius:var(--theme-control-radius)
+}
+/* Use one symmetric shape for editable fields and their companion disclosures. */
+body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea,.form-group,#overview-checkin-entry > :is(input,select)) {
+  border-radius:var(--theme-field-radius)
 }
 body[data-theme] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done),.plan-fuel-time.active) {color:var(--theme-on-primary)}
 body[data-theme] .btn.danger {color:var(--theme-danger);background:var(--theme-danger-bg)}
@@ -143,7 +148,7 @@ body[data-theme="material-you"] .nav button.active {background:var(--lime);color
 body[data-theme="material-you"] .section-nav {gap:5px;border-bottom:0}
 body[data-theme="material-you"] .section-nav button:not(.active) {background:var(--theme-field)}
 body[data-theme="material-you"] :is(input:not([type="checkbox"]):not([type="range"]),select,textarea) {
-  background:var(--theme-field);border-radius:12px 12px 5px 5px
+  background:var(--theme-field)
 }
 body[data-theme="material-you"] .btn.secondary {border-color:var(--muted)}
 body[data-theme="material-you"] :is(.checkin-highlight,.exercise-tile,.macro,.mini-metric) {border-radius:16px}
@@ -156,6 +161,7 @@ body[data-theme="material-you"] :is(.week-strip button,.filter-row button).activ
     box-shadow:0 8px 24px #09092229
   }
   body[data-theme="ios"] .nav button {min-height:50px;padding-inline:2px;font-weight:650}
+  main {padding-bottom:calc(95px + env(safe-area-inset-bottom))}
   body[data-theme="ios"] main {padding-bottom:calc(100px + env(safe-area-inset-bottom))}
   body[data-theme="ios"] #toast {bottom:calc(81px + env(safe-area-inset-bottom))}
   body[data-theme="glass"] .nav {border-top-color:#466180}
@@ -182,7 +188,7 @@ body[data-custom-accent] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.e
 .appearance-colors {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-control-radius,12px)}
 .appearance-colors legend {padding-inline:5px;font-weight:750}
 .appearance-colors>p {margin:0}
-.appearance-accent :is(#theme-base,#theme-accent) {width:74px;height:44px;padding:5px;border-radius:10px;cursor:pointer}
+.appearance-accent :is(#theme-base,#theme-accent) {width:74px;height:44px;padding:5px;border-radius:var(--theme-field-radius,10px);cursor:pointer}
 .appearance-accent .accent-picker-label:not(:first-child) {margin-top:6px}
 #accent-suggestions {display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .accent-suggestion {
