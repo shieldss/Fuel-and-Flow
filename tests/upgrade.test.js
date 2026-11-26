@@ -20,3 +20,18 @@ test('timeline accumulates timed intake at meals and workouts without changing l
 test('timeline starts workouts at zero logged intake and excludes untimed meals',()=>{const s=emptyState();s.weeklyTraining=[{...workout(),time:'06:00'}];s.days[date]={...freshDay(date),meals:[{...meal,id:'unknown',time:''},{...meal,id:'lunch',time:'12:00'}]};const events=fuelEvents(s,date);assert.deepEqual(events[0].cumulative,{calories:0,protein:0,carbs:0,fat:0});assert.equal(events[1].cumulative.calories,500);assert.equal(events[2].cumulative,null);assert.deepEqual(fuelEvents(emptyState(),date).filter(x=>x.kind==='meal'),[]);});
 test('meal gaps flag strictly more than four hours, retain drinks and workouts and ignore plans',()=>{const s=emptyState();s.days[date]={...freshDay(date),meals:[{...meal,id:'a',time:'08:00'},{...meal,id:'b',time:'13:15'},{...meal,id:'c',time:'17:15'}],drinks:[{id:'d',type:'Gatorade',time:'12:30',ounces:16,calories:80,protein:0,carbs:20,fat:0}]};s.plans[date]={meals:[{...meal,time:'10:30'}]};s.weeklyTraining=[{...workout(),time:'12:15'}];const before=structuredClone(s),gaps=mealFuelGaps(s,date,new Date(2026,9,14,20));assert.equal(gaps.length,1);assert.deepEqual(gaps[0],{kind:'gap',time:'12:00',from:'08:00',to:'13:15',minutes:315,ongoing:false,workoutsDuringGap:1,drinkCalories:80});assert.equal(fuelEvents(s,date).find(x=>x.kind==='workout').cumulative.calories,500);assert.deepEqual(s,before);});
 test('ongoing gaps use local today only, skip exactly four hours, and never assume overnight gaps',()=>{const s=emptyState();s.days[date]={...freshDay(date),meals:[{...meal,time:'08:00'}]};assert.equal(mealFuelGaps(s,date,new Date(2026,9,12,12,0)).length,0);const gaps=mealFuelGaps(s,date,new Date(2026,9,12,12,1));assert.equal(gaps.length,1);assert.equal(gaps[0].ongoing,true);assert.equal(gaps[0].minutes,241);assert.equal(mealFuelGaps(s,date,new Date(2026,9,13,12)).length,0);assert.equal(mealFuelGaps(s,date,new Date(2026,9,12,7)).length,0);s.days[date].meals=[];assert.equal(mealFuelGaps(s,date,new Date(2026,9,12,20)).length,0);s.days[date].meals=[{...meal,time:''},{...meal,time:'10:00'},{...meal,time:'10:00'},{...meal,time:'14:01'}];assert.equal(mealFuelGaps(s,date,new Date(2026,9,13,20)).length,1);});
+
+test('ongoing meal gap ignores later-timed logs, drinks and plans and resets at the next logged meal',async()=>{
+ const {ongoingMealGap}=await import('../upgrade-tools.js');
+ const s=emptyState(),day=s.days[date]={...freshDay(date),meals:[{...meal,time:'08:00'},{...meal,time:'18:00'}],drinks:[{id:'shake',type:'Shake',time:'10:00',ounces:12,calories:150,protein:20,carbs:3,fat:2}]};
+ const at=(h,m)=>new Date(2026,9,12,h,m);
+ s.plans[date]={meals:[{...meal,time:'11:00'}]};
+ assert.equal(ongoingMealGap(day,date,at(12,0)),null);
+ assert.deepEqual(ongoingMealGap(day,date,at(12,1)),{from:'08:00',to:'12:01',minutes:241});
+ const active=mealFuelGaps(s,date,at(12,1));assert.equal(active.length,1);assert.equal(active[0].ongoing,true);assert.equal(active[0].drinkCalories,150);
+ assert.equal(ongoingMealGap(day,date,at(18,0)),null);
+ day.meals.unshift({...meal,time:'11:45'});
+ assert.equal(ongoingMealGap(day,date,at(12,1)),null);
+ assert.equal(ongoingMealGap(day,'2026-10-11',at(12,1)),null);
+ assert.equal(ongoingMealGap({meals:[{...meal,time:''}]},date,at(23,0)),null);
+});
