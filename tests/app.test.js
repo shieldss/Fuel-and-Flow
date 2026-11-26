@@ -194,7 +194,7 @@ test('Today shows all logged macros, not planned food, and updates on Eat and Un
  seed.plans[date]={meals:[food('Lunch',400,30,40,12)],notes:''};
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-macros');
  const macros=()=>element('#app').innerHTML.match(/<section class="overview-macros"[\s\S]*?<\/section>/)[0];
- assert.ok(element('#app').innerHTML.indexOf('<h2>Your day</h2>')<element('#app').innerHTML.indexOf('class="overview-macros"'));
+ assert.ok(element('#app').innerHTML.indexOf('>Your day</span></h2>')<element('#app').innerHTML.indexOf('class="overview-macros"'));
  for(const [key,value] of Object.entries({calories:370,protein:35,carbs:42,fat:7}))assert.match(macros(),new RegExp(`data-overview-nutrient="${key}"[^>]*><dt>[^<]+</dt><dd><strong>${value}</strong>`));
  await click({action:'quick-eat',date,id:'Lunch'});assert.match(macros(),/<strong>770<\/strong>/);
  element('#toast').lastChild.onclick();assert.match(macros(),/<strong>370<\/strong>/);
@@ -341,4 +341,20 @@ test('appearance can save a selected font or clear it without changing other dat
  save('atkinson');assert.deepEqual(storage(),{...before,profile:{...before.profile,themeFont:'atkinson'}});
  save('invalid');assert.equal(storage().profile.themeFont,'atkinson');
  save('');assert.deepEqual(storage(),before);
+});
+
+test('Overview macro rings distinguish partial, empty, over-goal and unset targets',async()=>{
+ const date='2026-10-24',seed=storage();
+ seed.weeklyTraining=[];
+ seed.nutritionGoals.nonBjj={calories:2000,protein:100,carbs:20,fat:0};
+ seed.days[date]={meals:[{id:'ring-lunch',name:'Lunch',portion:'1 serving',time:'12:00',calories:500,protein:0,carbs:30,fat:4}]};
+ seed.plans[date]={meals:[{id:'planned-only',name:'Later',portion:'1 serving',time:'18:00',calories:900,protein:50,carbs:40,fat:10}],notes:''};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-color-rings');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const html=element('#app').innerHTML;
+ assert.match(html,/data-overview-nutrient="calories"[\s\S]*?aria-label="25% of daily goal"[\s\S]*?stroke-dasharray="25 100"/);
+ assert.match(html,/data-overview-nutrient="protein"[\s\S]*?aria-label="0% of daily goal"/);
+ assert.match(html,/data-overview-nutrient="carbs" data-over-goal[\s\S]*?aria-label="150% of daily goal, over goal"[\s\S]*?stroke-dasharray="100 100"/);
+ assert.match(html,/data-overview-nutrient="fat"[\s\S]*?aria-label="No daily goal set"/);
+ assert.ok((html.match(/class="overview-section-icon"/g)||[]).length>=7);
 });
