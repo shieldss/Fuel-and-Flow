@@ -248,3 +248,11 @@ body[data-custom-accent]:not([data-theme="material-you"]) .daybtn.active {color:
  .plan-week-actions .btn {min-height:44px;padding-inline:10px}
  .plan-week-actions .btn svg {width:15px;height:15px}
 }
+
+/* Give Summary cards and the shortcut grid one shared spacing rhythm. */
+.trends-summary-stack {
+ --trends-summary-gap:16px;display:grid;gap:var(--trends-summary-gap);min-width:0
+}
+.trends-summary-stack>.review-overview {margin:0}
+.trends-summary-stack>.destination-grid {gap:var(--trends-summary-gap)}
+@media(max-width:700px) {.trends-summary-stack {--trends-summary-gap:12px}}
