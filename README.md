@@ -348,3 +348,7 @@ When a date has scheduled BJJ, lifting or walking sessions and no actual check-i
 ### v2.17.0 — One exercise log
 
 Today → Overview → Exercise shows planned workouts for the selected date and completed entries. Tap a planned workout to log it, use Edit timing to adjust just that date, or use Add exercise for an unscheduled session. Tap a logged workout to edit or remove it. Start times and durations also appear in the timeline, which opens the same editor for logged rows. Older training totals remain editable through Exercise. Training notes, including BJJ snack-trial ratings, are available there as well; Check-in no longer duplicates workout fields. Weekly schedules and backup compatibility are unchanged.
+
+### v2.18.0 — Exercise Trends
+
+Trends → Exercise compares scheduled and logged sessions by day, week or month. See planned and actual minutes by activity, extra sessions, and total, average and peak steps. Expand a date to see individual sessions and jump to its Exercise log. Unknown durations and blank step days are not counted as zero. Only explicitly linked logs count against the plan; older totals or removed schedule links are reported separately rather than counted as extras. Daily Copy and ChatGPT review/plan reports use the same exercise analytics.

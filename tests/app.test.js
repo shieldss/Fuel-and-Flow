@@ -218,3 +218,38 @@ test('Overview weight shows a separate seven-day average, refreshes it on save a
  assert.match(html(),/7-day average<\/span><strong>—<\/strong>/);
  await click({action:'nav',view:'insights',panel:'weight'});assert.match(html(),/Last 7 days/);
 });
+
+test('Exercise Trends shows an activity breakdown and steps across periods and drills into a date',async()=>{
+ const date='2026-11-23',seed=storage();
+ seed.days[date]={meals:[],steps:8000,exercises:[{id:'copy-x',type:'Walk',title:'Extra & walk',time:'10:00',duration:22}]};
+ seed.weeklyTraining=[{id:'weekly-lift',day:1,title:'Lifting',type:'Weights',time:'08:00',duration:45,intensity:'Moderate'}];
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?exercise-trends');
+ await click({action:'open-day',date});await click({action:'nav',view:'insights',panel:'exercise'});
+ await click({action:'period',period:'day'});
+ const html=()=>element('#app').innerHTML;
+ for(const word of ['Training at a glance','By activity','Extra workouts','Total steps','8,000','Activity by date','Extra &amp; walk','22 min','45 min'])assert.ok(html().includes(word),word);
+ assert.equal((html().match(/class="exercise-trend-day"/g)||[]).length,1);
+ await click({action:'period',period:'week'});assert.equal((html().match(/class="exercise-trend-day"/g)||[]).length,7);
+ await click({action:'period',period:'month'});assert.equal((html().match(/class="exercise-trend-day"/g)||[]).length,30);
+ await click({action:'open-exercise-day',date});assert.match(html(),/id="overview-exercise"/);assert.match(html(),/Edit Extra &amp; walk, 22 min/);
+});
+
+test('Overview planned meal swipe actions target the selected date and leave the actual food log intact',async()=>{
+ const date='2026-10-18',seed=storage();
+ const meal={id:'overview-plan-action',name:'Planned oats',time:'08:00',portion:'1 bowl',calories:240,protein:15,carbs:36,fat:5};
+ seed.plans[date]={meals:[meal],notes:''};
+ seed.usualFoods=[{...meal,id:'replacement',name:'Usual yogurt'}];
+ seed.days[date]={meals:[{...meal,id:'already-eaten',planMealId:meal.id}]};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-meal-swipe');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const html=()=>element('#app').innerHTML,saved=()=>storage().plans[date].meals;
+ for(const action of ['swap-plan','edit-planned-meal','delete-planned-meal'])assert.ok(html().includes(`data-action="${action}" data-date="${date}" data-id="${meal.id}"`));
+ assert.match(html(),/data-swipe-width="216"/);assert.match(html(),/today-logged-badge/);
+ await click({action:'edit-planned-meal',date,id:meal.id});assert.match(element('#modal').innerHTML,/Edit planned meal/);
+ const edit=element('#meal-form');edit.values={...meal,name:'Updated oats',date,servings:'1',copyWeek:date,copyDestination:'plan'};
+ edit.onsubmit({preventDefault(){},target:edit});assert.equal(saved()[0].name,'Updated oats');assert.equal(saved()[0].id,meal.id);
+ await click({action:'swap-plan',date,id:meal.id});const swap=element('#swap-form');swap.values={choice:'0',servings:'1'};swap.onsubmit({preventDefault(){}});
+ assert.equal(saved()[0].name,'Usual yogurt');
+ await click({action:'delete-planned-meal',date,id:meal.id});assert.match(element('#modal').innerHTML,/Logged food stays intact/);
+ element('#confirm-action').onclick();assert.equal(saved().length,0);assert.deepEqual(storage().days[date].meals,seed.days[date].meals);
+});
