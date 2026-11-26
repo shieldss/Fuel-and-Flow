@@ -1,4 +1,4 @@
-import {dateObj,validDate} from './core.js?v=2.19.0';
+import {dateObj,validDate} from './core.js?v=2.21.0';
 export const NUTRITION_SETTINGS_VERSION=1;
 export const NUTRIENTS=['calories','protein','carbs','fat'];
 export const DEFAULT_NUTRITION_GOALS={bjj:{calories:2200,protein:165,carbs:235,fat:67},nonBjj:{calories:2000,protein:165,carbs:170,fat:73}};
@@ -9,4 +9,4 @@ export function getNutritionGoalsForDate(date,state){if(!validDate(date))throw E
 export function nutritionProgress(actual,goals){return Object.fromEntries(NUTRIENTS.map(key=>{const consumed=Number(actual[key])||0,goal=goals[key];return [key,{consumed,goal,remaining:Math.max(0,Math.round((goal-consumed)*100)/100),over:Math.max(0,Math.round((consumed-goal)*100)/100),percentage:goal>0?Math.round(consumed/goal*1000)/10:null}];}));}
 export function sumNutrition(values){return Object.fromEntries(NUTRIENTS.map(key=>[key,Math.round(values.reduce((sum,v)=>sum+(Number(v[key])||0),0)*100)/100]));}
 export function nutritionGoalSummary(dates,state){const daily=dates.map(date=>({date,...getNutritionGoalsForDate(date,state)})),totals=sumNutrition(daily);return {daily,totals,averages:Object.fromEntries(NUTRIENTS.map(key=>[key,dates.length?Math.round(totals[key]/dates.length*10)/10:null])),bjjDays:daily.filter(x=>x.type==='bjj').length};}
-export function profileForNutritionPrompt(profile){return Object.fromEntries(Object.entries(profile).filter(([key])=>!['calories','protein','bjjCarbs','otherCarbs','fat'].includes(key)));}
+export function profileForNutritionPrompt(profile){return Object.fromEntries(Object.entries(profile).filter(([key])=>!['calories','protein','bjjCarbs','otherCarbs','fat','themeBase','themeAccent'].includes(key)));}

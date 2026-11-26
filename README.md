@@ -360,3 +360,7 @@ More → Settings → Appearance offers three additional themes. **Glass** uses 
 ### v2.20.1 — Light and dark choices
 
 Appearance now offers Light and Dark for Glass, iOS, and Material You. iOS and Material You also retain a System option. The existing Glass choice stays on Glass Dark, and existing iOS and Material You choices keep following the device.
+
+### v2.21.0 — Custom theme colors
+
+In Appearance, choose a base color to tint backgrounds or an accent for interactive controls. A custom base offers four suggestions inspired by Material You's tonal and contrasting roles and iOS-style control tints. Use a suggestion or pick any accent. The two overrides are independent and persist in backups; uncheck either to return to that part of the theme's default. Status colors and logged data do not change.
