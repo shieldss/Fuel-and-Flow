@@ -94,3 +94,9 @@
  .quick-row-actions .btn{padding-inline:9px;white-space:normal}
  #toast{bottom:calc(76px + env(safe-area-inset-bottom));width:max-content;max-width:calc(100vw - 24px)}
 }
+
+.quick-destination{padding:10px 12px;background:var(--lime);border-radius:10px;margin:8px 0 6px}
+.quick-destination select{background:var(--surface);min-height:44px}
+.saved-food-row{border-top:1px solid var(--line);padding:14px 0}
+.saved-food-row .actions{margin-top:8px}
+.saved-food-row .actions button{min-height:44px}
