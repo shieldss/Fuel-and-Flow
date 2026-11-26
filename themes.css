@@ -69,7 +69,7 @@ body[data-theme] :is(.btn:not(.exercise-tile),.section-nav button,.filter-row bu
 body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea,.form-group,#overview-checkin-entry > :is(input,select)) {
   border-radius:var(--theme-field-radius)
 }
-body[data-theme] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done),.plan-fuel-time.active) {color:var(--theme-on-primary)}
+body[data-theme] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done):not(.meal-logged),.plan-fuel-time.active) {color:var(--theme-on-primary)}
 body[data-theme] .btn.danger {color:var(--theme-danger);background:var(--theme-danger-bg)}
 body[data-theme] :is(.bjj-profile,.stat-icon.blue) {color:var(--green);background:var(--lime)}
 body[data-theme] :is(.swipe-edit,.swipe-swap,.swipe-copy) {background:var(--green);color:var(--theme-on-primary)}
@@ -184,7 +184,7 @@ body[data-theme="material-you"] :is(.week-strip button,.filter-row button).activ
 .accent-picker-label {display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700}
 .appearance-accent .check {margin:0;min-height:34px;width:max-content;max-width:100%}
 .appearance-accent p {margin:0}
-body[data-custom-accent] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done),.plan-fuel-time.active,.skip-link) {color:var(--theme-on-primary)}
+body[data-custom-accent] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done):not(.meal-logged),.plan-fuel-time.active,.skip-link) {color:var(--theme-on-primary)}
 .appearance-colors {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-control-radius,12px)}
 .appearance-group-title {margin:0 0 10px;font-size:16px;font-weight:750;line-height:1.3}
 .appearance-colors>p {margin:0}
@@ -554,7 +554,6 @@ body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-time-s
 body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-buttons .btn {
  min-height:44px;white-space:nowrap
 }
-body[data-theme="cards"] main[data-view="plan"][data-panel="meals"] .meal-buttons .meal-logged {--theme-on-primary:#19653c}
 
 /* No floating strip over the font and color options: the save button sits
    in a full-width footer, aligned with the inner cards. */
