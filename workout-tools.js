@@ -1,4 +1,4 @@
-import {validateTraining,validateExercise,validateWorkoutTiming,workoutsForDate,freshDay,validDate,CHECKIN_TRAINING} from './core.js?v=2.18.0';
+import {validateTraining,validateExercise,validateDateWorkoutOverride,workoutsForDate,freshDay,validDate,CHECKIN_TRAINING} from './core.js?v=2.19.0';
 export function saveWorkout(state,workout,copyDays=[],originalId=null,id=()=>crypto.randomUUID()){
  if(!Array.isArray(copyDays)||copyDays.some(day=>!Number.isInteger(day)||day<0||day>6))throw Error('Choose valid weekdays for workout copies.');
  if(originalId&&!state.weeklyTraining.some(s=>s.id===originalId))throw Error('This workout no longer exists. Reopen the schedule.');
@@ -10,11 +10,19 @@ export function saveWorkout(state,workout,copyDays=[],originalId=null,id=()=>cry
 }
 
 export function saveDateWorkoutTiming(state,date,id,timing){
+ const previous=state.days[date]?.trainingTimingOverrides?.find(x=>x.id===id);
+ return saveDateWorkoutChange(state,date,id,{...previous,time:timing.time,duration:timing.duration});
+}
+export function saveDateWorkoutChange(state,date,id,change){
  if(!validDate(date))throw Error('Choose a valid workout date.');
- if(!workoutsForDate(state,date).some(x=>x.id===id))throw Error('This workout no longer exists. Reopen the timeline.');
- const clean=validateWorkoutTiming({...timing,id});
- const day=state.days[date]??freshDay(date,state.weeklyTraining),overrides=day.trainingTimingOverrides||[];
- day.trainingTimingOverrides=[...overrides.filter(x=>x.id!==id),clean];state.days[date]=day;
+ if(!workoutsForDate(state,date).some(x=>x.id===id))throw Error('This workout no longer exists. Reopen the exercise list.');
+ const clean=validateDateWorkoutOverride({...change,id});
+ const day=state.days[date]??freshDay(date,state.weeklyTraining),overrides=(day.trainingTimingOverrides||[]).filter(x=>x.id!==id);
+ if(overrides.length>=100)throw Error('This day already has 100 workout changes.');
+ day.trainingTimingOverrides=[...overrides,clean];state.days[date]=day;
+}
+export function removeDateWorkout(state,date,id){
+ return saveDateWorkoutChange(state,date,id,{time:'',duration:null,removed:true});
 }
 export function resetDateWorkoutTiming(state,date,id){
  const day=state.days[date];if(day?.trainingTimingOverrides)day.trainingTimingOverrides=day.trainingTimingOverrides.filter(x=>x.id!==id);

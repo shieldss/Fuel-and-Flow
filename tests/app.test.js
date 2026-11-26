@@ -205,7 +205,7 @@ test('exercise taps log once, preserve completed food logs and weekly plans, and
  seed.days[date]={meals:[],complete:true};seed.weeklyTraining=schedule;
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-exercise');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
  const html=()=>element('#app').innerHTML,entries=()=>storage().days[date].exercises||[];
- assert.match(html(),/Log No-gi, 90 min/);assert.match(html(),/data-swipe-primary data-action="quick-exercise" data-schedule-id="bjj-a"/);assert.match(html(),/meal-swipe-actions" aria-hidden="true"><button[^>]*data-action="edit-timeline-workout"[^>]*aria-label="Edit timing for No-gi"/);assert.doesNotMatch(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
+ assert.match(html(),/Log No-gi, 90 min/);assert.match(html(),/data-swipe-primary data-action="quick-exercise" data-schedule-id="bjj-a"/);assert.match(html(),/meal-swipe-actions" aria-hidden="true"><button[^>]*data-action="edit-timeline-workout"[^>]*aria-label="Edit exercise: No-gi"/);assert.doesNotMatch(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
  await click({action:'quick-exercise',scheduleId:'bjj-a'});await click({action:'quick-exercise',scheduleId:'bjj-a'});assert.equal(entries().length,1);
  assert.match(html(),/Edit No-gi, 90 min/);assert.match(html(),/Log Drills, 30 min/);assert.equal(storage().days[date].complete,true);
  await click({action:'quick-bjj'});assert.match(element('#modal').innerHTML,/BJJ notes/);assert.doesNotMatch(element('#modal').innerHTML,/name="minutes"/);
@@ -286,4 +286,35 @@ test('empty check-in tiles show only the plus and retain an accessible action la
  await click({action:'edit-overview-checkin',key:'steps'});
  assert.match(element('[data-checkin-stat="steps"]').innerHTML,/name="value" type="number"/);
  await click({action:'cancel-overview-checkin'});
+});
+
+test('Overview planned exercise edit renames, retypes and deletes only the selected occurrence',async()=>{
+ const date='2026-11-24',seed=storage();
+ seed.weeklyTraining=[{id:'lift-date-only',day:2,title:'Upper body',type:'Weights',time:'12:00',duration:45,intensity:'Moderate'}];
+ seed.days[date]={meals:[],complete:false};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?planned-exercise-full-edit');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const edit=()=>click({action:'edit-timeline-workout',date,id:'lift-date-only'});
+ await edit();assert.match(element('#modal').innerHTML,/Edit planned exercise/);
+ assert.match(element('#modal').innerHTML,/name="title" value="Upper body"/);
+ assert.match(element('#modal').innerHTML,/<select name="type">/);
+ element('#timeline-workout-form').onsubmit({preventDefault(){},target:{values:{title:'Bike ride',type:'Other',time:'13:15',duration:'35'}}});
+ assert.match(element('#app').innerHTML,/Log Bike ride, 35 min/);assert.equal(storage().days[date].exercises,undefined);
+ await click({action:'quick-exercise',scheduleId:'lift-date-only'});
+ const entry=storage().days[date].exercises[0];assert.equal(entry.title,'Bike ride');assert.equal(entry.type,'Other');
+ await click({action:'edit-exercise',date,id:entry.id});
+ assert.match(element('#modal').innerHTML,/<select name="type" >/);
+ const form=element('#exercise-entry');form.values={title:'Long walk',type:'Walk',duration:'35',time:'13:15'};form.onsubmit({preventDefault(){}});
+ assert.equal(storage().days[date].exercises[0].type,'Walk');
+ await edit();element('#delete-planned-exercise').onclick();
+ assert.match(element('#modal').innerHTML,/removed from this date only/);
+ element('#confirm-action').onclick();
+ assert.equal(storage().days[date].trainingTimingOverrides[0].removed,true);
+ assert.equal(storage().days[date].exercises[0].title,'Long walk');
+ assert.deepEqual(storage().weeklyTraining,seed.weeklyTraining);
+ await import('../app.js?planned-exercise-full-edit-reopen');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ assert.doesNotMatch(element('#app').innerHTML,/Log (Bike ride|Upper body)/);
+ assert.match(element('#app').innerHTML,/Edit Long walk, 35 min/);
+ await click({action:'open-day',date:'2026-12-01'});await click({action:'nav',view:'today',panel:'overview'});assert.match(element('#app').innerHTML,/Log Upper body, 45 min/);
 });
