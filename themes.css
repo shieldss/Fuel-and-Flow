@@ -78,6 +78,20 @@ body[data-theme="glass"] :is(.card,.overview-macros) {
   box-shadow:inset 0 1px #ffffff0c,var(--shadow)
 }
 body[data-theme="glass"] :is(.sidebar,.nav,.section-nav) {background:var(--theme-chrome)}
+/* Give the sticky section tabs the same finished panel edge as adjacent Glass cards. */
+body[data-theme="glass"] .section-nav {
+  margin:10px 0 14px;padding:5px 6px;gap:3px;
+  border:1px solid var(--line);border-radius:var(--theme-card-radius);
+  box-shadow:inset 0 1px #ffffff18,var(--shadow);
+  scroll-padding-inline:6px
+}
+body[data-theme="glass"] .section-nav button {padding-inline:12px}
+body[data-theme="glass"]:not(.dark) .section-nav {border-color:#ffffffc9}
+@media(max-width:700px) {
+  body[data-theme="glass"] .section-nav {margin-block:9px 12px}
+  body[data-theme="glass"] .section-nav button {padding-inline:8px}
+  body[data-theme="glass"] .section-nav:has([data-group="today"]) button {flex-grow:1}
+}
 body[data-theme="glass"] :is(.nav button.active,.section-nav button.active) {color:var(--green);box-shadow:inset 0 0 0 1px #467b75}
 body[data-theme="glass"] .app-header h1 {font-size:clamp(33px,5vw,47px);letter-spacing:-.057em}
 body[data-theme="glass"] :is(.overview-macros,.quick-exercises,.quick-plan,.quick-water,.today-checkin-highlights,.quick-today-details) {
