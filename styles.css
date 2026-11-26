@@ -187,9 +187,12 @@
 .checkin-value-trigger{color:var(--ink);min-height:27px;padding:0;font-size:21px;line-height:1.2;overflow-wrap:anywhere}
 .checkin-value-trigger strong{font-weight:800}
 
-.exercise-planned{min-width:0;display:grid;align-content:start}
-.exercise-planned .exercise-tile{width:100%}
-.exercise-planned .text-button{justify-self:start;padding-inline:8px}
+.exercise-planned{min-width:0;border:0;border-radius:11px}
+.exercise-planned .meal-front{display:block;min-height:0;padding:0;background:transparent}
+.exercise-planned .exercise-tile{width:100%;padding-inline-end:34px}
+.exercise-planned .swipe-hint{inset-inline-start:auto;inset-inline-end:1px}
+.exercise-planned .meal-swipe-actions{inset-block:0}
+.exercise-planned .swipe-action{border-radius:10px}
 #overview-exercise{scroll-margin-top:90px}
 
 .checkin-weight-tile{grid-column:span 2}
@@ -233,3 +236,5 @@
 
 .quick-plan .swipe-meal .meal-front{display:block;min-height:0;padding:0 0 0 31px}
 .quick-plan .quick-plan-row{border:0}
+
+.checkin-add-trigger svg{width:25px;height:25px;stroke-width:2}

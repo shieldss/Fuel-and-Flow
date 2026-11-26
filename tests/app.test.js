@@ -181,7 +181,7 @@ test('exercise taps log once, preserve completed food logs and weekly plans, and
  seed.days[date]={meals:[],complete:true};seed.weeklyTraining=schedule;
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-exercise');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
  const html=()=>element('#app').innerHTML,entries=()=>storage().days[date].exercises||[];
- assert.match(html(),/Log No-gi, 90 min/);assert.doesNotMatch(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
+ assert.match(html(),/Log No-gi, 90 min/);assert.match(html(),/data-swipe-primary data-action="quick-exercise" data-schedule-id="bjj-a"/);assert.match(html(),/meal-swipe-actions" aria-hidden="true"><button[^>]*data-action="edit-timeline-workout"[^>]*aria-label="Edit timing for No-gi"/);assert.doesNotMatch(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
  await click({action:'quick-exercise',scheduleId:'bjj-a'});await click({action:'quick-exercise',scheduleId:'bjj-a'});assert.equal(entries().length,1);
  assert.match(html(),/Edit No-gi, 90 min/);assert.match(html(),/Log Drills, 30 min/);assert.equal(storage().days[date].complete,true);
  await click({action:'quick-bjj'});assert.match(element('#modal').innerHTML,/BJJ notes/);assert.doesNotMatch(element('#modal').innerHTML,/name="minutes"/);
@@ -252,4 +252,14 @@ test('Overview planned meal swipe actions target the selected date and leave the
  assert.equal(saved()[0].name,'Usual yogurt');
  await click({action:'delete-planned-meal',date,id:meal.id});assert.match(element('#modal').innerHTML,/Logged food stays intact/);
  element('#confirm-action').onclick();assert.equal(saved().length,0);assert.deepEqual(storage().days[date].meals,seed.days[date].meals);
+});
+
+test('empty check-in tiles show only the plus and retain an accessible action label',async()=>{
+ await click({action:'open-day',date:'2026-06-04'});await click({action:'nav',view:'today',panel:'overview'});
+ const html=element('#app').innerHTML;
+ assert.match(html,/checkin-add-trigger[^>]+aria-label="Enter Steps"><svg[^>]+aria-hidden="true"[^>]*>/);
+ assert.doesNotMatch(html,/>Enter value</);
+ await click({action:'edit-overview-checkin',key:'steps'});
+ assert.match(element('[data-checkin-stat="steps"]').innerHTML,/name="value" type="number"/);
+ await click({action:'cancel-overview-checkin'});
 });
