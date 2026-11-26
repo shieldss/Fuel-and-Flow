@@ -367,3 +367,17 @@ test('Appearance includes platform-inspired base swatches alongside the custom p
  assert.equal((html.match(/data-base-preset="#[0-9a-f]{6}"/g)||[]).length,8);
  assert.match(html,/id="choose-theme-base"[^>]*aria-haspopup="dialog"/);
 });
+
+test('Overview groups Add food and Open plan in Planned meals without the duplicate Check in button',async()=>{
+ const date='2026-11-22';
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const html=element('#app').innerHTML;
+ assert.match(html,/<div class="actions quick-plan-actions"><button[^>]*data-action="quick-food-dialog" data-destination="plan"[\s\S]*?Add food<\/button><button[^>]*class="btn secondary" data-action="show-today-plan">Open plan/);
+ assert.doesNotMatch(html,/quick-today-actions|>Check in<\/button>/);
+ assert.match(html,/>Check-in<\/button>/);
+ await click({action:'quick-food-dialog',destination:'plan'});
+ assert.match(element('#modal').innerHTML,/Add food/);element('#modal').close();
+ await click({action:'show-today-plan'});
+ assert.match(element('#app').innerHTML,/data-view="plan" data-panel="meals"/);
+ assert.match(element('#app').innerHTML,/data-date="2026-11-22" aria-current="date"/);
+});
