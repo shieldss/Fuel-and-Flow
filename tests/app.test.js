@@ -319,14 +319,14 @@ test('Overview planned exercise edit renames, retypes and deletes only the selec
  await click({action:'open-day',date:'2026-12-01'});await click({action:'nav',view:'today',panel:'overview'});assert.match(element('#app').innerHTML,/Log Upper body, 45 min/);
 });
 
-test('appearance offers three optional themes and keeps all saved content intact',async()=>{
+test('appearance offers explicit theme variants and keeps all saved content intact',async()=>{
  const before=storage();
  await click({action:'nav',view:'settings',panel:'app'});
- assert.match(element('#app').innerHTML,/<option value="glass"[^>]*>Glass<\/option>/);
- assert.match(element('#app').innerHTML,/<option value="ios"[^>]*>iOS<\/option>/);
- assert.match(element('#app').innerHTML,/<option value="material-you"[^>]*>Material You<\/option>/);
+ assert.match(element('#app').innerHTML,/<option value="glass"[^>]*>Glass Dark<\/option>/);
+ assert.match(element('#app').innerHTML,/<option value="ios"[^>]*>iOS System<\/option>/);
+ assert.match(element('#app').innerHTML,/<option value="material-you"[^>]*>Material You System<\/option>/);
  const save=theme=>element('#settings').onsubmit({preventDefault(){},target:{values:{theme}}});
- for(const theme of ['glass','ios','material-you','system','dark','light']){
+ for(const theme of ['glass','glass-light','ios','ios-light','ios-dark','material-you','material-you-light','material-you-dark','system','dark','light']){
   save(theme);
   assert.deepEqual(storage(),{...before,profile:{...before.profile,theme}});
  }

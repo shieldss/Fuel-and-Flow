@@ -356,3 +356,7 @@ Trends → Exercise compares scheduled and logged sessions by day, week or month
 ### v2.20.0 — Appearance themes
 
 More → Settings → Appearance offers three additional themes. **Glass** uses dark frosted panels and saturated cool accents. **iOS** uses large system titles, grouped surfaces, and a floating tab bar on phones. **Material You** uses Material 3 Expressive–inspired tonal surfaces, rounded controls, and active navigation indicators. iOS and Material You follow the device’s light/dark setting; Material You uses a built-in color palette. The original Light, Dark, and System themes remain available. Themes work offline and do not change logs or plans.
+
+### v2.20.1 — Light and dark choices
+
+Appearance now offers Light and Dark for Glass, iOS, and Material You. iOS and Material You also retain a System option. The existing Glass choice stays on Glass Dark, and existing iOS and Material You choices keep following the device.

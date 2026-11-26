@@ -12,6 +12,20 @@ body[data-theme="glass"] {
     var(--bg);
   background-attachment:fixed;
 }
+/* Light Glass uses neutral frosted silver over cobalt and teal light pools. */
+body[data-theme="glass"]:not(.dark) {
+  --bg:#e8eef4; --surface:#f5f8fb; --ink:#142532; --muted:#3e5262;
+  --line:#9aafbc; --green:#006355; --lime:#dde8e9;
+  --coral:#a43422; --violet:#60339e; --blue:#1359a8;
+  --theme-on-primary:#fff; --theme-danger:#9f2f2f; --theme-danger-bg:#f8e8e8;
+  --theme-chrome:#f1f5f8; --theme-glass:#edf3f8e8; --theme-card:#f7fafce8;
+  --shadow:0 9px 27px #12354f1c;
+  background:
+    radial-gradient(ellipse at 100% 0%,#2770bd 0%,transparent 58%),
+    radial-gradient(ellipse at 0% 62%,#249387 0%,transparent 56%),
+    var(--bg);
+  background-attachment:fixed;
+}
 body[data-theme="ios"] {
   --bg:#f2f2f7; --surface:#fff; --ink:#19191d; --muted:#5b5c66;
   --line:#d3d3df; --green:#075fcb; --lime:#e0edff;
@@ -74,6 +88,19 @@ body[data-theme="glass"] .quick-exercises {--glass-accent:#ac84ff}
 body[data-theme="glass"] .quick-water {--glass-accent:#70d7fa}
 body[data-theme="glass"] .today-checkin-highlights {--glass-accent:#ff9d73}
 body[data-theme="glass"] .quick-today-details {--glass-accent:#a9bbd4}
+body[data-theme="glass"]:not(.dark) .app-header {
+  background:var(--theme-glass);border:1px solid #ffffffc9;border-radius:18px;
+  padding:10px 14px;box-shadow:0 6px 16px #163c5318
+}
+body[data-theme="glass"]:not(.dark) .nav {border-color:var(--line)}
+body[data-theme="glass"]:not(.dark) .overview-macros {--glass-accent:#1256a3}
+body[data-theme="glass"]:not(.dark) .quick-exercises {--glass-accent:#6330a1}
+body[data-theme="glass"]:not(.dark) .quick-water {--glass-accent:#116181}
+body[data-theme="glass"]:not(.dark) .today-checkin-highlights {--glass-accent:#973a1c}
+body[data-theme="glass"]:not(.dark) .quick-today-details {--glass-accent:#3b5267}
+body[data-theme="glass"]:not(.dark) .daily-heading {
+  border-radius:15px;background:var(--theme-glass);padding:8px 12px
+}
 @supports (backdrop-filter:blur(12px)) or (-webkit-backdrop-filter:blur(12px)) {
   body[data-theme="glass"] :is(.card,.overview-macros) {
     background:linear-gradient(142deg,#ffffff09,transparent 53%),var(--theme-card);
