@@ -4,3 +4,22 @@ import {saveDateWorkoutTiming} from '../workout-tools.js';
 test('daily weekly and monthly prompts contain actual activity minutes and edited session times/durations separately',()=>{const state=emptyState(),date='2026-10-26';state.weeklyTraining=[{id:'bjj',day:1,title:'BJJ class',type:'BJJ',time:'18:00',duration:90,intensity:'Moderate'}];state.days[date]={...freshDay(date,state.weeklyTraining),bjjMinutes:60,liftMinutes:30,walkMinutes:20,bjjTimeOfDay:'18:15',notes:'Recorded training notes'};state.days['2026-10-27']={...freshDay('2026-10-27',state.weeklyTraining),bjjMinutes:null,liftMinutes:0,walkMinutes:25};saveDateWorkoutTiming(state,date,'bjj',{time:'18:15',duration:75});const before=structuredClone(state);for(const period of ['day','week','month']){const result=report(state,date,period);assert.deepEqual(result.trainingMinutesSummary.bjj,{totalRecordedMinutes:60,daysWithMinutes:1});assert.deepEqual(result.trainingMinutesSummary.lifting,{totalRecordedMinutes:30,daysWithMinutes:period==='day'?1:2});assert.deepEqual(result.trainingMinutesSummary.walking,{totalRecordedMinutes:period==='day'?20:45,daysWithMinutes:period==='day'?1:2});const row=result.records.find(x=>x.date===date),session=row.timeline.find(x=>x.kind==='workout');assert.equal(row.bjjMinutes,60);assert.equal(session.time,'18:15');assert.equal(session.durationMinutes,60);assert.equal(session.actual,true);assert.equal(session.scheduleBasis,'Actual check-in');assert.equal(row.scheduledWorkouts.find(x=>x.id==='bjj').time,'18:15');assert.equal(row.scheduledWorkouts.find(x=>x.id==='bjj').duration,75);const prompt=reviewPrompt(state,date,period);for(const [key,value] of [['bjjMinutes',60],['liftMinutes',30],['walkMinutes',20]])assert.ok(prompt.includes(`"${key}": ${value}`));assert.match(prompt,/"trainingMinutesSummary"/);assert.match(prompt,/"durationMinutes": 60/);assert.match(prompt,/Recorded training notes/);}
 const prompt=dailyFeedbackPrompt(state,date);assert.match(prompt,/"totalRecordedMinutes": 60/);assert.match(prompt,/"time": "18:15"/);assert.match(prompt,/"durationMinutes": 60/);assert.match(prompt,/Do not add scheduled durations to actual minutes/);assert.deepEqual(state,before);});
 test('training summaries distinguish unknown minutes from recorded zero and ignore planned duration',()=>{assert.deepEqual(trainingMinutesSummary([{bjjMinutes:0,liftMinutes:null},{walkMinutes:25},{}]).bjj,{totalRecordedMinutes:0,daysWithMinutes:1});assert.deepEqual(trainingMinutesSummary([{duration:90}]).bjj,{totalRecordedMinutes:0,daysWithMinutes:0});});
+
+test('exercise sessions round-trip in backups, replace only their linked schedule entries and count as actual training',async()=>{
+ const {validateBackup}=await import('../core.js'),{saveExercise}=await import('../workout-tools.js');
+ const date='2026-11-23',state=emptyState(),workout={day:1,type:'Weights',title:'Weights',duration:50,time:'16:00',intensity:'Moderate'};
+ state.weeklyTraining=[{...workout,id:'upper'},{...workout,id:'lower',time:'19:00'}];
+ saveExercise(state,date,{title:'Upper',type:'Weights',duration:45,time:'16:15',scheduleId:'upper'});
+ saveExercise(state,date,{title:'Bike',type:'Other',duration:12,time:''});
+ state.days[date].walkMinutes=0;
+ const restored=validateBackup(JSON.parse(JSON.stringify(state)));
+ assert.deepEqual(restored.days[date].exercises,state.days[date].exercises);
+ const result=report(restored,date,'day');
+ assert.deepEqual(result.trainingMinutesSummary.lifting,{totalRecordedMinutes:45,daysWithMinutes:1});
+ assert.deepEqual(result.trainingMinutesSummary.other,{totalRecordedMinutes:12,daysWithMinutes:1});
+ assert.deepEqual(result.trainingMinutesSummary.walking,{totalRecordedMinutes:0,daysWithMinutes:1});
+ assert.equal(result.records[0].timeline.filter(x=>x.workoutType==='Weights').length,2);
+ assert.equal(result.records[0].actualTrainingSessions.find(x=>x.title==='Bike').time,null);
+ state.days[date].exercises.push({...state.days[date].exercises[0],id:'duplicate-link'});
+ assert.throws(()=>validateBackup(state),/Duplicate daily exercises/);
+});

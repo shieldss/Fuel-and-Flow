@@ -115,3 +115,29 @@
 .checkin-highlight dd{margin:3px 0 0;font-size:21px;font-weight:800;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .checkin-highlight dd span{font-size:12px;font-weight:650}
 @media (max-width:720px){.today-checkin-highlights{padding:12px}.checkin-highlight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Daily totals and tap-to-log exercise tiles */
+.overview-macros,.quick-exercises{margin:12px 0}
+.overview-macros h3{margin:0 0 6px}
+.overview-macros dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+.overview-macro{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:9px 10px;min-width:0}
+.overview-macro dt,.overview-macro small,.exercise-tile small{font-size:12px;color:var(--muted)}
+.overview-macro dd{margin:3px 0 0;line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.overview-macro strong{font-size:clamp(18px,4.5vw,24px);font-weight:800}
+.overview-macro small{display:block;margin-top:5px}
+.quick-exercises{padding:16px 18px}
+.quick-exercises .card-head{margin-bottom:8px}
+.quick-exercises .text-button{display:inline-flex;align-items:center;gap:5px;min-height:44px}
+.exercise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:8px}
+.exercise-tile.btn{display:grid;justify-items:start;min-width:0;min-height:54px;text-align:left;gap:3px;white-space:normal;padding:8px 10px}
+.exercise-tile>span{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.exercise-tile svg{flex-shrink:0}
+.exercise-tile.btn.exercise-done{background:#dff3e5;color:#19653c;border:1px solid #add5bb}
+.dark .exercise-tile.btn.exercise-done{background:#173e2b;color:#a3e5b9;border-color:#3f7654}
+.exercise-done small{color:inherit}
+@media(max-width:720px){
+ .quick-exercises{padding:12px}
+ .overview-macros dl{gap:5px}
+ .overview-macro{padding:8px 5px}
+ .exercise-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
