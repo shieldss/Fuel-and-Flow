@@ -368,3 +368,9 @@ In Appearance, choose a base color to tint backgrounds or an accent for interact
 ### v2.22.0 — App font picker
 
 Appearance offers Atkinson Hyperlegible, Manrope, Source Serif 4 and System Sans. Preview the type, then save. **Default** restores the active theme’s original font without changing other preferences. The optional fonts are bundled for offline use; their licenses are in `fonts/`.
+
+### v2.24.0 — Cards theme
+
+Choose **Cards** in Appearance for a mint-to-blue gradient, folder-tab Overview cards, colorful nutrition tiles and circular navigation. The app keeps its usual controls, supports custom colors and fonts, and works offline.
+
+Appearance also includes curated **iOS** and **Material You** base swatches. Pick a swatch to generate related accent suggestions, or use the freeform picker to set either color.
