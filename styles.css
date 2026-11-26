@@ -197,3 +197,39 @@
 .checkin-weight-day,.checkin-weight-average{min-width:0;display:grid;justify-items:start;gap:4px}
 .checkin-weight-average{border-inline-start:1px solid var(--line);padding-inline-start:12px}
 .checkin-weight-average strong{font-size:19px;font-weight:750}
+
+.exercise-trends{display:grid;gap:14px}
+.exercise-trend-panel .card-head{margin-bottom:10px}
+.exercise-trend-panel>p:last-child{margin:12px 0 0}
+.exercise-trend-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.exercise-step-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.exercise-trend-metrics .mini-metric{min-width:0;background:var(--bg);padding:10px 12px}
+.exercise-trend-metrics .mini-metric>small{display:block;color:var(--muted);margin-top:4px}
+.exercise-trend-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.exercise-trend-category{min-width:0;border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.exercise-trend-category h3{margin:0 0 8px;font-size:15px}
+.exercise-trend-category p{margin:8px 0 0}
+.exercise-trend-pair{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(52px,auto);align-items:center;gap:8px;font-size:12px;margin:6px 0}
+.exercise-trend-pair strong{text-align:right}
+.exercise-trend-track{height:7px;border-radius:6px;background:var(--line);overflow:hidden;min-width:0}
+.exercise-trend-track i{display:block;height:100%;background:#5e78a0;border-radius:inherit}
+.exercise-trend-track i.logged{background:#7550ae}
+.exercise-trend-track i.steps{background:#237e9a}
+.dark .exercise-trend-track i.planned{background:#8ca8d4}
+.dark .exercise-trend-track i.logged{background:#c09aec}
+.dark .exercise-trend-track i.steps{background:#79c5df}
+.exercise-trend-day{border-top:1px solid var(--line)}
+.exercise-trend-day summary{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.7fr) minmax(0,1fr);gap:5px 8px;align-items:center;padding:10px 1px;cursor:pointer;font-size:12px}
+.exercise-trend-day summary>strong::before{content:"▸";display:inline-block;margin-inline-end:5px}
+.exercise-trend-day[open] summary>strong::before{transform:rotate(90deg)}
+.exercise-trend-day summary>span:last-of-type{text-align:right}
+.exercise-trend-day .exercise-trend-track{grid-column:1/-1;height:5px}
+.exercise-trend-day-body{padding:1px 6px 7px 13px}
+.exercise-trend-day-body ul{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.exercise-trend-day-body li small{display:block;color:var(--muted);overflow-wrap:anywhere}
+.exercise-trend-day-body li strong{overflow-wrap:anywhere}
+.exercise-trend-day-body .text-button{min-height:44px}
+@media(max-width:640px){.exercise-trend-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.exercise-trend-categories{grid-template-columns:minmax(0,1fr)}}
+
+.quick-plan .swipe-meal .meal-front{display:block;min-height:0;padding:0 0 0 31px}
+.quick-plan .quick-plan-row{border:0}

@@ -34,3 +34,33 @@ test('older waist fields are ignored on restore and not exported or included in 
  for(const d of [start,next])assert.ok(!Object.hasOwn(restored.days[d],'waist'));
  for(const output of [JSON.stringify(restored),JSON.stringify(report(restored,start,'week')),dailyFeedbackPrompt(restored,start),reviewPrompt(restored,start,'week'),planPrompt(restored,start)])assert.doesNotMatch(output,/waist/i);
 });
+
+test('exercise analytics keeps planned, linked, extra, historical, upcoming, and missing values separate',async()=>{
+ const {exerciseAnalytics}=await import('../core.js'),state=emptyState(),date='2026-11-26',prior=addDays(date,-1),future=addDays(date,1);
+ const schedule=(id,day,type,time,duration)=>({id,day,type,title:id,time,duration,intensity:'Moderate'});
+ state.weeklyTraining=[
+  schedule('lift',4,'Weights','09:00',45),schedule('class',4,'BJJ','18:00',90),schedule('future',5,'Walk','',null),
+  schedule('prior-current',3,'BJJ','17:00',40),schedule('rest',4,'Rest','',0),
+ ];
+ const entry=(id,type,time,duration,scheduleId)=>({id,type,title:id,time,duration,...(scheduleId?{scheduleId}:{})});
+ state.days[date]={...freshDay(date),steps:0,trainingTimingOverrides:[{id:'lift',time:'09:30',duration:50}],
+  exercises:[entry('completed lift','Weights','09:35',53,'lift'),entry('extra lift','Weights','11:00',10),entry('older link','Walk','12:00',15,'removed')]};
+ state.days[prior]={...freshDay(prior),steps:4500,bjjTimeOfDay:'17:05',bjjMinutes:null,
+  trainingSnapshot:[schedule('prior-saved',3,'BJJ','17:00',75)]};
+ const before=structuredClone(state),week=exerciseAnalytics(state,date,'week',new Date(2026,10,26,13));
+ assert.deepEqual(week.steps,{total:4500,average:2250,daysRecorded:2,peak:4500});
+ assert.deepEqual(week.totals,{planned:{sessions:4,minutes:215,unknownDuration:1},logged:{sessions:4,minutes:78,unknownDuration:1},fromPlan:1,extra:1,unmatched:2,notLogged:1,upcoming:2,daysWithExercise:2});
+ const byDate=k=>week.days.find(x=>x.date===k);
+ assert.deepEqual(byDate(date).planned.map(x=>[x.id,x.status,x.startTime,x.durationMinutes]),[['lift','logged','09:30',50],['class','upcoming','18:00',90]]);
+ assert.equal(byDate(future).planned[0].status,'upcoming');
+ assert.equal(byDate(prior).planned[0].id,'prior-saved');assert.equal(byDate(prior).logged[0].durationMinutes,null);
+ const day=exerciseAnalytics(state,date,'day',new Date(2026,10,26,19));
+ assert.equal(day.totals.notLogged,1);assert.equal(day.totals.upcoming,0);
+ assert.deepEqual(day.steps,{total:0,average:0,daysRecorded:1,peak:0});
+ assert.deepEqual(exerciseAnalytics(state,'2026-01-05','day',new Date(2026,10,26)).steps,{total:null,average:null,daysRecorded:0,peak:null});
+ assert.equal(exerciseAnalytics(state,date,'month',new Date(2026,10,26)).days.length,30);
+ assert.deepEqual(report(state,date,'week',new Date(2026,10,26,13)).exerciseAnalytics,week);
+ assert.match(reviewPrompt(state,date,'week'),/"exerciseAnalytics"/);
+ assert.match(planPrompt(state,'2026-11-30'),/not proof the workout was missed/);
+ assert.deepEqual(state,before);
+});
