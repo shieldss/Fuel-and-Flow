@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {dateKey,nextWeek,range} from '../core.js';
+import {dateKey,nextWeek,range,addDays} from '../core.js';
 class Element {constructor(){this.innerHTML='';this.value='';this.style={};this.dataset={};this.listeners={};this.textContent='';this.attributes={};this.classList={toggle(){}};}addEventListener(event,fn){this.listeners[event]=fn;}querySelectorAll(selector){if(!/^\[data-(?:(?:edit|delete)-usual|meal-mode|training-day|import-step|gap-meal)\]$/.test(selector))return [];const key=selector.slice(1,-1);this.rows??=new Map();return [...this.innerHTML.matchAll(new RegExp(key+'="([^"]+)"','g'))].map(m=>{const id=key+'-'+m[1];if(!this.rows.has(id))this.rows.set(id,new Element());const row=this.rows.get(id);const attr=key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase());row.dataset[attr]=m[1];return row;});}setAttribute(key,value){this.attributes[key]=value;}querySelector(){return new Element();}showModal(){this.open=true;}close(){this.open=false;}focus(){}select(){}click(){} append(el){this.lastChild=el;}}
 const elems=new Map();global.document={body:{classList:{toggle(){}}},querySelector:s=>{if(!elems.has(s))elems.set(s,new Element());const el=elems.get(s);if(s==='#meal-form')el.innerHTML=elems.get('#modal')?.innerHTML||'';return el;},createElement:()=>new Element()};
 const memory=new Map();global.localStorage={getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)};
@@ -84,7 +84,7 @@ test('Today quick logging preserves the plan and uses actual-log links, with dup
  assert.match(element('#app').innerHTML,/data-action="quick-eat"/);
  await click({action:'quick-eat',date,id:meal.id});assert.equal(storage().days[date].meals[0].planMealId,meal.id);
  await click({action:'quick-eat',date,id:meal.id});assert.equal(storage().days[date].meals.length,1);
- assert.match(element('#app').innerHTML,/Extra serving/);assert.match(element('#app').innerHTML,/today-logged-badge[^>]*><svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg> Logged/);assert.match(element('#app').innerHTML,/today-destination-grid/);assert.equal(storage().plans[date].meals[0].calories,200);
+ assert.match(element('#app').innerHTML,/Extra serving/);assert.match(element('#app').innerHTML,/today-logged-badge[^>]*><svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg> Logged/);assert.doesNotMatch(element('#app').innerHTML,/today-destination-grid/);assert.equal(storage().plans[date].meals[0].calories,200);
  element('#toast').lastChild.onclick();assert.equal(storage().days[date].meals.length,0);
  await click({action:'quick-portion',date,id:meal.id});const form=element('#quick-portion-form');form.values={multiplier:'0.5'};form.onsubmit({preventDefault(){}});
  assert.equal(storage().days[date].meals[0].calories,100);
@@ -198,4 +198,23 @@ test('exercise taps log once, preserve completed food logs and weekly plans, and
  assert.deepEqual(storage().weeklyTraining,schedule);assert.deepEqual(storage().days[date].meals,[]);
  await import('../app.js?overview-exercise-reopen');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});assert.match(html(),/Edit Bike &amp; hills, 40 min/);
  await click({action:'edit-exercise',id:entries().at(-1).id});element('#remove-exercise').onclick();element('#confirm-action').onclick();assert.equal(entries().length,1);
+});
+
+test('Overview weight shows a separate seven-day average, refreshes it on save and leaves Trends available',async()=>{
+ const date='2026-08-15',seed=storage();
+ for(const [delta,weight] of [[-7,200],[-6,174],[-2,176],[0,172],[1,150]])seed.days[addDays(date,delta)]={meals:[],weight};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-weight-average');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const html=()=>element('#app').innerHTML;
+ assert.doesNotMatch(html(),/today-destination-grid/);
+ assert.match(html(),/Edit Weight: 172 lb/);
+ assert.match(html(),/7-day average<\/span><strong>174<span> lb/);
+ await click({action:'edit-overview-checkin',key:'weight'});assert.match(element('[data-checkin-stat="weight"]').innerHTML,/7-day average<\/span><strong>174<span> lb/);
+ const form=element('#overview-checkin-entry');form.values={value:'173.5'};form.onsubmit({preventDefault(){}});
+ assert.match(html(),/Edit Weight: 173.5 lb/);assert.match(html(),/7-day average<\/span><strong>174.5<span> lb/);
+ await click({action:'open-day',date:addDays(date,-1)});await click({action:'nav',view:'today',panel:'overview'});
+ assert.match(html(),/aria-label="Enter Weight"/);assert.match(html(),/7-day average<\/span><strong>183.3<span> lb/);
+ await click({action:'open-day',date:'2026-06-01'});await click({action:'nav',view:'today',panel:'overview'});
+ assert.match(html(),/7-day average<\/span><strong>—<\/strong>/);
+ await click({action:'nav',view:'insights',panel:'weight'});assert.match(html(),/Last 7 days/);
 });
