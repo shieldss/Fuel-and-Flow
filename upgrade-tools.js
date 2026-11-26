@@ -1,8 +1,8 @@
 import {validateFoodCategory} from './view-tools.js?v=2.15.0';
 import {dayIntake} from './hydration-tools.js?v=2.15.0';
 import {validateFoodSource,validateProxyUrl,DEFAULT_FOOD_PROXY} from './food-lookup.js?v=2.15.0';
-import {validateMeal,validDate,addDays,totals,average,dailyEnergyAverage,sessionsFor,workoutsForDate,actualExercises,dateKey} from './core.js?v=2.16.0';
-import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.16.0';
+import {validateMeal,validDate,addDays,totals,average,dailyEnergyAverage,sessionsFor,workoutsForDate,actualExercises,dateKey} from './core.js?v=2.16.1';
+import {getNutritionGoalsForDate,NUTRIENTS,nutritionProgress} from './nutrition-tools.js?v=2.16.1';
 export const FEATURE_VERSION=1;
 const round=n=>Math.round(n*100)/100;
 export function validateIngredients(items){if(!Array.isArray(items)||items.length>100)throw Error('Use up to 100 ingredients.');return items.map(x=>{if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>200||typeof x.unit!=='string'||x.unit.length>30||typeof x.amount!=='number'||!Number.isFinite(x.amount)||x.amount<=0||x.amount>100000)throw Error('Each ingredient needs a name, positive quantity and unit.');return {name:x.name.trim(),amount:x.amount,unit:x.unit.trim()};});}
@@ -38,7 +38,31 @@ export function fuelEvents(state,date){
  const events=[...(day?.meals||[]).map(m=>({kind:'meal',time:m.time,name:m.name,meal:m})),...(day?.drinks||[]).map(drink=>({kind:'drink',time:drink.time,name:drink.type,drink})),...scheduled.filter(w=>!linked.has(w.id)&&!legacyTypes.has(w.type)).map(w=>({kind:'workout',time:w.time,name:w.title,workout:{...w,actual:false}})),...actual];
  const running=totals();return events.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')||(a.kind===b.kind?0:a.kind==='workout'?1:b.kind==='workout'?-1:0)).map(event=>{if(!event.time)return {...event,cumulative:null};if(event.kind!=='workout')for(const k of NUTRIENTS)running[k]+=Number((event.meal||event.drink)[k])||0;return {...event,cumulative:{...running}};});
 }
-export function mealFuelGaps(state,date,now=new Date()){const events=fuelEvents(state,date),meals=events.filter(x=>x.kind==='meal'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(x.time)),minute=time=>{const [h,m]=time.split(':').map(Number);return h*60+m;},clock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`,gaps=[];const add=(meal,to,ongoing=false)=>{const from=minute(meal.time),end=minute(to),duration=end-from;if(duration<=240)return;const during=events.filter(x=>x.time&&minute(x.time)>from&&minute(x.time)<end);gaps.push({kind:'gap',time:clock(from+240),from:meal.time,to,minutes:duration,ongoing,workoutsDuringGap:during.filter(x=>x.kind==='workout').length,drinkCalories:during.filter(x=>x.kind==='drink').reduce((sum,x)=>sum+(Number(x.drink.calories)||0),0)});};for(let i=1;i<meals.length;i++)add(meals[i-1],meals[i].time);if(date===dateKey(now)&&meals.length)add(meals.at(-1),clock(now.getHours()*60+now.getMinutes()),true);return gaps;}
+const MEAL_GAP_MINUTES=240,timedMeal=x=>/^([01]\d|2[0-3]):[0-5]\d$/.test(x.time);
+const mealMinute=time=>{const [h,m]=time.split(':').map(Number);return h*60+m;};
+const mealClock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
+export function ongoingMealGap(day,date,now=new Date()){
+ if(date!==dateKey(now))return null;
+ const to=mealClock(now.getHours()*60+now.getMinutes());
+ let from='';
+ for(const meal of day?.meals||[])if(timedMeal(meal)&&meal.time<=to&&meal.time>from)from=meal.time;
+ if(!from)return null;
+ const minutes=mealMinute(to)-mealMinute(from);
+ return minutes>MEAL_GAP_MINUTES?{from,to,minutes}:null;
+}
+export function mealFuelGaps(state,date,now=new Date()){
+ const events=fuelEvents(state,date),through=date===dateKey(now)?mealClock(now.getHours()*60+now.getMinutes()):'23:59',meals=events.filter(x=>x.kind==='meal'&&timedMeal(x)&&x.time<=through),gaps=[];
+ const add=(from,to,ongoing=false)=>{
+  const start=mealMinute(from),end=mealMinute(to),minutes=end-start;
+  if(minutes<=MEAL_GAP_MINUTES)return;
+  const during=events.filter(x=>x.time&&x.time>from&&x.time<to);
+  gaps.push({kind:'gap',time:mealClock(start+MEAL_GAP_MINUTES),from,to,minutes,ongoing,workoutsDuringGap:during.filter(x=>x.kind==='workout').length,drinkCalories:during.filter(x=>x.kind==='drink').reduce((sum,x)=>sum+(Number(x.drink.calories)||0),0)});
+ };
+ for(let i=1;i<meals.length;i++)add(meals[i-1].time,meals[i].time);
+ const current=ongoingMealGap(state.days[date],date,now);
+ if(current)add(current.from,current.to,true);
+ return gaps;
+}
 // Cumulative fractions are an app planning heuristic for a 6 PM BJJ class,
 // not a validated physiological prescription. Daily kcal and grams remain independent.
 const FUEL_TIMES=['10:00','12:00','15:00','17:00','21:00','22:00'];

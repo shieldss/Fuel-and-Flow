@@ -141,3 +141,11 @@
  .overview-macro{padding:8px 5px}
  .exercise-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+.overview-meal-gap{display:flex;align-items:center;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--fuel-amber-line);border-radius:12px;background:var(--fuel-amber-bg);color:var(--fuel-amber)}
+.overview-meal-gap[hidden]{display:none}
+.overview-meal-gap>svg{width:20px;height:20px}
+.overview-meal-gap>div{flex:1;min-width:0}
+.overview-meal-gap h3{margin:0 0 3px;font-size:14px;color:inherit}
+.overview-meal-gap p{margin:0;font-size:12px;line-height:1.4}
+.overview-meal-gap .btn{padding-inline:10px;min-height:44px;flex-shrink:0;color:inherit;border-color:var(--fuel-amber-line)}
