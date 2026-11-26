@@ -98,3 +98,13 @@ test('Adding food from Plan defaults to the plan, and explicit eaten selection k
  await click({action:'add-plan'});f.values={...f.values,name:'Actually eaten',destination:'actual'};f.onsubmit({preventDefault(){},target:f});
  assert.ok(storage().days[date].meals.some(m=>m.name==='Actually eaten'));assert.ok(!storage().plans[date].meals.some(m=>m.name==='Actually eaten'));
 });
+
+test('Today highlights only saved check-in stats for the selected date, including an explicitly recorded zero',async()=>{
+ const date='2026-10-22',seed=storage();seed.weeklyTraining.push({id:'highlight-planned-bjj',day:4,type:'BJJ',title:'BJJ planned only',time:'18:00',duration:60,intensity:'Hard'});
+ seed.days[date]={meals:[],complete:false,energyMorning:7,steps:0,sleep:7.5,liftMinutes:45,liftTimeOfDay:'12:15',weight:174};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?checkin-highlights');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});let html=element('#app').innerHTML;
+ assert.match(html,/Logged check-in/);assert.match(html,/data-checkin-stat="energyMorning"><dt>Morning energy<\/dt><dd>7<span>\/10<\/span>/);assert.match(html,/data-checkin-stat="steps"><dt>Steps<\/dt><dd>0<\/dd>/);assert.match(html,/data-checkin-stat="sleep"/);assert.match(html,/data-checkin-stat="weight"/);assert.match(html,/data-checkin-stat="liftMinutes"/);
+ assert.doesNotMatch(html,/data-checkin-stat="(?:bjjMinutes|bjjTimeOfDay|energyAfternoon|waist|stress)"/);
+ await click({action:'open-day',date:'2026-07-03'});await click({action:'nav',view:'today',panel:'overview'});html=element('#app').innerHTML;assert.doesNotMatch(html,/Logged check-in|data-checkin-stat=/);
+});
