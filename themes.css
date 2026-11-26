@@ -256,3 +256,24 @@ body[data-custom-accent]:not([data-theme="material-you"]) .daybtn.active {color:
 .trends-summary-stack>.review-overview {margin:0}
 .trends-summary-stack>.destination-grid {gap:var(--trends-summary-gap)}
 @media(max-width:700px) {.trends-summary-stack {--trends-summary-gap:12px}}
+
+/* Optional local fonts: no requests to font providers after installation. */
+@font-face {font-family:'Fuel Atkinson';src:url('./fonts/atkinsonhyperlegiblenext.woff2') format('woff2');font-weight:400 800;font-display:swap}
+@font-face {font-family:'Fuel Manrope';src:url('./fonts/manrope.woff2') format('woff2');font-weight:400 800;font-display:swap}
+@font-face {font-family:'Fuel Source Serif';src:url('./fonts/sourceserif4.woff2') format('woff2');font-weight:400 800;font-display:swap}
+body[data-app-font="atkinson"],.font-preview[data-app-font="atkinson"] {font-family:'Fuel Atkinson',system-ui,sans-serif}
+body[data-app-font="manrope"],.font-preview[data-app-font="manrope"] {font-family:'Fuel Manrope',system-ui,sans-serif}
+body[data-app-font="source-serif"],.font-preview[data-app-font="source-serif"] {font-family:'Fuel Source Serif',Georgia,serif}
+body[data-app-font="system-sans"],.font-preview[data-app-font="system-sans"] {font-family:system-ui,sans-serif}
+.appearance-fonts {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-field-radius)}
+.appearance-fonts legend {padding-inline:5px;font-weight:750}
+.font-picker-controls {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center}
+.font-picker-controls label {grid-column:1/-1}
+.font-picker-controls :is(select,button) {min-height:44px}
+.font-preview {display:grid;gap:3px;margin-top:10px;padding:10px 12px;border-radius:var(--theme-field-radius);background:var(--bg);color:var(--ink);overflow-wrap:anywhere}
+.font-preview strong {font-size:21px}
+/* Preview the theme's real default even while a custom font is still applied. */
+body {--preview-default-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body[data-theme="ios"] {--preview-default-font:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
+body[data-theme="material-you"] {--preview-default-font:Roboto,'Noto Sans',system-ui,sans-serif}
+.font-preview:not([data-app-font]) {font-family:var(--preview-default-font)}

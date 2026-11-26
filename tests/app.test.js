@@ -332,3 +332,13 @@ test('appearance offers explicit theme variants and keeps all saved content inta
  }
  save('unknown');assert.equal(storage().profile.theme,'light');
 });
+
+test('appearance can save a selected font or clear it without changing other data',async()=>{
+ const before=storage();
+ await click({action:'nav',view:'settings',panel:'app'});
+ assert.match(element('#app').innerHTML,/id="reset-theme-font"/);
+ const save=themeFont=>element('#settings').onsubmit({preventDefault(){},target:{values:{theme:before.profile.theme,themeFont}}});
+ save('atkinson');assert.deepEqual(storage(),{...before,profile:{...before.profile,themeFont:'atkinson'}});
+ save('invalid');assert.equal(storage().profile.themeFont,'atkinson');
+ save('');assert.deepEqual(storage(),before);
+});

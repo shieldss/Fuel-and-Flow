@@ -59,3 +59,13 @@ export function accentSuggestions(base){
   {label:'iOS · cool tint',color:fromHue(h>=170&&h<=275?(h+42):215,.72,.44)}
  ];
 }
+
+export const APP_FONTS=Object.freeze({
+ 'atkinson':'Atkinson Hyperlegible',
+ 'manrope':'Manrope',
+ 'source-serif':'Source Serif 4',
+ 'system-sans':'System Sans'
+});
+export function isAppFont(value){
+ return typeof value==='string'&&Object.hasOwn(APP_FONTS,value);
+}

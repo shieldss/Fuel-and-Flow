@@ -34,3 +34,15 @@ test('custom colors are optional backup preferences and not included in prompts'
  for(const prompt of [dailyFeedbackPrompt(s,'2026-11-26'),reviewPrompt(s,'2026-11-26','day'),planPrompt(s,'2026-11-23')])assert.doesNotMatch(prompt,/themeBase|themeAccent|#2211aa/);
  state.profile.themeAccent='url(example.test)';assert.ok(!Object.hasOwn(validateBackup(state).profile,'themeAccent'));
 });
+
+test('approved app fonts persist through backup without appearing in nutrition prompts',()=>{
+ const state=emptyState();
+ for(const value of ['atkinson','manrope','source-serif','system-sans']){
+  state.profile.themeFont=value;
+  const restored=validateBackup(state);
+  assert.equal(restored.profile.themeFont,value);
+  assert.doesNotMatch(planPrompt(restored,'2026-11-23'),/themeFont/);
+ }
+ state.profile.themeFont='url(example.test)';
+ assert.ok(!Object.hasOwn(validateBackup(state).profile,'themeFont'));
+});
