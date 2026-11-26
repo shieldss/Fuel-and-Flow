@@ -78,19 +78,20 @@ body[data-theme="glass"] :is(.card,.overview-macros) {
   box-shadow:inset 0 1px #ffffff0c,var(--shadow)
 }
 body[data-theme="glass"] :is(.sidebar,.nav,.section-nav) {background:var(--theme-chrome)}
-/* Give the sticky section tabs the same finished panel edge as adjacent Glass cards. */
-body[data-theme="glass"] .section-nav {
+/* Sticky section menus align with the neighboring cards in Glass and iOS. */
+body:is([data-theme="glass"],[data-theme="ios"]) .section-nav {
   margin:10px 0 14px;padding:5px 6px;gap:3px;
   border:1px solid var(--line);border-radius:var(--theme-card-radius);
-  box-shadow:inset 0 1px #ffffff18,var(--shadow);
+  box-shadow:var(--shadow);
   scroll-padding-inline:6px
 }
-body[data-theme="glass"] .section-nav button {padding-inline:12px}
+body[data-theme="glass"] .section-nav {box-shadow:inset 0 1px #ffffff18,var(--shadow)}
+body:is([data-theme="glass"],[data-theme="ios"]) .section-nav button {padding-inline:12px}
 body[data-theme="glass"]:not(.dark) .section-nav {border-color:#ffffffc9}
 @media(max-width:700px) {
-  body[data-theme="glass"] .section-nav {margin-block:9px 12px}
-  body[data-theme="glass"] .section-nav button {padding-inline:8px}
-  body[data-theme="glass"] .section-nav:has([data-group="today"]) button {flex-grow:1}
+  body:is([data-theme="glass"],[data-theme="ios"]) .section-nav {margin-block:9px 12px}
+  body:is([data-theme="glass"],[data-theme="ios"]) .section-nav button {padding-inline:8px}
+  body:is([data-theme="glass"],[data-theme="ios"]) .section-nav:has([data-group="today"]) button {flex-grow:1}
 }
 body[data-theme="glass"] :is(.nav button.active,.section-nav button.active) {color:var(--green);box-shadow:inset 0 0 0 1px #467b75}
 body[data-theme="glass"] .app-header h1 {font-size:clamp(33px,5vw,47px);letter-spacing:-.057em}
@@ -115,6 +116,7 @@ body[data-theme="glass"]:not(.dark) .quick-today-details {--glass-accent:#3b5267
 body[data-theme="glass"]:not(.dark) .daily-heading {
   border-radius:15px;background:var(--theme-glass);padding:8px 12px
 }
+body[data-theme="ios"] .section-nav {background-color:var(--theme-chrome)}
 @supports (backdrop-filter:blur(12px)) or (-webkit-backdrop-filter:blur(12px)) {
   body[data-theme="glass"] :is(.card,.overview-macros) {
     background:linear-gradient(142deg,#ffffff09,transparent 53%),var(--theme-card);
@@ -129,7 +131,6 @@ body[data-theme="glass"]:not(.dark) .daily-heading {
 body[data-theme="ios"] .app-header h1 {font-size:clamp(34px,5vw,48px);font-weight:760;letter-spacing:-.056em}
 body[data-theme="ios"] :is(.app-header,.section-nav) .eyebrow {text-transform:none;letter-spacing:.01em;font-size:12px}
 body[data-theme="ios"] :is(.sidebar,.nav) {background-color:var(--theme-chrome)}
-body[data-theme="ios"] .section-nav {gap:3px;border-bottom:0}
 body[data-theme="ios"] .section-nav button.active {background:var(--surface);box-shadow:0 1px 4px #15152221}
 body[data-theme="ios"] :is(.card,.overview-macros) {border-block-width:1px}
 body[data-theme="ios"] .nav button.active {color:var(--green);border-radius:24px}
