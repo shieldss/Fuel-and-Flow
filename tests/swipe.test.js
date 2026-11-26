@@ -4,3 +4,17 @@ function fixture(width=144){const handlers={};const classes=new Set(),attributes
 test('right swipe exposes buttons with accessible state, left swipe closes them',()=>{const f=fixture();f.handlers.pointerdown(f.event(10,10));f.handlers.pointermove(f.event(110,15));assert.equal(f.front.style.transform,'translateX(100px)');f.handlers.pointerup(f.event(110,15));assert.equal(f.row.classList.contains('swipe-open'),true);assert.equal(f.attributes['aria-expanded'],'true');assert.equal(f.attributes['tray-aria-hidden'],'false');assert.equal(f.button.tabIndex,0);f.handlers.pointerdown(f.event(160,10));f.handlers.pointermove(f.event(30,11));f.handlers.pointerup(f.event(30,11));assert.equal(f.row.classList.contains('swipe-open'),false);assert.equal(f.button.tabIndex,-1);});
 test('scroll and cancelled gestures preserve closed state; keyboard exposes actions',()=>{const f=fixture();f.handlers.pointerdown(f.event(10,10));f.handlers.pointermove(f.event(12,50));f.handlers.pointerup(f.event(12,50));assert.equal(f.row.classList.contains('swipe-open'),false);f.handlers.pointerdown(f.event(10,10));f.handlers.pointermove(f.event(100,11));f.handlers.pointercancel(f.event(100,11));assert.equal(f.row.classList.contains('swipe-open'),false);f.handlers.keydown({...f.event(0,0),key:'ArrowRight'});assert.equal(f.row.classList.contains('swipe-open'),true);assert.equal(f.button.focused,true);f.handlers.keydown({...f.event(0,0),key:'Escape'});assert.equal(f.row.classList.contains('swipe-open'),false);});
 test('three-action workout trays use their full width and hint tap toggles options',()=>{const f=fixture(216);f.handlers.pointerdown(f.event(10,10));f.handlers.pointermove(f.event(250,11));assert.equal(f.front.style.transform,'translateX(216px)');f.handlers.pointerup(f.event(250,11));assert.equal(f.row.classList.contains('swipe-open'),true);const g=fixture();const toggle={closest:()=>g.row};const target={closest:s=>s==='[data-swipe-toggle]'?toggle:s==='.swipe-meal'?g.row:null};const event={target,preventDefault(){},stopImmediatePropagation(){}};g.handlers.click(event);assert.equal(g.row.classList.contains('swipe-open'),true);g.handlers.click(event);assert.equal(g.row.classList.contains('swipe-open'),false);});
+
+test('primary swipe buttons keep keyboard activation and suppress accidental logging after a gesture',()=>{
+ const f=fixture(72),primary={closest(s){return ['[data-swipe-primary]','button,input,a,textarea,select','button'].includes(s)?this:f.front.closest(s);}};
+ const event=(x,y)=>({...f.event(x,y),target:primary,stopImmediatePropagation(){this.stopped=true;}});
+ const enter={...event(0,0),key:'Enter'};f.handlers.keydown(enter);assert.equal(enter.prevented,undefined);
+ const click=event(0,0);f.handlers.click(click);assert.equal(click.stopped,undefined);
+ f.handlers.pointerdown(event(10,10));f.handlers.pointermove(event(72,12));f.handlers.pointerup(event(72,12));
+ assert.equal(f.row.classList.contains('swipe-open'),true);
+ const generated=event(72,12);f.handlers.click(generated);assert.equal(generated.stopped,true);
+ const editClick={...event(10,12),target:{closest:s=>s==='.swipe-action'?f.button:s==='.swipe-meal'?f.row:null}};
+ f.handlers.click(editClick);assert.equal(editClick.stopped,undefined);
+ f.handlers.keydown({...event(0,0),key:'Escape'});assert.equal(f.row.classList.contains('swipe-open'),false);
+ f.handlers.keydown({...event(0,0),key:'ArrowRight'});assert.equal(f.row.classList.contains('swipe-open'),true);
+});
