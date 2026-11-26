@@ -337,3 +337,9 @@ When a date has scheduled BJJ, lifting or walking sessions and no actual check-i
 - **Add food:** newest distinct logged meals and up to four pinned usual foods come first. The full manual editor, recipes, search/scan, and AI import remain available.
 - **Finish BJJ:** confirms actual minutes and start time without changing the recurring schedule. Optional snack-trial ratings display only when an A/B trial snack is present and are saved with that day's notes.
 - **Plan → Import weekly plan** opens the same review and validation flow as before.
+
+## Plan first, with a separate Saved foods library
+
+- **Add food** starts in **Meal plan (not eaten)**. Choose **Food log (already eaten)** only when you want to record actual intake. Date and destination are visible before saving, and button labels match whichever destination is selected.
+- After choosing and reviewing a food from online search or barcode scan, **Use reviewed food** saves that food and serving in **Foods → Saved foods**. Reusing the same source and portion updates the existing saved record rather than adding a duplicate. The catalog is local, searchable offline, and included in backups.
+- **Usual foods** remains a separate list. Use **Move to Saved** for foods you want to retain but no longer need as a usual food. Prior meal plans and logged items are not changed.

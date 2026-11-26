@@ -12,3 +12,12 @@ test('partial diary is excluded from calorie averages; missing metrics are unkno
 test('backup roundtrip preserves actual logs, plans and profile without accepting invalid state',()=>{const s=emptyState();s.days[start]={...freshDay(start),meals:[{...meal,id:'uuid'}],energyBefore:6,complete:true};s.plans=parsePlan(JSON.stringify(plan()),start);s.profile.height='5 ft 10 in';const restored=validateBackup(JSON.parse(JSON.stringify(s)));for(const day of Object.values(restored.plans))for(const meal of day.meals){assert.ok(meal.id);delete meal.id;}assert.deepEqual(restored,s);assert.throws(()=>validateBackup({...s,version:2}),/backup/);const bad=structuredClone(s);bad.days[start].energyBefore=20;assert.throws(()=>validateBackup(bad),/1–10/);});
 test('review and planning prompts include profile, real entries, and exact schema',()=>{const s=emptyState();s.profile.restrictions='No peanuts';assert.match(planPrompt(s,start),/No peanuts/);assert.match(planPrompt(s,start),/"schemaVersion":1/);assert.match(planPrompt(s,start),/2026-10-18/);assert.match(reviewPrompt(s,start,'month'),/partial food logs/);assert.match(reviewPrompt(s,start,'day'),/"records": \[\]/);});
 test('totals preserve zero, decimals and multiple portions',()=>assert.deepEqual(totals([{calories:100,protein:10.5,carbs:0,fat:4},{calories:100,protein:10.5,carbs:0,fat:4}]),{calories:200,protein:21,carbs:0,fat:8}));
+
+test('Saved foods deduplicate by looked-up serving, survive backup, and stay separate from the diary and usual foods',async()=>{
+ const {emptyState,saveCatalogFood,validateBackup}=await import('../core.js');
+ const state=emptyState(),food={name:'Bar',time:'10:00',portion:'40 g',calories:120,protein:4,carbs:16,fat:4,foodSource:{provider:'off',id:'12345678',url:'https://world.openfoodfacts.org/product/12345678',basisAmount:100,basisUnit:'g',amount:40,unit:'g',fetchedAt:'2026-11-25T12:00:00Z',energyConverted:false,manualAdjusted:false}};
+ saveCatalogFood(state,food,()=> 'original');saveCatalogFood(state,{...food,name:'Renamed Bar'},()=> 'duplicate');saveCatalogFood(state,{...food,portion:'80 g',foodSource:{...food.foodSource,amount:80}},()=> 'larger');
+ assert.deepEqual(state.savedFoods.map(m=>m.id),['original','larger']);assert.equal(state.usualFoods.length,0);assert.deepEqual(state.days,{});assert.deepEqual(state.plans,{});
+ assert.deepEqual(validateBackup(state).savedFoods,state.savedFoods);
+ delete state.savedFoods;assert.deepEqual(validateBackup(state).savedFoods,[]);
+});

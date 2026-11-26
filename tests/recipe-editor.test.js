@@ -19,7 +19,7 @@ test('recipe editor searches repeatedly, adds ingredients, edits quantity, remov
   get('#food-amount').value='100';get('#food-unit').value='g';get('#food-amount').oninput();for(const [key,value]of Object.entries({calories:i?100:300,protein:i?5:10,carbs:i?10:50,fat:i?4:6}))get('#lookup-'+key).value=String(value);
   get('#use-food-result').onclick();assert.match(get('#food-lookup-status').textContent,/Ingredient added/);
  }
- assert.match(get('#recipe-preview').innerHTML,/Calories 400 kcal/);assert.match(get('#recipe-preview').innerHTML,/Calories 200 kcal/);assert.deepEqual(saved(),before);assert.ok(requests>=3);
+ assert.match(get('#recipe-preview').innerHTML,/Calories 400 kcal/);assert.match(get('#recipe-preview').innerHTML,/Calories 200 kcal/);assert.deepEqual({...saved(),savedFoods:before.savedFoods},before);assert.equal(saved().savedFoods.length,2);assert.ok(requests>=3);
  get('#recipe-ingredient-list').querySelectorAll('[data-recipe-item-edit]')[0].onclick();get('#recipe-item-amount').value='200';get('#recipe-item-amount').onchange();get('#recipe-add-ingredient').onclick();assert.match(get('#recipe-preview').innerHTML,/Calories 700 kcal/);
  get('#recipe-ingredient-list').querySelectorAll('[data-recipe-item-remove]')[1].onclick();assert.match(get('#recipe-preview').innerHTML,/Calories 600 kcal/);
  get('#recipe-usual').value='0';get('#recipe-add-usual').onclick();assert.match(get('#recipe-preview').innerHTML,/Calories 670 kcal/);
