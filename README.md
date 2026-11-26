@@ -5,7 +5,7 @@ A colorful, mobile-first food, energy and recovery tracker built as a static PWA
 ## Start using it
 
 1. Open **Today** and choose a date. Add food manually or start from **Your usual foods**. Check portions against your labels; preset nutrition is estimated.
-2. Save energy before/after training, sleep, fluids, weight, waist, training duration, recovery and notes. Mark the food log complete only after all meals and caloric drinks are logged.
+2. Save energy, sleep, weight, waist and recovery in Check-in, or edit check-in tiles on Overview. Log fluids from Water. Use Exercise on Overview for planned workouts, extra sessions and training notes. Mark the food log complete only after all meals and caloric drinks are logged.
 3. Open **Trends** for daily, weekly or monthly logs. Weight comparisons use the most recent seven calendar days against the prior seven, excluding missing measurements. Energy and sleep averages exclude missing entries. Calorie averages use complete food logs only.
 4. Use **ChatGPT → Review results** to generate a day/week/month prompt. Copy it into ChatGPT and coordinate practical adjustments.
 5. Use **ChatGPT → Plan next week**. Choose a Monday, generate and copy the prompt, then paste it into ChatGPT. The prompt requests a strict seven-day JSON response with estimated per-meal nutrition.
@@ -343,3 +343,8 @@ When a date has scheduled BJJ, lifting or walking sessions and no actual check-i
 - **Add food** starts in **Meal plan (not eaten)**. Choose **Food log (already eaten)** only when you want to record actual intake. Date and destination are visible before saving, and button labels match whichever destination is selected.
 - After choosing and reviewing a food from online search or barcode scan, **Use reviewed food** saves that food and serving in **Foods → Saved foods**. Reusing the same source and portion updates the existing saved record rather than adding a duplicate. The catalog is local, searchable offline, and included in backups.
 - **Usual foods** remains a separate list. Use **Move to Saved** for foods you want to retain but no longer need as a usual food. Prior meal plans and logged items are not changed.
+
+
+### v2.17.0 — One exercise log
+
+Today → Overview → Exercise shows planned workouts for the selected date and completed entries. Tap a planned workout to log it, use Edit timing to adjust just that date, or use Add exercise for an unscheduled session. Tap a logged workout to edit or remove it. Start times and durations also appear in the timeline, which opens the same editor for logged rows. Older training totals remain editable through Exercise. Training notes, including BJJ snack-trial ratings, are available there as well; Check-in no longer duplicates workout fields. Weekly schedules and backup compatibility are unchanged.

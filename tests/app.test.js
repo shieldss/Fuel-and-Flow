@@ -10,7 +10,7 @@ const element=s=>document.querySelector(s);
 async function click(dataset){await element('#app').listeners.click({target:{closest:()=>({dataset})}});}
 await import('../app.js');
 test('all app tabs render without runtime errors and user input is escaped',async()=>{for(const view of ['today','plan','foods','insights','coach','settings','more']){await click({action:'nav',view});assert.match(element('#app').innerHTML,/Fuel & Flow/);assert.ok(element('#app').innerHTML.length>4000);} });
-test('check-in stores entered metrics without manufacturing food eaten',async()=>{await click({action:'nav',view:'today',panel:'checkin'});element('#checkin').onsubmit({preventDefault(){},target:{values:{energyBefore:'4',energyAfter:'6',sleep:'7.5',water:'96',weight:'160',waist:'',bjjMinutes:'90',liftMinutes:'',notes:'<script>test</script>',recovery:'Okay'}}});const saved=storage();assert.equal(saved.days[dateKey()].energyBefore,4);assert.equal(saved.days[dateKey()].meals.length,0);assert.equal(saved.days[dateKey()].waist,null);assert.match(element('#app').innerHTML,/&lt;script&gt;/);assert.doesNotMatch(element('#app').innerHTML,/<script>test<\/script>/);});
+test('check-in stores entered metrics without manufacturing food eaten',async()=>{await click({action:'nav',view:'today',panel:'checkin'});element('#checkin').onsubmit({preventDefault(){},target:{values:{energyBefore:'4',energyAfter:'6',sleep:'7.5',water:'96',weight:'160',waist:'',bjjMinutes:'90',liftMinutes:'',notes:'<script>test</script>',recovery:'Okay'}}});const saved=storage();assert.equal(saved.days[dateKey()].energyBefore,4);assert.equal(saved.days[dateKey()].meals.length,0);assert.equal(saved.days[dateKey()].waist,null);assert.equal(saved.days[dateKey()].bjjMinutes,null);assert.equal(saved.days[dateKey()].notes,'');});
 test('ChatGPT prompt generation, preview and confirmed import populate only plans',async()=>{const start=nextWeek();await click({action:'nav',view:'coach'});await click({action:'coach-mode',mode:'plan'});element('#coach-week').value=start;await click({action:'generate'});assert.match(element('#app').innerHTML,/schemaVersion/);const meal={name:'Yogurt & banana',portion:'170g yogurt + banana',time:'15:00',calories:210,protein:18,carbs:32,fat:1};await click({action:'coach-mode',mode:'import'});element('#import-week').value=start;element('#plan-input').value=JSON.stringify({schemaVersion:1,weekStart:start,days:range(start,'week').map(date=>({date,meals:[meal]}))});await click({action:'preview-import'});assert.match(element('#import-preview').innerHTML,/Seven days validated/);await click({action:'commit-import'});element('#confirm-action').onclick();assert.equal(Object.keys(storage().plans).length,7);assert.equal(storage().days[dateKey()].meals.length,0);assert.match(element('#app').innerHTML,/Yogurt &amp; banana/);});
 test('log eaten requires confirmation and then populates the correct date',async()=>{const start=nextWeek();await click({action:'eat-plan',date:start,index:'0'});assert.equal(storage().days[start],undefined);element('#confirm-action').onclick();assert.equal(storage().days[start].meals.length,1);assert.equal(storage().days[start].meals[0].calories,210);assert.equal(storage().days[start].complete,false);});
 test('invalid ChatGPT JSON returns a recoverable visible error',async()=>{await click({action:'nav',view:'coach',panel:'import'});element('#import-week').value=nextWeek();element('#plan-input').value='bad JSON';await click({action:'preview-import'});assert.match(element('#import-preview').innerHTML,/Could not read JSON/);assert.equal(Object.keys(storage().plans).length,7);});
@@ -56,9 +56,26 @@ test('timeline records and gaps retain swipe Edit while nutrition checkpoints ha
 test('timeline drink and surrounding meal editors save into the timeline without changing other entries',async()=>{const date='2026-10-19';await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'training'});let before=structuredClone(storage());await click({action:'edit-drink',id:'swipe-drink'});assert.match(element('#modal').innerHTML,/Edit drink/);const drinkForm=element('#edit-drink-form');drinkForm.values={type:'Water',time:'10:30',ounces:'24',calories:'0',protein:'0',carbs:'0',fat:'0'};drinkForm.onsubmit({preventDefault(){},target:drinkForm});assert.equal(storage().days[date].drinks.find(x=>x.id==='swipe-drink').ounces,24);assert.deepEqual(storage().days[date].meals,before.days[date].meals);assert.match(element('#app').innerHTML,/10:30 AM/);await click({action:'edit-timeline-gap',date,from:'08:00',to:'14:00'});const buttons=element('#modal').innerHTML;assert.match(buttons,/Timeline breakfast/);assert.match(buttons,/Timeline lunch/);element('#modal').querySelectorAll('[data-gap-meal]').find(x=>x.dataset.gapMeal==='swipe-meal-early').onclick();assert.match(element('#modal').innerHTML,/Edit eaten meal/);before=structuredClone(storage());element('#meal-form').onsubmit({preventDefault(){},target:{values:{name:'Timeline breakfast',portion:'1 serving',time:'09:15',date,calories:'320',protein:'22',carbs:'42',fat:'8',servings:'1',copyWeek:date,copyDestination:'plan'}}});assert.match(element('#app').innerHTML,/9:15 AM/);assert.equal(storage().days[date].meals.find(x=>x.name==='Timeline breakfast').calories,320);assert.deepEqual(storage().days[date].drinks,before.days[date].drinks);assert.deepEqual(storage().weeklyTraining,before.weeklyTraining);});
 test('completed timeline checkpoints remain read-only and preserve saved historical goals',async()=>{const date='2026-10-20',seed=storage();seed.days[date]={meals:[],complete:true,goalSnapshot:{type:'bjj',label:'BJJ Training Day',calories:2200,protein:165,carbs:235,fat:67,capturedAt:'2026-10-20T23:00:00Z',source:'Completed food log'}};memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?readonly-saved-goals');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'training'});const before=structuredClone(storage());assert.match(element('#app').innerHTML,/saved historical/);assert.doesNotMatch(element('#app').innerHTML,/edit-timeline-goals/);await import('../app.js?readonly-saved-goals-reopen');assert.deepEqual(storage().days[date].goalSnapshot,before.days[date].goalSnapshot);assert.deepEqual(storage().nutritionGoals,before.nutritionGoals);});
 
-test('Walking minutes saves independently in check-in and survives reopening',async()=>{const date='2026-10-26';await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'checkin'});assert.match(element('#app').innerHTML,/Walking minutes<input name="walkMinutes"/);const before=structuredClone(storage());const submit=value=>element('#checkin').onsubmit({preventDefault(){},target:{values:{walkMinutes:value}}});submit('35');assert.equal(storage().days[date].walkMinutes,35);assert.deepEqual(storage().weeklyTraining,before.weeklyTraining);assert.deepEqual(storage().days[date].meals,before.days[date]?.meals||[]);const saved=structuredClone(storage());for(const value of ['-1','2.5','1441']){submit(value);assert.deepEqual(storage(),saved);}await import('../app.js?walking-reopen');assert.equal(storage().days[date].walkMinutes,35);await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'checkin'});submit('0');assert.equal(storage().days[date].walkMinutes,0);submit('');assert.equal(storage().days[date].walkMinutes,null);});
-
-test('check-in workout times save beside minutes and actual timeline events match the logged duration',async()=>{const date='2026-10-26',seed=storage();seed.weeklyTraining=[{id:'checkin-timeline-bjj',day:1,title:'Scheduled BJJ',type:'BJJ',time:'18:00',duration:90,intensity:'Moderate'},{id:'checkin-timeline-lift',day:1,title:'Scheduled lifting',type:'Weights',time:'12:00',duration:45,intensity:'Moderate'},{id:'checkin-timeline-walk',day:1,title:'Scheduled walk',type:'Walk',time:'08:00',duration:20,intensity:'Light'}];delete seed.days[date];memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?checkin-training-times');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'checkin'});for(const field of ['bjjTimeOfDay','liftTimeOfDay','walkTimeOfDay'])assert.match(element('#app').innerHTML,new RegExp(`name="${field}" type="time"`));let html=element('#app').innerHTML;for(const name of ['bjjMinutes','bjjTimeOfDay','liftMinutes','liftTimeOfDay','walkMinutes','walkTimeOfDay'])assert.match(html,new RegExp(`name="${name}"[^>]*value=""`));const form=element('#checkin');form.values={bjjMinutes:'60',bjjTimeOfDay:'18:15',liftMinutes:'30',liftTimeOfDay:'12:30',walkMinutes:'20',walkTimeOfDay:'08:20'};form.onsubmit({preventDefault(){},target:form});let saved=storage();assert.equal(saved.days[date].bjjMinutes,60);assert.equal(saved.days[date].bjjTimeOfDay,'18:15');assert.equal(saved.days[date].liftTimeOfDay,'12:30');assert.equal(saved.days[date].walkTimeOfDay,'08:20');await click({action:'nav',view:'today',panel:'training'});html=element('#app').innerHTML;assert.match(html,/8:20 AM/);assert.match(html,/12:30 PM/);assert.match(html,/6:15 PM/);assert.match(html,/Logged training/);assert.match(html,/60 min logged/);assert.doesNotMatch(html,/90 min/);assert.match(html,/data-action="edit-checkin-training"/);await click({action:'edit-checkin-training',date});assert.match(element('#app').innerHTML,/name="bjjTimeOfDay"/);const old=structuredClone(storage());form.values={bjjMinutes:'60',bjjTimeOfDay:'25:00'};form.onsubmit({preventDefault(){},target:form});assert.deepEqual(storage(),old);});
+test('legacy exercise logs open in the Exercise editor from the timeline, not Check-in',async()=>{
+ const date='2026-10-26',seed=storage();
+ seed.weeklyTraining=[{id:'legacy-bjj-plan',day:1,title:'Scheduled BJJ',type:'BJJ',time:'18:00',duration:90,intensity:'Moderate'}];
+ seed.days[date]={meals:[],complete:true,bjjMinutes:60,bjjTimeOfDay:'18:15',walkMinutes:0,walkTimeOfDay:'08:20',notes:'Older entry'};
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?exercise-legacy');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'checkin'});
+ assert.doesNotMatch(element('#app').innerHTML,/name="(?:bjjMinutes|walkMinutes|bjjTimeOfDay|notes)"/);
+ await click({action:'nav',view:'today',panel:'training'});let html=element('#app').innerHTML;
+ assert.match(html,/6:15 PM/);assert.match(html,/60 min logged/);assert.doesNotMatch(html,/90 min/);assert.match(html,/data-action="edit-exercise" data-date="2026-10-26" data-id="actual-BJJ"/);
+ await click({action:'edit-exercise',date,id:'actual-BJJ'});assert.match(element('#modal').innerHTML,/Edit logged exercise/);assert.match(element('#modal').innerHTML,/name="duration" value="60"/);
+ const before=structuredClone(storage()),form=element('#exercise-entry'),submit=(time,duration)=>{form.values={time,duration};form.onsubmit({preventDefault(){}});};
+ submit('25:00','61');assert.deepEqual(storage(),before);submit('18:20','61');
+ const saved=storage();assert.equal(saved.days[date].bjjMinutes,61);assert.equal(saved.days[date].bjjTimeOfDay,'18:20');assert.equal(saved.days[date].walkMinutes,0);assert.deepEqual(saved.days[date].meals,before.days[date].meals);assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);
+ assert.match(element('#app').innerHTML,/61 min logged/);
+ await click({action:'open-overview-exercise'});assert.match(element('#app').innerHTML,/Edit BJJ training, 61 min/);assert.match(element('#app').innerHTML,/Edit Walking, 0 min/);
+ await click({action:'edit-exercise',date,id:'actual-Walk'});submit('08:30','2.5');assert.equal(storage().days[date].walkMinutes,0);
+ await click({action:'edit-exercise',date,id:'actual-Walk'});element('#remove-exercise').onclick();element('#confirm-action').onclick();
+ assert.equal(storage().days[date].walkTimeOfDay,null);assert.equal(storage().days[date].walkMinutes,null);
+ assert.equal(storage().days[date].notes,'Older entry');assert.equal(storage().days[date].complete,true);
+});
 
 test('Today quick logging preserves the plan and uses actual-log links, with duplicate protection and undo',async()=>{
  const date=dateKey(),seed=storage(),meal={id:'quick-plan-seed',name:'Pre-BJJ A: Trial snack',time:'17:00',portion:'1 banana',calories:200,protein:2,carbs:48,fat:0};
@@ -78,14 +95,14 @@ test('Today quick logging preserves the plan and uses actual-log links, with dup
  await click({action:'quick-water',oz:'12'});assert.equal(storage().days[date].drinks[0].ounces,12);
 });
 
-test('Today BJJ shortcut saves only actual BJJ and includes optional trial scores in existing notes',async()=>{
+test('Exercise BJJ notes preserves trial scores without creating or changing workouts',async()=>{
  const date=dateKey(),day=new Date().getDay(),seed=storage();
  seed.weeklyTraining.push({id:'bjj-quick',day,title:'BJJ session',type:'BJJ',time:'18:00',duration:60,intensity:'Moderate'});
  seed.days[date].notes='Existing context';seed.days[date].sleep=7.5;
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?quick-bjj-regression');
- const before=storage();await click({action:'quick-bjj'});assert.match(element('#modal').innerHTML,/Snack trial · A/);
- const f=element('#quick-bjj-form');f.values={minutes:'60',start:'18:05',notes:'Existing context',pre:'5',late:'8',comfort:'0'};f.onsubmit({preventDefault(){}});
- const saved=storage();assert.equal(saved.days[date].bjjMinutes,60);assert.equal(saved.days[date].bjjTimeOfDay,'18:05');assert.match(saved.days[date].notes,/Existing context\nSnack trial \(A\).*8\/10.*0\/3/);assert.equal(saved.days[date].sleep,7.5);assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);
+ await click({action:'quick-exercise',scheduleId:'bjj-quick'});const before=storage();await click({action:'quick-bjj'});assert.match(element('#modal').innerHTML,/Snack trial · A/);
+ const f=element('#quick-bjj-form');f.values={notes:'Existing context',pre:'5',late:'8',comfort:'0'};f.onsubmit({preventDefault(){}});
+ const saved=storage();assert.equal(saved.days[date].bjjMinutes,null);assert.deepEqual(saved.days[date].exercises,before.days[date].exercises);assert.match(saved.days[date].notes,/Existing context\nSnack trial \(A\).*8\/10.*0\/3/);assert.equal(saved.days[date].sleep,7.5);assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);
  await click({action:'nav',view:'plan'});assert.match(element('#app').innerHTML,/Import weekly plan/);await click({action:'weekly-import'});assert.match(element('#app').innerHTML,/Import a meal plan/);
 });
 
@@ -105,11 +122,11 @@ test('Today shows all check-in categories, preserves a recorded zero and never t
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?checkin-highlights');
  await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});let html=element('#app').innerHTML;
  assert.match(html,/Logged check-in/);assert.match(html,/data-checkin-stat="energyMorning"[^>]*><dt>Morning energy<\/dt><dd><button[^>]*aria-label="Edit Morning energy: 7\/10"[^>]*><strong>7<span>\/10<\/span>/);assert.match(html,/data-checkin-stat="steps"[^>]*><dt>Steps<\/dt><dd><button[^>]*aria-label="Edit Steps: 0"[^>]*><strong>0<\/strong>/);
- const keys=['energyMorning','energyAfternoon','energyEvening','steps','sleep','sleepQuality','soreness','stress','recovery','weight','waist','bjjMinutes','liftMinutes','walkMinutes'];
+ const keys=['energyMorning','energyAfternoon','energyEvening','steps','sleep','sleepQuality','soreness','stress','recovery','weight','waist'];
  for(const key of keys)assert.match(html,new RegExp('data-checkin-stat="'+key+'"'));
- for(const key of ['bjjMinutes','energyAfternoon','waist','stress'])assert.match(html,new RegExp('class="checkin-highlight checkin-unlogged[^"]*" data-checkin-stat="'+key+'"'));
- assert.doesNotMatch(html,/data-checkin-stat="(?:bjj|lift|walk)TimeOfDay"/);
- assert.match(html,/Edit Manual Lifting start time and duration[\s\S]*?12:15 PM[\s\S]*?45 min/);
+ for(const key of ['energyAfternoon','waist','stress'])assert.match(html,new RegExp('class="checkin-highlight checkin-unlogged[^"]*" data-checkin-stat="'+key+'"'));
+ assert.doesNotMatch(html,/data-checkin-stat="(?:bjj|lift|walk)(?:TimeOfDay|Minutes)"/);
+ assert.match(html,/Edit Weights training, 45 min[\s\S]*?12:15 PM · 45 min · Logged/);
  assert.match(html,/data-action="edit-overview-checkin" data-key="steps"/);
  await click({action:'open-day',date:'2026-07-03'});await click({action:'nav',view:'today',panel:'overview'});html=element('#app').innerHTML;
  assert.equal((html.match(/class="checkin-highlight checkin-unlogged[^"]*"/g)||[]).length,keys.length);
@@ -146,27 +163,6 @@ test('recorded check-in tiles reopen prefilled, validate changes and keep other 
  assert.equal(storage().days[date].sleep,8.1);assert.equal(storage().days[date].steps,0);
 });
 
-test('paired overview training edits the saved start and duration together without touching other logs',async()=>{
- const date='2026-10-22',seed=storage();
- memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?paired-training-checkin');
- await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
- const tile=element('[data-checkin-stat="liftMinutes"]'),form=element('#overview-checkin-entry');
- const submit=(start,value)=>{form.values={start,value};form.onsubmit({preventDefault(){}});};
- const before=structuredClone(storage());await click({action:'edit-overview-checkin',key:'liftMinutes'});
- assert.match(tile.innerHTML,/name="start" type="time" value="12:15"/);
- assert.match(tile.innerHTML,/name="value"[^>]*value="45"/);
- submit('25:00','50');assert.deepEqual(storage(),before);
- submit('12:45','501');assert.deepEqual(storage(),before);
- await click({action:'cancel-overview-checkin'});assert.deepEqual(storage(),before);
- await click({action:'edit-overview-checkin',key:'liftMinutes'});submit('12:45','50');
- let saved=storage();assert.deepEqual(saved.days[date],{...before.days[date],liftTimeOfDay:'12:45',liftMinutes:50});
- assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);assert.deepEqual(saved.plans,before.plans);
- await click({action:'edit-overview-checkin',key:'walkMinutes'});submit('16:05','0');
- saved=storage();assert.equal(saved.days[date].walkTimeOfDay,'16:05');assert.equal(saved.days[date].walkMinutes,0);
- await click({action:'edit-overview-checkin',key:'walkMinutes'});submit('','0');assert.equal(storage().days[date].walkTimeOfDay,null);
- assert.equal(storage().days[date].walkMinutes,0);
-});
-
 test('Today shows all logged macros, not planned food, and updates on Eat and Undo',async()=>{
  const date=dateKey(),seed=storage();
  const food=(id,calories,protein,carbs,fat)=>({id,name:id,portion:'1 serving',time:'12:00',calories,protein,carbs,fat});
@@ -185,13 +181,15 @@ test('exercise taps log once, preserve completed food logs and weekly plans, and
  seed.days[date]={meals:[],complete:true};seed.weeklyTraining=schedule;
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?overview-exercise');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
  const html=()=>element('#app').innerHTML,entries=()=>storage().days[date].exercises||[];
- assert.match(html(),/Log No-gi, 90 min/);assert.match(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
+ assert.match(html(),/Log No-gi, 90 min/);assert.doesNotMatch(html(),/Log Walk, 20 min/);assert.match(html(),/Log Upper body, Duration not set/);
  await click({action:'quick-exercise',scheduleId:'bjj-a'});await click({action:'quick-exercise',scheduleId:'bjj-a'});assert.equal(entries().length,1);
  assert.match(html(),/Edit No-gi, 90 min/);assert.match(html(),/Log Drills, 30 min/);assert.equal(storage().days[date].complete,true);
  await click({action:'quick-bjj'});assert.match(element('#modal').innerHTML,/BJJ notes/);assert.doesNotMatch(element('#modal').innerHTML,/name="minutes"/);
  const bjjNotes=element('#quick-bjj-form');bjjNotes.values={notes:'Notes work'};bjjNotes.onsubmit({preventDefault(){}});assert.equal(storage().days[date].bjjMinutes,null);
- await click({action:'quick-exercise',preset:'Walk'});assert.equal(entries().find(x=>x.preset==='Walk').duration,20);
- element('#toast').lastChild.onclick();assert.equal(entries().length,1);assert.match(html(),/Log Walk, 20 min/);assert.equal(storage().days[date].complete,true);
+ await click({action:'edit-timeline-workout',date,id:'bjj-b'});element('#timeline-workout-form').onsubmit({preventDefault(){},target:{values:{time:'19:15',duration:'35'}}});
+ assert.match(html(),/7:15 PM · 35 min · Planned/);
+ await click({action:'quick-exercise',scheduleId:'bjj-b'});assert.equal(entries().find(x=>x.scheduleId==='bjj-b').time,'19:15');
+ element('#toast').lastChild.onclick();assert.equal(entries().length,1);assert.equal(storage().days[date].complete,true);
  await click({action:'quick-exercise',scheduleId:'lift-a'});assert.match(element('#modal').innerHTML,/Log exercise/);assert.equal(entries().length,1);element('#modal').close();
  await click({action:'add-exercise'});const form=element('#exercise-entry');form.values={title:'Bike & hills',type:'Other',duration:'35',time:'16:00'};
  form.onsubmit({preventDefault(){}});assert.equal(entries().length,2);assert.match(html(),/Edit Bike &amp; hills, 35 min/);
