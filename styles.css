@@ -181,3 +181,9 @@
 .checkin-inline-actions{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;margin-top:4px}
 .checkin-inline-actions .btn,.checkin-inline-actions .text-button{padding:4px 6px;min-height:44px;font-size:12px}
 #overview-checkin-error{margin:0;font-size:12px;font-weight:650}
+
+.checkin-training-tile{position:relative}
+.checkin-training-tile:has(.checkin-inline-trigger):hover{border-color:var(--green)}
+.checkin-training-trigger{display:grid;gap:3px;color:var(--ink);font-weight:600}
+.checkin-training-trigger b{font-size:14px}
+.checkin-inline-label{display:block;margin:7px 0 3px;font-size:12px;font-weight:650}
