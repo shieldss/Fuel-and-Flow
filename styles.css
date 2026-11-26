@@ -104,7 +104,6 @@
 
 .today-logged-badge{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .today-logged-badge svg{width:14px;height:14px;stroke-width:2.5}
-.today-destination-grid .destination small{font-size:clamp(14px,2.4vw,16px);font-weight:650;line-height:1.35;color:var(--ink);font-variant-numeric:tabular-nums}
 
 .today-checkin-highlights{margin:12px 0;padding:16px 18px}
 .today-checkin-highlights .card-head{margin-bottom:10px}
@@ -192,3 +191,9 @@
 .exercise-planned .exercise-tile{width:100%}
 .exercise-planned .text-button{justify-self:start;padding-inline:8px}
 #overview-exercise{scroll-margin-top:90px}
+
+.checkin-weight-tile{grid-column:span 2}
+.checkin-weight-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.checkin-weight-day,.checkin-weight-average{min-width:0;display:grid;justify-items:start;gap:4px}
+.checkin-weight-average{border-inline-start:1px solid var(--line);padding-inline-start:12px}
+.checkin-weight-average strong{font-size:19px;font-weight:750}
