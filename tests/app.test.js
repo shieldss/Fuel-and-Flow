@@ -105,26 +105,49 @@ test('Today shows all check-in categories, preserves a recorded zero and never t
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?checkin-highlights');
  await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});let html=element('#app').innerHTML;
  assert.match(html,/Logged check-in/);assert.match(html,/data-checkin-stat="energyMorning"[^>]*><dt>Morning energy<\/dt><dd>7<span>\/10<\/span>/);assert.match(html,/data-checkin-stat="steps"[^>]*><dt>Steps<\/dt><dd>0<\/dd>/);
- const keys=['energyMorning','energyAfternoon','energyEvening','steps','sleep','sleepQuality','soreness','stress','recovery','weight','waist','bjjMinutes','bjjTimeOfDay','liftMinutes','liftTimeOfDay','walkMinutes','walkTimeOfDay'];
+ const keys=['energyMorning','energyAfternoon','energyEvening','steps','sleep','sleepQuality','soreness','stress','recovery','weight','waist','bjjMinutes','liftMinutes','walkMinutes'];
  for(const key of keys)assert.match(html,new RegExp('data-checkin-stat="'+key+'"'));
- for(const key of ['bjjMinutes','bjjTimeOfDay','energyAfternoon','waist','stress'])assert.match(html,new RegExp('class="checkin-highlight checkin-unlogged" data-checkin-stat="'+key+'"'));
+ for(const key of ['bjjMinutes','energyAfternoon','waist','stress'])assert.match(html,new RegExp('class="checkin-highlight checkin-unlogged[^"]*" data-checkin-stat="'+key+'"'));
+ assert.doesNotMatch(html,/data-checkin-stat="(?:bjj|lift|walk)TimeOfDay"/);
+ assert.match(html,/Edit Manual Lifting start time and duration[\s\S]*?12:15 PM[\s\S]*?45 min/);
  assert.doesNotMatch(html,/data-action="edit-overview-checkin" data-key="steps"/);
  await click({action:'open-day',date:'2026-07-03'});await click({action:'nav',view:'today',panel:'overview'});html=element('#app').innerHTML;
- assert.equal((html.match(/class="checkin-highlight checkin-unlogged"/g)||[]).length,keys.length);
+ assert.equal((html.match(/class="checkin-highlight checkin-unlogged[^"]*"/g)||[]).length,keys.length);
 });
 
-test('inline check-in validates, saves only the selected field and date, and supports cancel, select, time and zero',async()=>{
+test('inline check-in validates, saves only the selected field and date, and supports cancel, select and zero',async()=>{
  const date='2026-07-03',before=structuredClone(storage());await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
  const form=element('#overview-checkin-entry'),submit=value=>{form.values={value};form.onsubmit({preventDefault(){}});};
  await click({action:'edit-overview-checkin',key:'energyAfternoon'});submit('11');assert.deepEqual(storage(),before);assert.match(element('#overview-checkin-error').textContent,/1 to 10/);
  await click({action:'cancel-overview-checkin'});assert.deepEqual(storage(),before);
- for(const [key,raw,value] of [['energyAfternoon','8',8],['sleep','7.5',7.5],['steps','0',0],['recovery','Good','Good'],['walkTimeOfDay','12:15','12:15']]){
+ for(const [key,raw,value] of [['energyAfternoon','8',8],['sleep','7.5',7.5],['steps','0',0],['recovery','Good','Good']]){
   await click({action:'edit-overview-checkin',key});submit(raw);assert.equal(storage().days[date][key],value);
  }
  const saved=storage();assert.deepEqual(saved.plans,before.plans);assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);assert.deepEqual(saved.days[date].meals,[]);assert.equal(saved.days[date].energyMorning,null);
  assert.match(element('#app').innerHTML,/data-checkin-stat="steps"[^>]*><dt>Steps<\/dt><dd>0<\/dd>/);
  await import('../app.js?inline-checkin-reopen');await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
  assert.match(element('#app').innerHTML,/data-checkin-stat="recovery"[^>]*><dt>Recovery<\/dt><dd>Good<\/dd>/);
+});
+
+test('paired overview training edits the saved start and duration together without touching other logs',async()=>{
+ const date='2026-10-22',seed=storage();
+ memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?paired-training-checkin');
+ await click({action:'open-day',date});await click({action:'nav',view:'today',panel:'overview'});
+ const tile=element('[data-checkin-stat="liftMinutes"]'),form=element('#overview-checkin-entry');
+ const submit=(start,value)=>{form.values={start,value};form.onsubmit({preventDefault(){}});};
+ const before=structuredClone(storage());await click({action:'edit-overview-checkin',key:'liftMinutes'});
+ assert.match(tile.innerHTML,/name="start" type="time" value="12:15"/);
+ assert.match(tile.innerHTML,/name="value"[^>]*value="45"/);
+ submit('25:00','50');assert.deepEqual(storage(),before);
+ submit('12:45','501');assert.deepEqual(storage(),before);
+ await click({action:'cancel-overview-checkin'});assert.deepEqual(storage(),before);
+ await click({action:'edit-overview-checkin',key:'liftMinutes'});submit('12:45','50');
+ let saved=storage();assert.deepEqual(saved.days[date],{...before.days[date],liftTimeOfDay:'12:45',liftMinutes:50});
+ assert.deepEqual(saved.weeklyTraining,before.weeklyTraining);assert.deepEqual(saved.plans,before.plans);
+ await click({action:'edit-overview-checkin',key:'walkMinutes'});submit('16:05','0');
+ saved=storage();assert.equal(saved.days[date].walkTimeOfDay,'16:05');assert.equal(saved.days[date].walkMinutes,0);
+ await click({action:'edit-overview-checkin',key:'walkMinutes'});submit('','0');assert.equal(storage().days[date].walkTimeOfDay,null);
+ assert.equal(storage().days[date].walkMinutes,0);
 });
 
 test('Today shows all logged macros, not planned food, and updates on Eat and Undo',async()=>{
