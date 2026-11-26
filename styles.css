@@ -65,3 +65,32 @@
 
 .timeline-swipe{border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-width:0}.timeline-swipe .fuel-event-card.meal-front{padding:14px 14px 14px 38px;border:0;border-radius:0;box-shadow:none;display:block}.timeline-swipe .meal-swipe-actions{inset:0 auto 0 0}.timeline-swipe .swipe-action{border-radius:0!important}.timeline-swipe .swipe-hint{width:30px;left:2px}.fuel-event.gap .timeline-swipe{border:1px dashed var(--fuel-amber-line);border-left:4px solid var(--fuel-amber-line)}.fuel-event.gap .timeline-swipe .fuel-event-card{border:0}.gap-edit-meal{width:100%;justify-content:flex-start;margin:8px 0;text-align:left;white-space:normal}.timeline-swipe .meal-front:focus-visible{outline-offset:-3px}@media(max-width:700px){.timeline-swipe{border-radius:11px}.timeline-swipe .fuel-event-card.meal-front{padding:12px 12px 12px 34px}.timeline-swipe .swipe-hint{left:0;width:28px}}
 
+
+/* Today: common actions first; the detailed views remain available. */
+.quick-today-heading{margin-bottom:12px}
+.quick-today-heading h2{font-size:25px;margin-bottom:2px}
+.quick-plan,.quick-water,.quick-today-details{margin:12px 0;padding:16px 18px}
+.quick-plan .card-head,.quick-water .card-head{margin-bottom:8px}
+.quick-plan-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.quick-plan-text{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
+.quick-plan-text strong{font-size:15px}
+.quick-plan-text small,.quick-kicker{font-size:12px;color:var(--muted)}
+.quick-kicker{font-weight:750;color:var(--green)}
+.quick-row-actions{display:grid;justify-items:center;gap:0;flex-shrink:0}
+.quick-row-actions .btn,.quick-water .btn,.quick-today-actions .btn,.quick-entry-options .btn{min-height:44px}
+.quick-row-actions .text-button,.quick-water .text-button,.quick-plan .card-head .text-button{min-height:44px}
+.quick-more-meals summary,.quick-today-details summary,.quick-food-choices summary{padding:9px 0;font-weight:700;cursor:pointer}
+.quick-today-actions,.quick-entry-options{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.quick-food-choices section+section{margin-top:15px}
+.quick-food-choices h3{margin:12px 0 4px}
+.quick-pin-list{display:grid;gap:6px;max-height:42vh;overflow:auto}
+.quick-pin-list .check{min-height:44px}
+.plan-import-shortcut{margin:0 0 12px}
+.quick-today-details[open] summary{margin-bottom:14px}
+.toast-undo{margin-left:10px;padding:9px 12px;border-radius:8px;background:var(--surface);color:var(--ink);font-weight:750;min-height:44px}
+@media (max-width:720px){
+ .quick-plan,.quick-water,.quick-today-details{padding:12px}
+ .quick-plan-row{gap:8px}
+ .quick-row-actions .btn{padding-inline:9px;white-space:normal}
+ #toast{bottom:calc(76px + env(safe-area-inset-bottom));width:max-content;max-width:calc(100vw - 24px)}
+}
