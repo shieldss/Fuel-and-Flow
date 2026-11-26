@@ -364,3 +364,7 @@ Appearance now offers Light and Dark for Glass, iOS, and Material You. iOS and M
 ### v2.21.0 — Custom theme colors
 
 In Appearance, choose a base color to tint backgrounds or an accent for interactive controls. A custom base offers four suggestions inspired by Material You's tonal and contrasting roles and iOS-style control tints. Use a suggestion or pick any accent. The two overrides are independent and persist in backups; uncheck either to return to that part of the theme's default. Status colors and logged data do not change.
+
+### v2.22.0 — App font picker
+
+Appearance offers Atkinson Hyperlegible, Manrope, Source Serif 4 and System Sans. Preview the type, then save. **Default** restores the active theme’s original font without changing other preferences. The optional fonts are bundled for offline use; their licenses are in `fonts/`.
