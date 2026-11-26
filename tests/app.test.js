@@ -381,3 +381,10 @@ test('Overview groups Add food and Open plan in Planned meals without the duplic
  assert.match(element('#app').innerHTML,/data-view="plan" data-panel="meals"/);
  assert.match(element('#app').innerHTML,/data-date="2026-11-22" aria-current="date"/);
 });
+
+test('appearance uses named groups with headings inside the font and color cards',async()=>{
+ await click({action:'nav',view:'settings',panel:'app'});
+ const html=element('#app').innerHTML;
+ assert.match(html,/<div class="appearance-fonts" role="group" aria-labelledby="appearance-fonts-title"><h3 id="appearance-fonts-title" class="appearance-group-title">App font<\/h3>/);
+ assert.match(html,/<div class="appearance-colors" role="group" aria-labelledby="appearance-colors-title"><h3 id="appearance-colors-title" class="appearance-group-title">Theme colors<\/h3>/);
+});

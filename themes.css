@@ -186,7 +186,7 @@ body[data-theme="material-you"] :is(.week-strip button,.filter-row button).activ
 .appearance-accent p {margin:0}
 body[data-custom-accent] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.exercise-done),.plan-fuel-time.active,.skip-link) {color:var(--theme-on-primary)}
 .appearance-colors {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-control-radius,12px)}
-.appearance-colors legend {padding-inline:5px;font-weight:750}
+.appearance-group-title {margin:0 0 10px;font-size:16px;font-weight:750;line-height:1.3}
 .appearance-colors>p {margin:0}
 .appearance-accent .accent-picker-label:not(:first-child) {margin-top:6px}
 #accent-suggestions {display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -261,7 +261,6 @@ body[data-custom-accent]:not([data-theme="material-you"]) .daybtn.active {color:
 @font-face {font-family:'Fuel Manrope';src:url('./fonts/manrope.woff2') format('woff2');font-weight:400 800;font-display:swap}
 @font-face {font-family:'Fuel Source Serif';src:url('./fonts/sourceserif4.woff2') format('woff2');font-weight:400 800;font-display:swap}
 .appearance-fonts {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-field-radius)}
-.appearance-fonts legend {padding-inline:5px;font-weight:750}
 .font-picker-controls {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center}
 .font-picker-controls label {grid-column:1/-1}
 .font-picker-controls :is(select,button) {min-height:44px}
