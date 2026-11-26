@@ -67,7 +67,7 @@ test('Today quick logging preserves the plan and uses actual-log links, with dup
  assert.match(element('#app').innerHTML,/data-action="quick-eat"/);
  await click({action:'quick-eat',date,id:meal.id});assert.equal(storage().days[date].meals[0].planMealId,meal.id);
  await click({action:'quick-eat',date,id:meal.id});assert.equal(storage().days[date].meals.length,1);
- assert.match(element('#app').innerHTML,/Extra serving/);assert.equal(storage().plans[date].meals[0].calories,200);
+ assert.match(element('#app').innerHTML,/Extra serving/);assert.match(element('#app').innerHTML,/today-logged-badge[^>]*><svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg> Logged/);assert.match(element('#app').innerHTML,/today-destination-grid/);assert.equal(storage().plans[date].meals[0].calories,200);
  element('#toast').lastChild.onclick();assert.equal(storage().days[date].meals.length,0);
  await click({action:'quick-portion',date,id:meal.id});const form=element('#quick-portion-form');form.values={multiplier:'0.5'};form.onsubmit({preventDefault(){}});
  assert.equal(storage().days[date].meals[0].calories,100);
