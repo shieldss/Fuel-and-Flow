@@ -1,4 +1,4 @@
-import {validateTraining,validateExercise,validateWorkoutTiming,workoutsForDate,freshDay,validDate,CHECKIN_TRAINING} from './core.js?v=2.17.0';
+import {validateTraining,validateExercise,validateWorkoutTiming,workoutsForDate,freshDay,validDate,CHECKIN_TRAINING} from './core.js?v=2.17.2';
 export function saveWorkout(state,workout,copyDays=[],originalId=null,id=()=>crypto.randomUUID()){
  if(!Array.isArray(copyDays)||copyDays.some(day=>!Number.isInteger(day)||day<0||day>6))throw Error('Choose valid weekdays for workout copies.');
  if(originalId&&!state.weeklyTraining.some(s=>s.id===originalId))throw Error('This workout no longer exists. Reopen the schedule.');

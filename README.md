@@ -5,7 +5,7 @@ A colorful, mobile-first food, energy and recovery tracker built as a static PWA
 ## Start using it
 
 1. Open **Today** and choose a date. Add food manually or start from **Your usual foods**. Check portions against your labels; preset nutrition is estimated.
-2. Save energy, sleep, weight, waist and recovery in Check-in, or edit check-in tiles on Overview. Log fluids from Water. Use Exercise on Overview for planned workouts, extra sessions and training notes. Mark the food log complete only after all meals and caloric drinks are logged.
+2. Save energy, sleep, weight and recovery in Check-in, or edit check-in tiles on Overview. Log fluids from Water. Use Exercise on Overview for planned workouts, extra sessions and training notes. Mark the food log complete only after all meals and caloric drinks are logged.
 3. Open **Trends** for daily, weekly or monthly logs. Weight comparisons use the most recent seven calendar days against the prior seven, excluding missing measurements. Energy and sleep averages exclude missing entries. Calorie averages use complete food logs only.
 4. Use **ChatGPT → Review results** to generate a day/week/month prompt. Copy it into ChatGPT and coordinate practical adjustments.
 5. Use **ChatGPT → Plan next week**. Choose a Monday, generate and copy the prompt, then paste it into ChatGPT. The prompt requests a strict seven-day JSON response with estimated per-meal nutrition.
@@ -192,7 +192,7 @@ Old daily `water` values remain unchanged as a separately editable previous amou
 
 ### v2.1.1 — Complete ChatGPT handoff context
 
-Day/week/month reports and prompts now include explicit hydration totals/goals/progress, previous untimed amounts, drink nutrition, running food/drink/fluid timeline values at workouts, planned-versus-logged comparisons, and additional recovery/waist/fluid averages. Interpretation text distinguishes scheduled workouts, actual minutes, historical snapshots, partial logs, scaled servings and source estimates. Review and planning prompts include relevant food libraries/pantry; planning adds the current week’s grocery/checklist/existing-plan context. Photo prompts describe beverage volume and the separate manual drink workflow without inventing capture times or adding unsupported import fields.
+Day/week/month reports and prompts now include explicit hydration totals/goals/progress, previous untimed amounts, drink nutrition, running food/drink/fluid timeline values at workouts, planned-versus-logged comparisons, and additional recovery/fluid averages. Interpretation text distinguishes scheduled workouts, actual minutes, historical snapshots, partial logs, scaled servings and source estimates. Review and planning prompts include relevant food libraries/pantry; planning adds the current week’s grocery/checklist/existing-plan context. Photo prompts describe beverage volume and the separate manual drink workflow without inventing capture times or adding unsupported import fields.
 
 Copy refreshes Review/Plan prompts from current saved state and the selected period/date. Weekly and meal-import JSON schemas remain unchanged; hydration plans are suggestions in notes and never logged as consumed. Four added checks cover period metrics, supported schemas, unknown/historical context, and fresh copy after new drink data. No stored user data changes.
 
