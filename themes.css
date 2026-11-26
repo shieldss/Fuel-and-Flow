@@ -573,8 +573,7 @@ body[data-theme="cards"] .settings-app-grid .card #settings .appearance-colors {
  }
 }
 
-/* Keep the two Plan actions together when the heading wraps on a narrow screen. */
-.quick-plan .quick-plan-actions {gap:6px;flex-wrap:nowrap}
-.quick-plan-actions .btn {min-height:44px;white-space:nowrap}
-.quick-plan-actions .btn svg {width:16px;height:16px}
-@media(max-width:420px) {.quick-plan-actions .btn {padding-inline:9px}}
+/* Preserve the Overview card's Add food tap target. */
+.quick-plan-add {min-height:44px;white-space:nowrap}
+.quick-plan-add svg {width:16px;height:16px}
+@media(max-width:420px) {.quick-plan-add {padding-inline:9px}}
