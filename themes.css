@@ -188,7 +188,6 @@ body[data-custom-accent] :is(.btn:not(.secondary):not(.soft):not(.danger):not(.e
 .appearance-colors {min-width:0;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:var(--theme-control-radius,12px)}
 .appearance-colors legend {padding-inline:5px;font-weight:750}
 .appearance-colors>p {margin:0}
-.appearance-accent :is(#theme-base,#theme-accent) {width:74px;height:44px;padding:5px;border-radius:var(--theme-field-radius,10px);cursor:pointer}
 .appearance-accent .accent-picker-label:not(:first-child) {margin-top:6px}
 #accent-suggestions {display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .accent-suggestion {
@@ -414,3 +413,19 @@ body[data-app-font="system-sans"],.font-preview[data-app-font="system-sans"] {fo
  overflow-wrap:anywhere;font-size:clamp(10px,2.6vw,12px);line-height:1.15
 }
 .base-preset[aria-pressed="true"] {box-shadow:inset 0 0 0 2px var(--green)}
+
+/* App-owned color popup with curated swatches and optional native fine-tuning. */
+.color-chooser-trigger {min-height:44px;white-space:nowrap}
+.color-chooser-trigger .accent-swatch {flex:none}
+#theme-color-dialog h2 {margin-bottom:4px}
+#theme-color-dialog>p {margin:0 0 14px}
+#theme-color-dialog .base-presets {margin:8px 0 12px}
+.color-dialog-suggestions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.color-dialog-suggestions [aria-pressed="true"] {box-shadow:inset 0 0 0 2px var(--green)}
+.color-dialog-accents {grid-template-columns:repeat(3,minmax(0,1fr))}
+.color-dialog-custom {display:flex;align-items:end;gap:10px;margin:12px 0}
+.color-dialog-custom .accent-swatch {width:42px;height:42px;border-radius:var(--theme-field-radius);flex:none}
+.color-dialog-custom .field {max-width:180px;margin:0}
+#theme-color-hex {min-height:42px;font-size:16px}
+.color-dialog-fine {margin-bottom:8px;color:var(--muted)}
+#theme-color-native {min-height:42px;max-width:100px}

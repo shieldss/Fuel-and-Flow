@@ -365,5 +365,5 @@ test('Appearance includes platform-inspired base swatches alongside the custom p
  assert.match(html,/aria-label="iOS base colors"/);
  assert.match(html,/aria-label="Material You base colors"/);
  assert.equal((html.match(/data-base-preset="#[0-9a-f]{6}"/g)||[]).length,8);
- assert.match(html,/type="color" name="themeBase"/);
+ assert.match(html,/id="choose-theme-base"[^>]*aria-haspopup="dialog"/);
 });
