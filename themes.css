@@ -577,3 +577,13 @@ body[data-theme="cards"] .settings-app-grid .card #settings .appearance-colors {
 .quick-plan-add {min-height:44px;white-space:nowrap}
 .quick-plan-add svg {width:16px;height:16px}
 @media(max-width:420px) {.quick-plan-add {padding-inline:9px}}
+
+/* Keep today's water total and target prominent above the existing actions. */
+.quick-water-progress {
+ display:flex;flex-wrap:wrap;align-items:baseline;column-gap:.24em;
+ margin:0 0 12px;color:var(--ink);font-size:clamp(2rem,8vw,2.75rem);
+ line-height:1.05;font-variant-numeric:tabular-nums;overflow-wrap:anywhere
+}
+.quick-water-total {font-weight:800}
+.quick-water-target {font-size:.78em;font-weight:700}
+.quick-water-divider,.quick-water-unit {font-size:.48em;color:var(--muted)}
