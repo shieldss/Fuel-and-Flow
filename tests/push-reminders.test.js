@@ -39,7 +39,7 @@ test('Web Push request has valid ES256 VAPID authentication and no payload',asyn
  const decode=x=>JSON.parse(Buffer.from(x,'base64url').toString());
  assert.equal(decode(h).alg,'ES256');assert.equal(decode(p).aud,'https://fcm.googleapis.com');
  assert.ok(verify('sha256',Buffer.from(h+'.'+p),{key:publicKey,dsaEncoding:'ieee-p1363'},Buffer.from(s,'base64url')));
- assert.equal(req.headers.get('TTL'),'55');assert.equal(req.redirect,'error');assert.equal(await req.text(),'');
+ assert.equal(req.headers.get('TTL'),'55');assert.equal(req.redirect,'manual');assert.equal(await req.text(),'');
 });
 test('relay rejects missing authorization or different origins; forwards only allowed fields',async()=>{
  let received;

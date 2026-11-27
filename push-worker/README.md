@@ -31,3 +31,7 @@ npx wrangler deploy
 ```
 
 Use the same Cloudflare account and Worker name. Do not rerun the initial setup or rotate your pairing key. An ordinary deploy leaves the existing secrets and device pairing in place. Once the app and Worker are updated, tap **More → Notifications → Send test push**. The push provider accepting the test is not proof of delivery; look for the separately labeled test notification on the device. It does not change your next meal alert or diary.
+
+If the test says **Could not reach the push provider** just after upgrading from the first test-push version, redeploy the current Worker. The earlier code used a redirect mode unsupported by Cloudflare; the current Worker does not follow provider redirects.
+
+For development, run `workerd test push-worker/runtime-tests/config.capnp` from the repository root to check both kinds of push in the Workers runtime, using a fake push provider.
