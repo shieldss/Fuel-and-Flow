@@ -80,6 +80,7 @@ test('legacy exercise logs open in the Exercise editor from the timeline, not Ch
 test('Today quick logging preserves the plan and uses actual-log links, with duplicate protection and undo',async()=>{
  const date=dateKey(),seed=storage(),meal={id:'quick-plan-seed',name:'Pre-BJJ A: Trial snack',time:'17:00',portion:'1 banana',calories:200,protein:2,carbs:48,fat:0};
  seed.plans[date]={meals:[meal],notes:'keep'};seed.days[date]={meals:[],drinks:[],complete:false};
+ seed.profile.hydrationGoal=96;
  memory.set('fuel-and-flow-v1',JSON.stringify(seed));await import('../app.js?quick-regression');
  assert.match(element('#app').innerHTML,/data-action="quick-eat"/);
  await click({action:'quick-eat',date,id:meal.id});assert.equal(storage().days[date].meals[0].planMealId,meal.id);
