@@ -71,3 +71,59 @@ test('alarm sends at most once for the same gap and can be cancelled',async()=>{
   assert.equal(next,null);assert.equal(records.size,0);
  }finally{globalThis.fetch=actual;}
 });
+test('test push is encrypted, rate-limited and leaves the meal alarm unchanged',async()=>{
+ const records=new Map();
+ const storage={get:async k=>records.get(k),put:async(k,v)=>records.set(k,v)};
+ const object=new GapReminder({storage},env),actual=globalThis.fetch;
+ const config={...env,REMINDERS:{idFromName:name=>name,get:()=>({fetch:(url,opts)=>object.fetch(new Request(url,opts))})}};
+ const curve={name:'ECDH',namedCurve:'P-256'};
+ const client=await crypto.subtle.generateKey(curve,true,['deriveBits']);
+ const ua=Buffer.from(await crypto.subtle.exportKey('raw',client.publicKey));
+ const auth=Buffer.from(crypto.getRandomValues(new Uint8Array(16)));
+ const job={endpoint,due:Date.now()+120000,until:Date.now()+240000};
+ records.set('job',job);
+ let sent;
+ globalThis.fetch=async req=>{sent=req;return new Response(null,{status:201});};
+ const keys={p256dh:ua.toString('base64url'),auth:auth.toString('base64url')};
+ const call=(body,key=env.PAIRING_KEY)=>worker.fetch(new Request('https://push.example/v1/device/'+'b'.repeat(32),{method:'POST',
+  headers:{Origin:env.APP_ORIGIN,Authorization:'Bearer '+key},body:JSON.stringify(body)}),config);
+ try{
+  assert.equal((await call({endpoint,keys},'bad')).status,401);
+  assert.equal((await call({endpoint:'https://example.com/path',keys})).status,400);
+  assert.equal((await call({endpoint,keys:{...keys,auth:'bad'}})).status,400);
+  assert.equal((await call({endpoint,keys,foodName:'not transmitted'})).status,204);
+  assert.equal(sent.headers.get('Content-Encoding'),'aes128gcm');
+  assert.equal(sent.headers.get('Topic'),'fuel-and-flow-test');
+  const wire=Buffer.from(await sent.arrayBuffer()),salt=wire.subarray(0,16);
+  const as=wire.subarray(21,21+wire[20]);
+  const server=await crypto.subtle.importKey('raw',as,curve,false,[]);
+  const shared=await crypto.subtle.deriveBits({name:'ECDH',public:server},client.privateKey,256);
+  const {hkdfSync,createDecipheriv}=await import('node:crypto');
+  const ikm=hkdfSync('sha256',Buffer.from(shared),auth,Buffer.concat([Buffer.from('WebPush: info\0'),ua,as]),32);
+  const key=Buffer.from(hkdfSync('sha256',ikm,salt,Buffer.from('Content-Encoding: aes128gcm\0'),16));
+  const nonce=Buffer.from(hkdfSync('sha256',ikm,salt,Buffer.from('Content-Encoding: nonce\0'),12));
+  const decipher=createDecipheriv('aes-128-gcm',key,nonce);
+  decipher.setAuthTag(wire.subarray(-16));
+  const payload=Buffer.concat([decipher.update(wire.subarray(21+wire[20],-16)),decipher.final()]);
+  assert.equal(payload.at(-1),2);
+  assert.deepEqual(JSON.parse(payload.subarray(0,-1)),{kind:'test'});
+  assert.equal((await call({endpoint,keys})).status,429);
+  assert.deepEqual(records.get('job'),job);
+  assert.equal(records.has('sent'),false);
+ }finally{globalThis.fetch=actual;}
+});
+
+test('service worker labels test and regular push separately',async()=>{
+ const {runInNewContext}=await import('node:vm');
+ const {readFile}=await import('node:fs/promises');
+ const listeners={}, shown=[];
+ runInNewContext(await readFile(new URL('../sw.js',import.meta.url),'utf8'),{self:{
+  addEventListener:(type,listener)=>listeners[type]=listener,
+  registration:{showNotification:async(title,options)=>shown.push({title,...options})}
+ }});
+ listeners.push({data:{json:()=>({kind:'test'})},waitUntil:()=>{}});
+ listeners.push({waitUntil:()=>{}});
+ assert.equal(shown[0].title,'Fuel & Flow · Test push');
+ assert.equal(shown[0].tag,'fuel-and-flow-test-push');
+ assert.equal(shown[1].tag,'fuel-and-flow-meal-gap');
+});
