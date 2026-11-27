@@ -85,7 +85,7 @@ On Today and Meal plan, swipe a meal **right** to reveal a blue **Edit** button 
 
 ## v1.4.3: discoverable row actions
 
-Each meal includes an arrow and **Swipe right for options** indicator. Tap the indicator to expose the same buttons without swiping. Usual-food rows now expose Edit/Delete through the same tray; weekly workouts expose purple Copy, blue Edit and red Delete. Primary actions such as Log this food remain visible. Grocery checkboxes stay visible because they are the main shopping action. Swipes preserve vertical scrolling, support mouse/keyboard interaction, and destructive actions retain confirmations.
+Each interactive meal includes a small right-facing chevron for swipe options. Tap the indicator to expose the same buttons without swiping. Usual-food rows now expose Edit/Delete through the same tray; weekly workouts expose purple Copy, blue Edit and red Delete. Primary actions such as Log this food remain visible. Grocery checkboxes stay visible because they are the main shopping action. Swipes preserve vertical scrolling, support mouse/keyboard interaction, and destructive actions retain confirmations.
 
 ## v1.5: nutrition profiles selected by scheduled BJJ
 
