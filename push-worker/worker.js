@@ -45,7 +45,8 @@ export async function vapidRequest(endpoint,env,{now=Date.now(),ttl=90,testKeys=
  const key=await crypto.subtle.importKey('jwk',JSON.parse(env.VAPID_PRIVATE_JWK),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
  const jwt=jwtPart({typ:'JWT',alg:'ES256'})+'.'+jwtPart({aud:u.origin,exp:Math.floor(now/1000)+12*3600,sub:env.VAPID_SUBJECT});
  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc.encode(jwt));
- return new Request(u,{method:'POST',redirect:'error',headers:{
+ // Workers reject redirect:'error' at construction; manual prevents forwarding VAPID credentials.
+ return new Request(u,{method:'POST',redirect:'manual',headers:{
   Authorization:'vapid t='+jwt+'.'+b64(sig)+', k='+env.VAPID_PUBLIC_KEY,TTL:String(ttl),Urgency:'normal',Topic:testKeys?'fuel-and-flow-test':'fuel-and-flow-gap',
   ...(testKeys?{'Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'}:{})
  },body:testKeys?await encodePush(testKeys,{kind:'test'}):undefined});
@@ -104,8 +105,10 @@ export class GapReminder{
    const now=Date.now();
    if((await this.storage.get('testAfter')||0)>now)return response(429,{error:'Wait 30 seconds between test pushes.'});
    await this.storage.put('testAfter',now+30000);
+   let req;
+   try{req=await vapidRequest(endpoint,this.env,{now,ttl:90,testKeys:keys});}
+   catch{return response(502,{error:'The reminder server could not prepare an encrypted test push. Check the Worker and its signing configuration.'});}
    try{
-    const req=await vapidRequest(endpoint,this.env,{now,ttl:90,testKeys:keys});
     const result=await fetch(req,{signal:AbortSignal.timeout(8000)});
     if(result.ok)return response(204);
     if(result.status===404||result.status===410)return response(409,{error:'The browser subscription has expired. Turn notifications off and back on, then try again.'});
