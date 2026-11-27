@@ -19,3 +19,15 @@ Fuel & Flow stays on GitHub Pages. A free Cloudflare Worker with a SQLite Durabl
 One reminder per last timed, logged meal. A newer logged meal reschedules it; an earlier meal edit, Undo, deletion, or closing today's food log cancels or recalculates it. No first-meal reminder, no replay beyond ten minutes after the threshold, no alerts before 6 AM or at/after 10 PM local time. OS notification settings and push-provider delivery apply. Edits made offline need to sync before the cloud alarm can change, and this does not sync edits between devices.
 
 Requests are authenticated with a random pairing key. The server processes a random browser ID, HTTPS push address and alert time; it never receives names of foods, nutrition or the full diary. It drops the pending address after delivery, cancellation, or expiry. A short-lived sent marker avoids repeat delivery if you reopen the app. The private VAPID signing key stays in Cloudflare and your local secret backup. Do not host untrusted projects on the same GitHub Pages origin as this app.
+
+## Update an existing Worker
+
+The **Sync now** and **Test browser notification only** checks work with your existing Worker. **Send test push** also needs the updated Worker code. From the Fuel & Flow checkout you already used to deploy, run:
+
+```sh
+git pull --ff-only
+cd push-worker
+npx wrangler deploy
+```
+
+Use the same Cloudflare account and Worker name. Do not rerun the initial setup or rotate your pairing key. An ordinary deploy leaves the existing secrets and device pairing in place. Once the app and Worker are updated, tap **More → Notifications → Send test push**. The push provider accepting the test is not proof of delivery; look for the separately labeled test notification on the device. It does not change your next meal alert or diary.

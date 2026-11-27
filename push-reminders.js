@@ -54,7 +54,7 @@ const serial=fn=>{const task=tail.then(fn);tail=task.catch(()=>{});return task;}
 const setError=message=>{lastError=message;observer();};
 export function pushError(){return lastError;}
 export function onPushStatus(fn){observer=fn;}
-export function reconcilePush(getState){
+export function reconcilePush(getState,{force=false}={}){
  if(!pushSupported()||!readPushPreferences().enabled&&!readPushPreferences().cancelPending)return;
  return serial(async()=>{
   const p=readPushPreferences();
@@ -69,15 +69,15 @@ export function reconcilePush(getState){
     if(readPushPreferences().cancelPending)save({...p,cancelPending:false});lastOK='';setError('');
     return;
    }
-   if(Notification.permission!=='granted')throw Error('Allow Fuel & Flow notifications in your browser, then turn reminders on again.');
+   if(Notification.permission!=='granted')throw Error('Allow notifications for Fuel & Flow in your browser, then tap Sync now.');
    const reg=await appRegistration();
    const sub=await reg.pushManager.getSubscription();
    if(!sub)throw Error('Turn reminders off and back on to renew this browser’s subscription.');
    const gap=mealGapSchedule(getState());
    const body={endpoint:sub.endpoint,due:gap?.due??null,until:gap?.until??null};
    const sig=JSON.stringify([p.id,p.url,body]);
-   if(lastOK===sig)return;
-   await request(p,devicePath(p),'PUT',body);lastOK=sig;setError('');
+   if(!force&&lastOK===sig)return;
+   await request(p,devicePath(p),'PUT',body);lastOK=sig;setError('');return {gap};
   }catch(err){setError(navigator.onLine===false?'Not synced while offline. Reopen Fuel & Flow online to update the reminder.':err.message);}
  });
 }
@@ -112,4 +112,33 @@ export async function disablePush(){
  if(!p.id)return;
  save({...p,enabled:false,cancelPending:true});lastOK='';setError('');
  await reconcilePush(()=>({}));
+}
+
+// The browser-only check works before the optional server upgrade.
+export async function testBrowserNotification(){
+ if(!pushSupported()||Notification.permission!=='granted')throw Error('Allow notifications for Fuel & Flow in your browser first.');
+ const reg=await appRegistration();
+ await reg.showNotification('Fuel & Flow · Browser test',{
+  body:'This device can display Fuel & Flow notifications. This check does not test background push.',
+  icon:'./icons/icon-192.png',badge:'./icons/icon-192.png',tag:'fuel-and-flow-browser-test'
+ });
+}
+export function testPushDelivery(){
+ return serial(async()=>{
+  const p=readPushPreferences();
+  if(!p.enabled)throw Error('Turn on meal-gap notifications first.');
+  if(!pushSupported()||Notification.permission!=='granted')throw Error('Allow notifications for Fuel & Flow in your browser first.');
+  const reg=await appRegistration(),sub=await reg.pushManager.getSubscription();
+  if(!sub)throw Error('Turn reminders off and back on to renew this browser’s subscription.');
+  const config=await (await request(p,'/v1/config','GET')).json();
+  if(config.testPush!==true)throw Error('Update your existing Fuel & Flow Worker to enable test push. Browser test and regular reminders still work without that update.');
+  const channel=new MessageChannel();
+  const ready=await new Promise(resolve=>{
+   const timer=setTimeout(()=>resolve(false),1200);
+   channel.port1.onmessage=event=>{clearTimeout(timer);resolve(event.data?.testPush===true);};
+   reg.active.postMessage({type:'PUSH_TEST_SUPPORT'},[channel.port2]);
+  }).finally(()=>channel.port1.close());
+  if(!ready)throw Error('Reload Fuel & Flow online to activate the app update, then try again.');
+  await request(p,devicePath(p),'POST',sub.toJSON());
+ });
 }
