@@ -1,0 +1,16 @@
+name = "fuel-and-flow-gap-push"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+preview_urls = false
+
+[vars]
+APP_ORIGIN = "https://shieldss.github.io"
+
+[[durable_objects.bindings]]
+name = "REMINDERS"
+class_name = "GapReminder"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GapReminder"]
