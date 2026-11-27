@@ -89,6 +89,8 @@ test('Today quick logging preserves the plan and uses actual-log links, with dup
  await click({action:'quick-portion',date,id:meal.id});const form=element('#quick-portion-form');form.values={multiplier:'0.5'};form.onsubmit({preventDefault(){}});
  assert.equal(storage().days[date].meals[0].calories,100);
  await click({action:'quick-water',oz:'16'});assert.equal(storage().days[date].drinks[0].ounces,16);
+ assert.match(element('#app').innerHTML,/<strong class="quick-water-total">16<\/strong>/);
+ assert.match(element('#app').innerHTML,/<span class="quick-water-target">[\d,.]+<\/span>/);
  element('#toast').lastChild.onclick();assert.deepEqual(storage().days[date].drinks,[]);
  assert.equal(storage().days[date].meals.length,1);
  await click({action:'quick-water-settings'});const water=element('#quick-water-form');water.values={size0:'12',size1:'32'};water.onsubmit({preventDefault(){}});
