@@ -3,21 +3,68 @@ import {dateKey} from './core.js?v=2.22.0';
 export const PUSH_KEY='fuel-and-flow-gap-push-v1';
 const WINDOW_MS=10*60000;
 const timePattern=/^(?:[01]\d|2[0-3]):[0-5]\d$/;
-const clock=now=>String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-export function mealGapSchedule(state,now=new Date()){
- const day=state.days?.[dateKey(now)], current=clock(now);
- if(day?.complete)return null;
- let latest='';
- for(const meal of day?.meals||[])if(timePattern.test(meal.time)&&meal.time<=current&&meal.time>latest)latest=meal.time;
- if(!latest)return null;
- const [hours,minutes]=latest.split(':').map(Number);
+export const deviceTimeZone=()=>Intl.DateTimeFormat().resolvedOptions().timeZone||'device local time';
+export const formatPushTime=value=>new Intl.DateTimeFormat(undefined,{weekday:'short',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(value);
+export function mealGapDetails(state,now=new Date()){
+ const day=state.days?.[dateKey(now)];
+ if(day?.complete)return {gap:null,reason:'completed'};
+ let latest=null;
+ for(const meal of day?.meals||[]){
+  if(typeof meal?.time!=='string'||!timePattern.test(meal.time))continue;
+  const [hours,minutes]=meal.time.split(':').map(Number), candidate=new Date(now);
+  // A time duplicated at the fall DST change uses the earlier occurrence. A nonexistent time is ignored.
+  candidate.setHours(hours,minutes,0,0);
+  if(candidate.getHours()!==hours||candidate.getMinutes()!==minutes||candidate>now)continue;
+  if(latest===null||candidate>latest)latest=candidate;
+ }
+ if(latest===null)return {gap:null,reason:'no-timed-meal'};
  const quiet=new Date(now);quiet.setHours(22,0,0,0);
  const morning=new Date(now);morning.setHours(6,0,0,0);
- const last=new Date(now);last.setHours(hours,minutes,0,0);
- // Like the overview, only today's actual timed meals count; don't follow the gap overnight.
- const due=Math.max(+last+4*3600000,+morning);
+ // Add four elapsed hours, then apply the local calendar day's quiet hours.
+ const due=Math.max(+latest+4*3600000,+morning);
  const until=Math.min(due+WINDOW_MS,+quiet);
- return due<until&&+now<until?{due,until}:null;
+ if(due>=until)return {gap:null,reason:'quiet-hours'};
+ if(+now>=until)return {gap:null,reason:'window-passed'};
+ return {gap:{due,until},reason:null};
+}
+export function mealGapSchedule(state,now=new Date()){return mealGapDetails(state,now).gap;}
+const noSchedule={
+ completed:'Today’s food log is marked complete.',
+ 'no-timed-meal':'There’s no timed, eaten meal in today’s log yet.',
+ 'quiet-hours':'The four-hour gap would end at or after 10 PM.',
+ 'window-passed':'The alert window for the last meal has already passed.'
+};
+export function describePushStatus(value,label='Meal-gap alert'){
+ if(!value)return '';
+ const {status,due,alarmAt,last}=value;
+ const time=Number.isSafeInteger(due)?formatPushTime(due):'the scheduled time';
+ const lastTime=Number.isSafeInteger(last?.at)?formatPushTime(last.at):'the scheduled time';
+ const result=last?.status==='accepted'?'was accepted by the push provider (not proof it displayed on this device)':
+  last?.status==='expired'?'expired before a send could finish':
+  last?.status==='subscription-expired'?'could not be sent because the browser subscription has expired. Turn notifications off and back on':
+  last?.status==='prepare-error'?'could not be prepared by the Worker':
+  last?.status==='network-error'?'could not reach the push provider':
+  last?.status==='provider-error'?'was rejected by the provider (HTTP '+last.httpStatus+')':
+  last?.status==='retrying'?'will retry a temporary delivery error':'';
+ const previous=result?' '+label+' last attempt ('+lastTime+'): '+result+'.':'';
+ if(status==='queued'&&Number.isSafeInteger(alarmAt))return label+' queued for '+time+'.'+previous;
+ if(status==='sending')return label+' is being sent now.';
+ if(status==='accepted')return label+' for '+time+' was already accepted by the provider.';
+ if(status==='expired')return label+' for '+time+' has expired.'+previous;
+ if(status==='not-armed')return label+' was not armed. Tap Sync now to retry.'+previous;
+ return previous.trim();
+}
+export function describeReminderSync(sync){
+ if(!sync)return '';
+ return (sync.renewed?'Browser subscription restored. ':'')+describeMealSchedule(sync);
+}
+function describeMealSchedule({gap,reason,server}){
+ if(!server)return gap
+  ?'Settings synced. Local candidate: '+formatPushTime(gap.due)+'. Update the Worker to confirm the server alarm.'
+  :'Settings synced. No meal-gap alert queued. '+noSchedule[reason];
+ const details=describePushStatus(server);
+ return gap?(details||'The server did not confirm a scheduled alarm. Tap Sync now to recheck.'):
+  'No meal-gap alert queued. '+noSchedule[reason]+(details?' '+details:'');
 }
 export function pushService(value){
  let u;try{u=new URL(String(value).trim());}catch{throw Error('Enter your HTTPS workers.dev URL.');}
@@ -37,7 +84,7 @@ const save=p=>localStorage.setItem(PUSH_KEY,JSON.stringify(p));
 const devicePath=p=>'/v1/device/'+p.id;
 const id=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
 async function request(p,path,method,body){
- const response=await fetch(p.url+path,{method,cache:'no-store',redirect:'error',credentials:'omit',signal:AbortSignal.timeout(12000),
+ const response=await fetch(p.url+path,{method,cache:'no-store',redirect:'error',credentials:'omit',keepalive:method==='PUT'||method==='DELETE',signal:AbortSignal.timeout(12000),
   headers:{Authorization:'Bearer '+p.key,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
  if(!response.ok){const data=await response.json().catch(()=>({}));throw Error(data.error||'Reminder service returned '+response.status+'.');}
  return response;
@@ -49,11 +96,46 @@ function appRegistration(){
   return reg;
  });
 }
-let tail=Promise.resolve(), lastOK='', lastError='', observer=()=>{};
+function decodePublicKey(key){
+ if(!/^[A-Za-z0-9_-]{87}$/.test(key||''))throw Error('The server’s browser push key is invalid.');
+ return Uint8Array.from(atob(key.replaceAll('-','+').replaceAll('_','/')+'='),x=>x.charCodeAt(0));
+}
+function rememberPublicKey(p,publicKey){
+ const current=readPushPreferences();
+ if(current.enabled&&current.id===p.id&&current.url===p.url&&current.key===p.key&&current.publicKey!==publicKey)
+  save({...current,publicKey});
+}
+async function activeSubscription(reg,p,config=null){
+ const existing=await reg.pushManager.getSubscription();
+ if(existing)return {sub:existing,renewed:false};
+ // The browser may revoke/rotate its native subscription independently of app settings.
+ // Recover on the same app registration without touching diary, server identity or pairing.
+ const publicKey=config?.publicKey||p.publicKey||(await (await request(p,'/v1/config','GET')).json()).publicKey;
+ let sub;
+ try{sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:decodePublicKey(publicKey)});}
+ catch(e){
+  sub=await reg.pushManager.getSubscription();
+  if(!sub)throw Error('This browser did not renew its push subscription. Reload Fuel & Flow online and tap Sync now. If it still fails, turn notifications off and back on.');
+ }
+ rememberPublicKey(p,publicKey);
+ return {sub,renewed:true};
+}
+let tail=Promise.resolve(), lastOK='', lastError='', lastSync=null, observer=()=>{};
 const serial=fn=>{const task=tail.then(fn);tail=task.catch(()=>{});return task;};
 const setError=message=>{lastError=message;observer();};
 export function pushError(){return lastError;}
+export function latestPushSync(){return lastSync;}
 export function onPushStatus(fn){observer=fn;}
+function scheduleBody(sub,gap){
+ const json=sub.toJSON?.()??{}, keys=json.keys;
+ if(gap&&!keys)throw Error('This browser’s push subscription is missing encryption keys. Turn reminders off and back on.');
+ return {endpoint:sub.endpoint,due:gap?.due??null,until:gap?.until??null,...(gap?{keys}:{} )};
+}
+async function putSchedule(p,sub,details){
+ const body=scheduleBody(sub,details.gap);
+ const response=await request(p,devicePath(p),'PUT',body);
+ return {...details,server:response.status===204?null:await response.json(),syncedAt:Date.now()};
+}
 export function reconcilePush(getState,{force=false}={}){
  if(!pushSupported()||!readPushPreferences().enabled&&!readPushPreferences().cancelPending)return;
  return serial(async()=>{
@@ -64,20 +146,21 @@ export function reconcilePush(getState,{force=false}={}){
     const reg=await appRegistration();
     const subscription=await reg.pushManager.getSubscription();
     if(subscription)await subscription.unsubscribe();
-    for(const notification of await reg.getNotifications({tag:'fuel-and-flow-meal-gap'}))notification.close();
+    for(const tag of ['fuel-and-flow-meal-gap','fuel-and-flow-scheduled-test'])
+     for(const notification of await reg.getNotifications({tag}))notification.close();
     await request(p,devicePath(p),'DELETE');
-    if(readPushPreferences().cancelPending)save({...p,cancelPending:false});lastOK='';setError('');
+    if(readPushPreferences().cancelPending)save({...p,cancelPending:false});lastOK='';lastSync=null;setError('');
     return;
    }
    if(Notification.permission!=='granted')throw Error('Allow notifications for Fuel & Flow in your browser, then tap Sync now.');
    const reg=await appRegistration();
-   const sub=await reg.pushManager.getSubscription();
-   if(!sub)throw Error('Turn reminders off and back on to renew this browser’s subscription.');
-   const gap=mealGapSchedule(getState());
-   const body={endpoint:sub.endpoint,due:gap?.due??null,until:gap?.until??null};
+   const {sub,renewed}=await activeSubscription(reg,p);
+   const details=mealGapDetails(getState()),body=scheduleBody(sub,details.gap);
    const sig=JSON.stringify([p.id,p.url,body]);
-   if(!force&&lastOK===sig)return;
-   await request(p,devicePath(p),'PUT',body);lastOK=sig;setError('');return {gap};
+   if(!force&&!renewed&&!lastError&&lastOK===sig){lastSync={...lastSync,...details};return lastSync;}
+   lastSync={...(await putSchedule(p,sub,details)),renewed};
+   if(lastSync.server?.status!=='not-armed')lastOK=sig;
+   setError('');return lastSync;
   }catch(err){setError(navigator.onLine===false?'Not synced while offline. Reopen Fuel & Flow online to update the reminder.':err.message);}
  });
 }
@@ -92,25 +175,23 @@ export async function enablePush(url,key,getState){
  if(await Notification.requestPermission()!=='granted')throw Error('Notifications are blocked. Enable them for this site in browser settings.');
  await serial(async()=>{
   const config=await (await request(p,'/v1/config','GET')).json();
-  if(!/^[A-Za-z0-9_-]{87}$/.test(config.publicKey||''))throw Error('The server’s browser push key is invalid.');
-  const publicKey=Uint8Array.from(atob(config.publicKey.replaceAll('-','+').replaceAll('_','/')+'='),x=>x.charCodeAt(0));
+  const publicKey=decodePublicKey(config.publicKey);
+  p.publicKey=config.publicKey;
   const reg=await appRegistration();
   let sub=await reg.pushManager.getSubscription();
   const currentKey=new Uint8Array(sub?.options?.applicationServerKey??[]);
   if(sub&&(currentKey.length!==publicKey.length||currentKey.some((x,i)=>x!==publicKey[i]))){await sub.unsubscribe();sub=null;}
   sub||=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:publicKey});
-  const gap=mealGapSchedule(getState()), body={endpoint:sub.endpoint,due:gap?.due??null,until:gap?.until??null};
-  try {
-   await request(p,devicePath(p),'PUT',body);
-   save(p);lastOK=JSON.stringify([p.id,p.url,body]);setError('');
-  }catch(err){try{await sub.unsubscribe();}catch{};throw err;}
+  const details=mealGapDetails(getState()),body=scheduleBody(sub,details.gap);
+  lastSync=await putSchedule(p,sub,details);
+  save(p);if(lastSync.server?.status!=='not-armed')lastOK=JSON.stringify([p.id,p.url,body]);setError('');
  });
 }
 export async function disablePush(){
  if(!pushSupported())return;
  const p=readPushPreferences();
  if(!p.id)return;
- save({...p,enabled:false,cancelPending:true});lastOK='';setError('');
+ save({...p,enabled:false,cancelPending:true});lastOK='';lastSync=null;setError('');
  await reconcilePush(()=>({}));
 }
 
@@ -123,22 +204,35 @@ export async function testBrowserNotification(){
   icon:'./icons/icon-192.png',badge:'./icons/icon-192.png',tag:'fuel-and-flow-browser-test'
  });
 }
-export function testPushDelivery(){
+export function testPushDelivery({scheduled=false}={}){
  return serial(async()=>{
   const p=readPushPreferences();
   if(!p.enabled)throw Error('Turn on meal-gap notifications first.');
   if(!pushSupported()||Notification.permission!=='granted')throw Error('Allow notifications for Fuel & Flow in your browser first.');
-  const reg=await appRegistration(),sub=await reg.pushManager.getSubscription();
-  if(!sub)throw Error('Turn reminders off and back on to renew this browser’s subscription.');
+  const reg=await appRegistration();
   const config=await (await request(p,'/v1/config','GET')).json();
-  if(config.testPush!==true)throw Error('Update your existing Fuel & Flow Worker to enable test push. Browser test and regular reminders still work without that update.');
+  if(scheduled&&config.scheduledTest!==true)throw Error('Update your existing Fuel & Flow Worker to run a scheduled test.');
+  if(!scheduled&&config.testPush!==true)throw Error('Update your existing Fuel & Flow Worker to enable test push. Browser test and regular reminders still work without that update.');
   const channel=new MessageChannel();
   const ready=await new Promise(resolve=>{
    const timer=setTimeout(()=>resolve(false),1200);
-   channel.port1.onmessage=event=>{clearTimeout(timer);resolve(event.data?.testPush===true);};
+   channel.port1.onmessage=event=>{clearTimeout(timer);resolve(scheduled?event.data?.scheduledTest===true:event.data?.testPush===true);};
    reg.active.postMessage({type:'PUSH_TEST_SUPPORT'},[channel.port2]);
   }).finally(()=>channel.port1.close());
   if(!ready)throw Error('Reload Fuel & Flow online to activate the app update, then try again.');
-  await request(p,devicePath(p),'POST',sub.toJSON());
+  const {sub}=await activeSubscription(reg,p,config);
+  rememberPublicKey(p,config.publicKey);
+  const response=await request(p,devicePath(p)+(scheduled?'/scheduled-test':''),'POST',sub.toJSON());
+  return scheduled?response.json():undefined;
+ });
+}
+
+export function scheduledPushTestStatus(){
+ return serial(async()=>{
+  const p=readPushPreferences();
+  if(!p.enabled)return null;
+  const config=await (await request(p,'/v1/config','GET')).json();
+  if(config.scheduledTest!==true)return null;
+  return (await request(p,devicePath(p)+'/scheduled-test','GET')).json();
  });
 }

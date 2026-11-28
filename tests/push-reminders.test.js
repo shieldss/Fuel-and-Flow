@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {generateKeyPairSync,verify} from 'node:crypto';
-import {mealGapSchedule,pushService} from '../push-reminders.js';
+import {mealGapSchedule,mealGapDetails,deviceTimeZone,pushService,describeReminderSync,reconcilePush,testPushDelivery,PUSH_KEY,readPushPreferences} from '../push-reminders.js';
 import worker,{GapReminder,pushEndpoint,vapidRequest} from '../push-worker/worker.js';
 import {dateKey} from '../core.js';
 
@@ -123,7 +123,100 @@ test('service worker labels test and regular push separately',async()=>{
  }});
  listeners.push({data:{json:()=>({kind:'test'})},waitUntil:()=>{}});
  listeners.push({waitUntil:()=>{}});
+ listeners.push({data:{json:()=>({kind:'scheduled-test'})},waitUntil:()=>{}});
  assert.equal(shown[0].title,'Fuel & Flow · Test push');
  assert.equal(shown[0].tag,'fuel-and-flow-test-push');
  assert.equal(shown[1].tag,'fuel-and-flow-meal-gap');
+ assert.equal(shown[2].title,'Fuel & Flow · Scheduled test');
+ assert.equal(shown[2].tag,'fuel-and-flow-scheduled-test');
+ assert.equal(shown[1].renotify,true);
 });
+
+test('Eastern schedule follows DST and local calendar date while using four elapsed hours',()=>{
+ const old=process.env.TZ;
+ try{
+  process.env.TZ='America/New_York';
+  assert.equal(deviceTimeZone(),'America/New_York');
+  const state=(key,time)=>({days:{[key]:{meals:[{time}]}}});
+  const assertDue=(key,time,now,due)=>assert.equal(
+   new Date(mealGapSchedule(state(key,time),new Date(now)).due).toISOString(),due);
+  assertDue('2026-01-09','16:00','2026-01-09T22:00:00Z','2026-01-10T01:00:00.000Z');
+  assertDue('2026-07-09','16:00','2026-07-09T22:00:00Z','2026-07-10T00:00:00.000Z');
+  assertDue('2026-11-01','00:15','2026-11-01T04:16:00Z','2026-11-01T11:00:00.000Z');
+  // Fall 01:30 refers to the earlier occurrence, even at 01:15 after the clocks turn back.
+  assertDue('2026-11-01','01:30','2026-11-01T06:15:00Z','2026-11-01T11:00:00.000Z');
+  assert.equal(mealGapDetails(state('2026-03-08','02:30'),new Date('2026-03-08T08:00:00Z')).reason,'no-timed-meal');
+  assert.equal(mealGapDetails(state('2026-07-09','18:00'),new Date('2026-07-10T00:30:00Z')).reason,'quiet-hours');
+  assert.equal(mealGapDetails(state('2026-07-09','15:00'),new Date('2026-07-10T00:02:00Z')).reason,'window-passed');
+  // After midnight Eastern, yesterday’s log is not a candidate.
+  assert.equal(mealGapSchedule(state('2026-07-09','17:00'),new Date('2026-07-10T04:15:00Z')),null);
+ }finally{if(old===undefined)delete process.env.TZ;else process.env.TZ=old;}
+});
+test('relay can arm a valid same-day morning alert more than five hours away',async()=>{
+ let received;
+ const REMINDERS={idFromName:id=>id,get:()=>({fetch:async(_,opts)=>{
+  received=JSON.parse(opts.body);return Response.json({status:'queued',alarmAt:received.due,due:received.due});
+ }})};
+ const now=Date.now(), due=now+7*3600000;
+ const result=await worker.fetch(new Request('https://relay.example/v1/device/'+'1'.repeat(32),{
+  method:'PUT',headers:{Origin:env.APP_ORIGIN,Authorization:'Bearer '+env.PAIRING_KEY},
+  body:JSON.stringify({endpoint,due,until:due+600000})
+ }),{...env,REMINDERS});
+ assert.equal(result.status,200);
+ assert.deepEqual(await result.json(),{status:'queued',alarmAt:due,due});
+ assert.equal(received.due,due);
+});
+test('Sync renews a vanished native subscription after successful instant test, keeps pairing and queues encrypted schedule',async(t)=>{
+ t.mock.timers.enable({apis:['Date'],now:+tDate()});
+ const endpointB=endpoint+'-renewed';
+ const keys={p256dh:'B'+ 'A'.repeat(86),auth:'Y'.repeat(22)};
+ const prefs={enabled:true,url:'https://relay.example.workers.dev',id:'c'.repeat(32),key:env.PAIRING_KEY};
+ const store=new Map([[PUSH_KEY,JSON.stringify(prefs)]]),calls=[];
+ let sub=null, renewals=0;
+ const makeSub=endpoint=>({endpoint,toJSON:()=>({endpoint,keys})});
+ sub=makeSub(endpoint);
+ const original=Object.fromEntries(['navigator','Notification','PushManager','isSecureContext','location','localStorage','fetch']
+  .map(k=>[k,Object.getOwnPropertyDescriptor(globalThis,k)]));
+ const reg={scope:'https://shieldss.github.io/Fuel-and-Flow/',active:{postMessage(_data,[port]){port.postMessage({testPush:true,scheduledTest:true});port.close();}},
+  pushManager:{getSubscription:async()=>sub,subscribe:async options=>{
+   renewals++;assert.equal(options.userVisibleOnly,true);assert.equal(options.applicationServerKey.length,65);
+   sub=makeSub(endpointB);return sub;
+  }}};
+ const put=(key,value)=>Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});
+ put('navigator',{onLine:true,serviceWorker:{getRegistration:async scope=>{assert.equal(scope,reg.scope);return reg;}}});
+ put('Notification',{permission:'granted',requestPermission(){throw Error('Unexpected permission prompt');}});
+ put('PushManager',class {});
+ put('isSecureContext',true);
+ put('location',{href:reg.scope+'#settings/notifications'});
+ put('localStorage',{getItem:key=>store.get(key),setItem:(key,value)=>store.set(key,value)});
+ put('fetch',async(url,options)=>{
+  const body=options.body?JSON.parse(options.body):null;
+  calls.push({url,method:options.method,body});
+  if(url.endsWith('/v1/config'))return Response.json({publicKey:env.VAPID_PUBLIC_KEY,testPush:true,scheduledTest:true});
+  if(options.method==='POST')return new Response(null,{status:204});
+  return Response.json({status:'queued',alarmAt:body.due,due:body.due,last:null});
+ });
+ try{
+  await testPushDelivery();
+  assert.equal(renewals,0);
+  assert.equal(calls.at(-1).body.endpoint,endpoint);
+  sub=null; // Browser drops its native subscription, not our stored consent or settings.
+  const state=day(['11:00']), baseline=structuredClone(state);
+  const result=await reconcilePush(()=>state,{force:true});
+  assert.equal(renewals,1);
+  assert.equal(result.server.status,'queued');
+  assert.match(describeReminderSync(result),/Browser subscription restored.*queued for/);
+  assert.deepEqual(calls.at(-1).body,{endpoint:endpointB,keys,due:+new Date(2026,10,27,15),until:+new Date(2026,10,27,15,10)});
+  assert.deepEqual(readPushPreferences(),{...prefs,publicKey:env.VAPID_PUBLIC_KEY});
+  assert.deepEqual(state,baseline);
+  // Renewing does not require a fresh browser permission prompt or erase local food.
+  const before=calls.length;
+  await reconcilePush(()=>state);
+  assert.equal(calls.length,before);
+ }finally{
+  for(const [key,descriptor] of Object.entries(original)){
+   if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
+  }
+ }
+});
+function tDate(){return new Date(2026,10,27,12);}

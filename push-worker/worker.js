@@ -1,6 +1,9 @@
-// Meal alerts are payload-free; tests carry an encrypted generic marker. No food names, meal records, or account identifiers are collected.
+// Alerts carry only encrypted generic markers. No food names, meal records, or account identifiers are collected.
 const enc=new TextEncoder();
 const LIMIT=10*60*1000;
+const TEST_DELAY=60000;
+const TEST_LIFETIME=5*60000;
+const TOPICS={test:'fuel-and-flow-test','scheduled-test':'fuel-flow-scheduled-test','meal-gap':'fuel-and-flow-gap'};
 const b64=bytes=>btoa(String.fromCharCode(...new Uint8Array(bytes))).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
 const jwtPart=v=>b64(enc.encode(JSON.stringify(v)));
 
@@ -40,16 +43,21 @@ export async function encodePush(keys,payload){
  const recordSize=new Uint8Array(4);new DataView(recordSize.buffer).setUint32(0,4096);
  return join(salt,recordSize,Uint8Array.of(as.length),as,cipher);
 }
-export async function vapidRequest(endpoint,env,{now=Date.now(),ttl=90,testKeys=null}={}){
+export async function vapidRequest(endpoint,env,{now=Date.now(),ttl=90,testKeys=null,keys=testKeys,kind=testKeys?'test':'meal-gap'}={}){
  const u=pushEndpoint(endpoint);
  const key=await crypto.subtle.importKey('jwk',JSON.parse(env.VAPID_PRIVATE_JWK),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
  const jwt=jwtPart({typ:'JWT',alg:'ES256'})+'.'+jwtPart({aud:u.origin,exp:Math.floor(now/1000)+12*3600,sub:env.VAPID_SUBJECT});
  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc.encode(jwt));
  // Workers reject redirect:'error' at construction; manual prevents forwarding VAPID credentials.
  return new Request(u,{method:'POST',redirect:'manual',headers:{
-  Authorization:'vapid t='+jwt+'.'+b64(sig)+', k='+env.VAPID_PUBLIC_KEY,TTL:String(ttl),Urgency:'normal',Topic:testKeys?'fuel-and-flow-test':'fuel-and-flow-gap',
-  ...(testKeys?{'Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'}:{})
- },body:testKeys?await encodePush(testKeys,{kind:'test'}):undefined});
+  Authorization:'vapid t='+jwt+'.'+b64(sig)+', k='+env.VAPID_PUBLIC_KEY,TTL:String(ttl),Urgency:kind==='test'?'normal':'high',Topic:TOPICS[kind],
+  ...(keys?{'Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'}:{})
+ },body:keys?await encodePush(keys,{kind}):undefined});
+}
+function subscriptionKeys(keys){
+ if(!/^[A-Za-z0-9_-]{87}$/.test(keys?.p256dh||'')||!/^[A-Za-z0-9_-]{22}$/.test(keys?.auth||'')||unb64(keys.p256dh)[0]!==4)
+  throw Error('Invalid subscription keys.');
+ return {p256dh:keys.p256dh,auth:keys.auth};
 }
 function response(status,body){return body===undefined?new Response(null,{status}):Response.json(body,{status});}
 function cors(r,origin){
@@ -58,6 +66,7 @@ function cors(r,origin){
  out.headers.set('Access-Control-Allow-Methods','GET, PUT, POST, DELETE, OPTIONS');
  out.headers.set('Access-Control-Allow-Headers','Authorization, Content-Type');
  out.headers.set('Cache-Control','no-store');
+ out.headers.set('Access-Control-Max-Age','600');
  out.headers.set('Vary','Origin');
  return out;
 }
@@ -69,12 +78,22 @@ export default {
   if(request.method==='OPTIONS')return reply(204);
   if(!authorized(request,env.PAIRING_KEY))return reply(401,{error:'Check the pairing key.'});
   if(!/^[A-Za-z0-9_-]{87}$/.test(env.VAPID_PUBLIC_KEY||'')||!env.VAPID_PRIVATE_JWK||!/^mailto:[^\s@]+@[^\s@]+$/.test(env.VAPID_SUBJECT||''))return reply(503,{error:'The reminder service is not fully configured.'});
-  if(path==='/v1/config'&&request.method==='GET')return reply(200,{publicKey:env.VAPID_PUBLIC_KEY,testPush:true});
-  const match=/^\/v1\/device\/([0-9a-f]{32})$/.exec(path);
-  if(!match||!['PUT','POST','DELETE'].includes(request.method))return reply(404);
-  const stub=env.REMINDERS.get(env.REMINDERS.idFromName(match[1]));
-  if(request.method==='DELETE')return cors(await stub.fetch('https://internal/cancel',{method:'DELETE'}),origin);
+  if(path==='/v1/config'&&request.method==='GET')return reply(200,{publicKey:env.VAPID_PUBLIC_KEY,testPush:true,scheduledTest:true});
+  const match=/^\/v1\/device\/([0-9a-f]{32})(\/scheduled-test)?$/.exec(path);
+  if(!match)return reply(404);
+  const diagnostic=Boolean(match[2]);
+  if(!(diagnostic?['GET','POST']:['PUT','POST','DELETE']).includes(request.method))return reply(404);
+  const stubFor=name=>env.REMINDERS.get(env.REMINDERS.idFromName(name));
+  const stub=stubFor(diagnostic?match[1]+':scheduled-test':match[1]);
+  if(request.method==='GET')return cors(await stub.fetch('https://internal/status'),origin);
+  if(request.method==='DELETE'){
+   const cancel=target=>target.fetch('https://internal/cancel',{method:'DELETE'});
+   const results=await Promise.allSettled([cancel(stub),cancel(stubFor(match[1]+':scheduled-test'))]);
+   return results.every(result=>result.status==='fulfilled'&&result.value.ok)?reply(204):
+    reply(503,{error:'One alarm could not be cleared. Reopen online to try again.'});
+  }
   // Read at most 4 KiB even when Content-Length is missing.
+  let forward;
   try{
    if(!request.body)return reply(400,{error:'Missing schedule.'});
    const reader=request.body.getReader(), chunks=[];let n=0;
@@ -83,26 +102,51 @@ export default {
    const data=JSON.parse(new TextDecoder().decode(bytes));const now=Date.now();
    const endpoint=pushEndpoint(data.endpoint).href;
    if(request.method==='POST'){
-    const keys=data.keys||{};
-    if(!/^[A-Za-z0-9_-]{87}$/.test(keys.p256dh||'')||!/^[A-Za-z0-9_-]{22}$/.test(keys.auth||'')||unb64(keys.p256dh)[0]!==4)
-     return reply(400,{error:'Invalid test subscription keys.'});
-    return cors(await stub.fetch('https://internal/test',{method:'POST',body:JSON.stringify({endpoint,keys:{p256dh:keys.p256dh,auth:keys.auth}})}),origin);
+    let keys;try{keys=subscriptionKeys(data.keys);}catch{return reply(400,{error:'Invalid browser subscription keys.'});}
+    const route=diagnostic?'https://internal/scheduled-test':'https://internal/test';
+    forward=[route,{method:'POST',body:JSON.stringify({endpoint,keys})}];
+   }else{
+    // A midnight meal is quiet until 06:00; the local interval can span seven actual hours on fall-back day.
+    if(data.due!==null&&(!Number.isSafeInteger(data.due)||data.due<now-LIMIT||data.due>now+8*3600000||!Number.isSafeInteger(data.until)||data.until<=data.due||data.until-data.due>LIMIT))return reply(400,{error:'Invalid reminder time. Check your device clock.'});
+    const keys=data.due!==null&&data.keys!=null?subscriptionKeys(data.keys):null;
+    forward=['https://internal/schedule',{method:'PUT',body:JSON.stringify({endpoint,due:data.due,until:data.due===null?null:data.until,...(keys?{keys}:{})})}];
    }
-   if(data.due!==null&&(!Number.isSafeInteger(data.due)||data.due<now-LIMIT||data.due>now+5*3600000||!Number.isSafeInteger(data.until)||data.until<=data.due||data.until-data.due>LIMIT))return reply(400,{error:'Invalid reminder time. Check your device clock.'});
-   return cors(await stub.fetch('https://internal/schedule',{method:'PUT',body:JSON.stringify({endpoint,due:data.due,until:data.due===null?null:data.until})}),origin);
   }catch{return reply(400,{error:'Invalid browser push subscription or reminder time.'});}
+  try{return cors(await stub.fetch(...forward),origin);}
+  catch{return reply(503,{error:'The Worker could not access its alarm storage. Try Sync now again.'});}
  }
 };
 
 export class GapReminder{
- constructor(ctx,env){this.storage=ctx.storage;this.env=env;}
+ constructor(ctx,env){this.storage=ctx.storage;this.env=env;this.inFlight=null;}
+ async status(){
+  const job=await this.storage.get('job');
+  const last=await this.storage.get('last');
+  if(!job)return {status:'idle',last:last??null};
+  const alarmAt=await this.storage.getAlarm();
+  const sending=this.inFlight?.id===job.id&&this.inFlight?.due===job.due;
+  return {status:alarmAt!=null?'queued':sending?'sending':'not-armed',due:job.due,alarmAt:alarmAt??null,last:last??null};
+ }
+ async arm(job){
+  const stored={...job,id:crypto.randomUUID()};
+  await this.storage.put('job',stored);
+  await this.storage.setAlarm(Math.max(job.due,Date.now()));
+  return response(200,await this.status());
+ }
  async fetch(request){
+  if(request.method==='GET')return response(200,await this.status());
   if(request.method==='DELETE'){
    await this.storage.deleteAlarm();await this.storage.deleteAll();return response(204);
   }
   if(request.method==='POST'){
    const {endpoint,keys}=await request.json();
    const now=Date.now();
+   if(new URL(request.url).pathname==='/scheduled-test'){
+    if((await this.storage.get('job'))?.until>now||(await this.storage.get('testAfter')||0)>now)
+     return response(429,{error:'A scheduled test is already pending. Wait for it, then tap Sync now.'});
+    await this.storage.put('testAfter',now+TEST_DELAY);
+    return this.arm({endpoint,keys,kind:'scheduled-test',due:now+TEST_DELAY,until:now+TEST_DELAY+TEST_LIFETIME});
+   }
    if((await this.storage.get('testAfter')||0)>now)return response(429,{error:'Wait 30 seconds between test pushes.'});
    await this.storage.put('testAfter',now+30000);
    let req;
@@ -117,31 +161,68 @@ export class GapReminder{
   }
   const job=await request.json();
   const old=await this.storage.get('job'), sent=await this.storage.get('sent');
-  if(job.due===null||sent?.[String(job.due)]&&sent[String(job.due)]>Date.now()){
-   await this.storage.deleteAlarm();await this.storage.delete('job');return response(204);
+  if(job.due===null||sent?.[String(job.due)]>Date.now()){
+   await this.storage.deleteAlarm();await this.storage.delete('job');
+   const current=await this.status();
+   return response(200,job.due===null?current:{...current,status:'accepted',due:job.due});
   }
-  if(old?.endpoint===job.endpoint&&old.due===job.due&&old.until===job.until&&await this.storage.getAlarm())return response(204);
-  await this.storage.put('job',job);
-  await this.storage.setAlarm(Math.max(job.due,Date.now()));
-  return response(204);
+  if(job.until<=Date.now()){
+   await this.storage.deleteAlarm();await this.storage.delete('job');
+   return response(200,{status:'expired',due:job.due,last:(await this.storage.get('last'))??null});
+  }
+  if(old?.endpoint===job.endpoint&&old.due===job.due&&old.until===job.until&&old.keys?.auth===job.keys?.auth&&old.keys?.p256dh===job.keys?.p256dh){
+   const current=await this.status();
+   if(current.status!=='not-armed')return response(200,current);
+  }
+  return this.arm(job);
  }
- async alarm(){
+ async alarm(info={}){
   const job=await this.storage.get('job');if(!job)return;
   const now=Date.now();
   if(now<job.due){await this.storage.setAlarm(job.due);return;}
-  if(now>=job.until){await this.storage.delete('job');return;}
-  const req=await vapidRequest(job.endpoint,this.env,{ttl:Math.max(1,Math.min(120,Math.floor((job.until-now)/1000)))});
-  const res=await fetch(req);
-  // An HTTP request can change the schedule while the push network call is pending.
+  if(now>=job.until){
+   await this.storage.put('last',{status:'expired',due:job.due,at:now});
+   await this.storage.delete('job');return;
+  }
+  this.inFlight=job;
+  try{
+   let req, result;
+   try{req=await vapidRequest(job.endpoint,this.env,{
+    now, ttl:Math.max(1,Math.floor((job.until-now)/1000)), keys:job.keys??null,kind:job.kind??'meal-gap'
+   });}
+   catch{return await this.finish(job,'prepare-error',now);}
+   if(!await this.isCurrent(job))return;
+   try{result=await fetch(req,{signal:AbortSignal.timeout(8000)});}
+   catch{
+    if(!await this.isCurrent(job))return;
+    await this.storage.put('last',{status:'retrying',due:job.due,at:now});
+    if(info.retryCount>=6)return await this.finish(job,'network-error',now);
+    throw Error('Push provider temporarily unreachable.');
+   }
+   if(!await this.isCurrent(job))return;
+   if(result.ok){
+    if(job.kind!=='scheduled-test'){
+     const previous=await this.storage.get('sent')||{};
+     const recent=Object.fromEntries(Object.entries(previous).filter(([,expires])=>expires>now));
+     recent[job.due]=now+24*3600000;
+     await this.storage.put('sent',recent);
+    }
+    return await this.finish(job,'accepted',now,result.status);
+   }
+   if((result.status===429||result.status>=500)&&!(info.retryCount>=6)){
+    await this.storage.put('last',{status:'retrying',due:job.due,at:now,httpStatus:result.status});
+    throw Error('Push temporarily unavailable.');
+   }
+   return await this.finish(job,[404,410].includes(result.status)?'subscription-expired':'provider-error',now,result.status);
+  }finally{this.inFlight=null;}
+ }
+ async isCurrent(job){
   const current=await this.storage.get('job');
-  if(current?.due!==job.due||current?.endpoint!==job.endpoint)return;
-  if(res.ok){
-   const previous=await this.storage.get('sent')||{};
-   const recent=Object.fromEntries(Object.entries(previous).filter(([,expires])=>expires>now));
-   recent[job.due]=now+24*3600000;
-   await this.storage.put('sent',recent);
-  }else if(res.status===429||res.status>=500)throw Error('Push temporarily unavailable.');
-  // Invalid or revoked endpoint, or successfully sent: stop and drop the saved endpoint.
+  return current!=null&&current.id===job.id&&current.due===job.due&&current.endpoint===job.endpoint;
+ }
+ async finish(job,status,at,httpStatus){
+  if(!await this.isCurrent(job))return;
+  await this.storage.put('last',{status,due:job.due,at,...(httpStatus!=null?{httpStatus}:{})});
   await this.storage.delete('job');
  }
 }
