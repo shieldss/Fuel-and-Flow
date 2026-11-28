@@ -374,3 +374,7 @@ Appearance offers Atkinson Hyperlegible, Manrope, Source Serif 4 and System Sans
 Choose **Cards** in Appearance for a mint-to-blue gradient, folder-tab panels throughout the app, colorful nutrition tiles and circular navigation. The app keeps its usual controls, supports custom colors and fonts, and works offline.
 
 Appearance also includes curated **iOS** and **Material You** base swatches. Pick a swatch to generate related accent suggestions, or use the freeform picker to set either color.
+
+## v2.24.13 — Scheduled push verification
+
+Notifications shows the device time zone and the Worker-confirmed alarm instead of only an on-device estimate. Sync can recover a missing browser subscription using the current pairing. Meal reminders and the separate **Test in 1 minute** use encrypted, generic push messages, with no meal records sent. The instant test and real meal rules still work independently. Redeploy the existing Worker without rotating its keys, then reopen the app online and tap **Sync now**. See [Worker setup and verification](push-worker/README.md).

@@ -1,9 +1,10 @@
-import {GapReminder,vapidRequest} from './worker.js';
+import relay,{GapReminder,vapidRequest} from './worker.js';
 
 const base64url=value=>btoa(String.fromCharCode(...new Uint8Array(value)))
  .replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+export {GapReminder};
 export default {
- async test(){
+ async test(_controller,runtime){
   const signer=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
   const env={
    VAPID_PRIVATE_JWK:JSON.stringify(await crypto.subtle.exportKey('jwk',signer.privateKey)),
@@ -42,5 +43,45 @@ export default {
   if(d.data.has('job')||!d.data.get('sent')?.[due])throw Error('Meal alert was not sent.');
   const redirected=await test(device().instance,endpoint+'-redirect');
   if(redirected.status!==502||!(await redirected.text()).includes('HTTP 302'))throw Error('Provider redirect must not be followed.');
+  // Exercise the actual SQLite Durable Object and an autonomous alarm (not a direct alarm() call).
+  const scope='https://relay.example/v1/device/'+'a'.repeat(32);
+  const live=(path,method,body)=>relay.fetch(new Request(scope+path,{
+   method,headers:{Authorization:'Bearer '+runtime.PAIRING_KEY,Origin:runtime.APP_ORIGIN},
+   ...(body?{body:JSON.stringify(body)}:{})
+  }),runtime);
+  const get=async(path,method,body)=>{
+   const res=await live(path,method,body);
+   if(!res.ok)throw Error('Relay returned '+res.status+': '+await res.text());
+   return res.json();
+  };
+  const begin=Date.now();
+  const realDue=begin+3500;
+  const realEndpoint='https://fcm.googleapis.com/fcm/send/real-alarm';
+  const realJob={endpoint:realEndpoint,keys:testKeys,due:realDue,until:realDue+120000};
+  const normal=await get('','PUT',realJob);
+  if(normal.status!=='queued'||normal.alarmAt!==realDue)throw Error('Expected real DO alarm timestamp.');
+  const diagnosticAlarm=await get('/scheduled-test','POST',{endpoint:realEndpoint,keys:testKeys});
+  if(diagnosticAlarm.status!=='queued'||diagnosticAlarm.due-begin<60000)
+   throw Error('Expected isolated scheduled test to have its own alarm.');
+  await scheduler.wait(5000);
+  const acceptedNormal=await get('','PUT',realJob);
+  if(acceptedNormal.status!=='accepted'||acceptedNormal.last?.httpStatus!==201||acceptedNormal.last.at<realDue)
+   throw Error('Expected normal alarm to run autonomously; got '+JSON.stringify(acceptedNormal));
+  const stillQueued=await get('/scheduled-test','GET');
+  if(stillQueued.status!=='queued'||stillQueued.alarmAt!==diagnosticAlarm.due)
+   throw Error('Normal reminder disturbed the diagnostic alarm.');
+  await scheduler.wait(Math.max(0,diagnosticAlarm.due-Date.now()+2000));
+  const after=await get('/scheduled-test','GET');
+  if(after.status!=='idle'||after.last?.status!=='accepted'||after.last?.httpStatus!==201||after.last.at<diagnosticAlarm.due)
+   throw Error('Expected diagnostic alarm to run autonomously; got '+JSON.stringify(after));
+  const acceptedAgain=await get('','PUT',realJob);
+  if(acceptedAgain.status!=='accepted'||acceptedAgain.last?.at!==acceptedNormal.last?.at)
+   throw Error('Scheduling or checking a diagnostic changed regular reminder history.');
+  const nextDue=Date.now()+3600000;
+  await get('','PUT',{endpoint:realEndpoint,keys:testKeys,due:nextDue,until:nextDue+30000});
+  const cancelled=await live('','DELETE');
+  if(cancelled.status!==204||(await get('/scheduled-test','GET')).last!==null)
+   throw Error('Turning reminders off must clear both durable object schedules.');
+
  }
 };
